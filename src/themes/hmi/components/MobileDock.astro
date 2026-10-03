@@ -1,0 +1,71 @@
+---
+/**
+ * 手機版底部常駐聯絡列：撥打電話、地圖路線、Email。桌機不顯示。
+ */
+import Glyph from './Glyph.astro';
+import { company, links } from '../../../data/company';
+---
+
+<nav class="dock" aria-label="快速聯絡">
+  <a class="key key--call" href={links.tel}>
+    <Glyph name="phone" />
+    <span>撥打 <span class="mono">{company.contact.phone}</span></span>
+  </a>
+  <a class="key" href={links.directions} target="_blank" rel="noopener">
+    <Glyph name="route" />
+    <span>路線</span>
+  </a>
+  <a class="key" href={links.mailto}>
+    <Glyph name="mail" />
+    <span>Email</span>
+  </a>
+</nav>
+
+<style>
+  .dock {
+    display: none;
+  }
+  @media (max-width: 860px) {
+    .dock {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      display: grid;
+      grid-template-columns: 1.9fr 1fr 1fr;
+      gap: 1px;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: var(--hmi-line);
+      border-top: 1px solid var(--hmi-line);
+    }
+  }
+  .key {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 60px;
+    background: var(--hmi-panel);
+    color: var(--hmi-text);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .key:active {
+    background: var(--hmi-panel-2);
+  }
+  .key--call {
+    background: var(--hmi-yellow);
+    color: var(--hmi-yellow-ink);
+    font-weight: 700;
+  }
+  .key--call:active {
+    background: var(--hmi-yellow-hover);
+  }
+  @media (max-width: 360px) {
+    .key--call .mono {
+      display: none;
+    }
+  }
+</style>

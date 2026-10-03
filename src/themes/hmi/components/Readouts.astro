@@ -1,0 +1,76 @@
+---
+/**
+ * 讀數格：一組「標籤＋大數值＋單位」，用在內頁頂部右側。
+ * 用法：<Readouts items={[{ label: '開始營運', value: '1995' }]} />
+ */
+interface Item {
+  label: string;
+  value: string;
+  unit?: string;
+  /** 顯示綠色狀態燈 */
+  live?: boolean;
+}
+
+interface Props {
+  items: Item[];
+}
+
+const { items } = Astro.props;
+---
+
+<dl class="readouts">
+  {
+    items.map((item) => (
+      <div class="ro">
+        <dt>{item.label}</dt>
+        <dd>
+          <span class="value display">{item.value}</span>
+          {item.unit && (
+            <span class="unit">
+              {item.live && <span class="led" />}
+              {item.unit}
+            </span>
+          )}
+        </dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .readouts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--hmi-line);
+    border: 1px solid var(--hmi-line);
+  }
+  .ro {
+    padding: 14px 18px;
+    background: var(--hmi-screen);
+  }
+  dt {
+    font-size: 0.8125rem;
+    color: var(--hmi-muted);
+  }
+  dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+  }
+  .value {
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--hmi-yellow);
+    font-variant-numeric: tabular-nums;
+  }
+  .unit {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.875rem;
+    color: var(--hmi-text-2);
+  }
+</style>

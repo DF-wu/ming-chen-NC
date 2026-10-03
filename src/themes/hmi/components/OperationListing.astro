@@ -1,0 +1,173 @@
+---
+/**
+ * 合作流程：以 CNC 程式的單節（N10、N20…）呈現，最後以 M30（程式結束）收尾。
+ * 內容來自 src/data/services.ts 的 processSteps。
+ */
+import { processSteps } from '../../../data/services';
+import { company, links } from '../../../data/company';
+---
+
+<section class="hmi-section">
+  <div class="hmi-wrap split">
+    <div class="copy reveal">
+      <h2>從圖面到交貨</h2>
+      <p>流程簡單清楚。歡迎直接來電，或把圖面傳真、寄 Email 給我們詢價。</p>
+      <dl class="quick">
+        <div>
+          <dt>電話</dt>
+          <dd><a class="mono" href={links.tel}>{company.contact.phone}</a></dd>
+        </div>
+        <div>
+          <dt>傳真</dt>
+          <dd class="mono">{company.contact.fax}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="hmi-panel program reveal" style="--reveal-delay: 0.1s">
+      <header class="hmi-titlebar">
+        <h2>合作流程</h2>
+        <span class="tb-en">OPERATION</span>
+        <span class="tb-right">{processSteps.length} 單節</span>
+      </header>
+      <ol class="blocks">
+        {
+          processSteps.map((step, i) => (
+            <li class="block">
+              <span class="n mono">N{(i + 1) * 10}</span>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </li>
+          ))
+        }
+        <li class="block block--end">
+          <span class="n mono">M30</span>
+          <p>
+            程式結束 ・ 歡迎來電 <a class="mono" href={links.tel}>{company.contact.phone}</a><span class="caret" aria-hidden="true"></span>
+          </p>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: start;
+  }
+
+  .copy h2 {
+    font-size: clamp(1.75rem, 3vw, 2.375rem);
+  }
+  .copy > p {
+    margin-top: 14px;
+    font-size: 1.0625rem;
+  }
+  .quick {
+    margin-top: 28px;
+    border-top: 1px solid var(--hmi-line);
+  }
+  .quick div {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    align-items: baseline;
+    padding-block: 12px;
+    border-bottom: 1px solid var(--hmi-line);
+  }
+  .quick dt {
+    font-size: 0.875rem;
+    color: var(--hmi-muted);
+  }
+  .quick dd {
+    font-size: 1.375rem;
+    font-weight: 500;
+    color: var(--hmi-text);
+  }
+  .quick a {
+    color: var(--hmi-yellow);
+    text-decoration: none;
+  }
+  .quick a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .program {
+    background: var(--hmi-screen);
+    border: 1px solid var(--hmi-line);
+  }
+  .blocks {
+    padding-block: 8px;
+  }
+  .block {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 190px) minmax(0, 1fr);
+    gap: 16px;
+    align-items: baseline;
+    padding: 14px 24px;
+  }
+  .block + .block {
+    border-top: 1px dashed #262b30;
+  }
+  .n {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--hmi-yellow);
+  }
+  .block h3 {
+    font-size: 1.0625rem;
+  }
+  .block p {
+    color: var(--hmi-text-2);
+  }
+  .block--end p {
+    grid-column: 2 / -1;
+    color: var(--hmi-muted);
+  }
+  .block--end a {
+    color: var(--hmi-text);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .block--end a:hover {
+    color: var(--hmi-yellow);
+  }
+  /* 閃爍游標 */
+  .caret {
+    display: inline-block;
+    width: 9px;
+    height: 1.1em;
+    margin-left: 6px;
+    vertical-align: -0.2em;
+    background: var(--hmi-yellow);
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .split {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .block {
+      grid-template-columns: 52px 1fr;
+      gap: 4px 12px;
+      padding: 14px 16px;
+    }
+    .block p {
+      grid-column: 2;
+      font-size: 0.9375rem;
+    }
+    .block--end p {
+      grid-column: 2;
+    }
+  }
+</style>

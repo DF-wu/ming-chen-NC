@@ -1,0 +1,664 @@
+---
+/**
+ * 首頁主視覺：整個區塊是一台 CNC 控制器的畫面。
+ * - 上方狀態列、左側標題文字
+ * - 中央「加工模擬」：線切割沿齒輪輪廓走刀（Canvas 動畫）
+ * - 右側座標讀數（DRO）與 G-code 程式捲動
+ * - 下方軟體鍵＝實際的快捷連結
+ * 沒有 JavaScript 或偏好減少動態時，顯示完整的靜態加工路徑。
+ * 圖中的尺寸、座標、程式碼皆為示意，不代表實際加工規格。
+ */
+import Glyph from './Glyph.astro';
+import { gearPath } from '../../../utils/gear';
+import { company, links } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+
+// 模擬畫面座標（viewBox 560 × 440）
+const VW = 560;
+const VH = 440;
+const gear = { cx: 258, cy: 220, outer: 150, root: 128, teeth: 18 };
+const hole = { x: gear.cx + gear.outer + 62, y: gear.cy }; // 穿線孔
+const cutPath = gearPath(gear, hole);
+const outline = gearPath(gear);
+
+// 中心軸孔與鍵槽
+const bore = 36;
+const key = { half: 8, depth: 47 };
+const keyY = Math.sqrt(bore ** 2 - key.half ** 2);
+const borePath = [
+  `M ${gear.cx - key.half} ${gear.cy - keyY}`,
+  `L ${gear.cx - key.half} ${gear.cy - key.depth}`,
+  `L ${gear.cx + key.half} ${gear.cy - key.depth}`,
+  `L ${gear.cx + key.half} ${gear.cy - keyY}`,
+  `A ${bore} ${bore} 0 1 1 ${gear.cx - key.half} ${gear.cy - keyY}`,
+].join(' ');
+
+// 螢幕格線（每 20 單位一格）與上緣刻度
+const grid: string[] = [];
+for (let x = 20; x < VW; x += 20) grid.push(`M ${x} 0 V ${VH}`);
+for (let y = 20; y < VH; y += 20) grid.push(`M 0 ${y} H ${VW}`);
+const ticks: string[] = [];
+for (let x = 0; x <= VW; x += 10) ticks.push(`M ${x} 0 V ${x % 50 === 0 ? 9 : 4}`);
+
+// 座標讀數：齒頂圓半徑對應 24 mm（示意比例）
+const mm = (v: number) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(3);
+const k = 24 / gear.outer;
+const startX = mm((hole.x - gear.cx) * k);
+const startY = mm(0);
+
+// 靜態（無動畫）時顯示的程式片段
+const gcode = ['O1995 (GEAR Z18)', `G92 X${startX} Y${startY}`, 'G41 D01', 'G01 X+24.000 Y+0.000', 'G02 …', 'M30'];
+---
+
+<section class="hero">
+  <div class="hmi-wrap">
+    <div class="console">
+      <!-- 畫面狀態列 -->
+      <div class="c-status">
+        <span class="mode">自動</span>
+        <span class="mono">O1995</span>
+        <span class="state"><span class="led"></span>{company.factory.status}</span>
+        <span class="c-status-right">WIRE EDM ・ 加工模擬</span>
+      </div>
+
+      <div class="c-body">
+        <!-- 標題 -->
+        <div class="intro">
+          <p class="who">{company.name}</p>
+          <h1>精密線切割，<br />自 {company.foundedYear} 年<br />持續運轉。</h1>
+          <p class="lead">
+            位於{company.contact.city}{company.contact.district}，以 CNC 線切割為核心技術，承接模具零件、夾具、治具與各式精密機械零件加工。
+          </p>
+        </div>
+
+        <!-- 加工模擬 -->
+        <figure
+          class="screen"
+          data-hmi-sim
+          data-cx={gear.cx}
+          data-cy={gear.cy}
+          data-outer={gear.outer}
+          data-vw={VW}
+          aria-label="線切割加工模擬示意：線電極沿齒輪輪廓切割">
+          <svg viewBox={`0 0 ${VW} ${VH}`} aria-hidden="true">
+            <path d={grid.join(' ')} class="s-grid"></path>
+            <path d={ticks.join(' ')} class="s-ticks"></path>
+            <path
+              d={`M ${gear.cx - gear.outer - 24} ${gear.cy} H ${gear.cx + gear.outer + 24} M ${gear.cx} ${gear.cy - gear.outer - 24} V ${gear.cy + gear.outer + 24}`}
+              class="s-center"></path>
+            <path d={outline} class="s-outline"></path>
+            <path d={borePath} class="s-bore"></path>
+            <path d={cutPath} class="static-cut"></path>
+            <circle cx={hole.x} cy={hole.y} r="5" class="s-hole"></circle>
+
+            <!-- 座標軸示意 -->
+            <g class="s-axis">
+              <path d="M 28 412 H 66 M 60 407 L 66 412 L 60 417 M 28 412 V 374 M 23 380 L 28 374 L 33 380"></path>
+              <text x="70" y="416">X</text>
+              <text x="24" y="368">Y</text>
+            </g>
+            <text x="16" y="28" class="s-label">加工模擬（示意）</text>
+            <text x={VW - 16} y={VH - 18} class="s-label" text-anchor="end">Z18 ・ Ø48.000</text>
+          </svg>
+          <canvas aria-hidden="true"></canvas>
+        </figure>
+
+        <!-- 座標讀數 -->
+        <aside class="dro" data-hmi-dro aria-label="座標讀數（示意）">
+          <div class="dro-head">
+            <span>位置</span>
+            <span class="mono">ABS ・ mm</span>
+          </div>
+          <dl class="axes">
+            <div class="axis">
+              <dt>X</dt>
+              <dd class="mono" data-x>{startX}</dd>
+            </div>
+            <div class="axis">
+              <dt>Y</dt>
+              <dd class="mono" data-y>{startY}</dd>
+            </div>
+          </dl>
+          <div class="prog">
+            <div class="prog-head">
+              <span>加工進度</span>
+              <span class="mono" data-pct>100%</span>
+            </div>
+            <div class="bar"><i data-bar></i></div>
+          </div>
+          <ol class="gcode mono" data-gcode aria-hidden="true">
+            {gcode.map((line, i) => <li class:list={{ cur: i === gcode.length - 1 }}>{line}</li>)}
+          </ol>
+        </aside>
+      </div>
+
+      <!-- 軟體鍵 -->
+      <nav class="softkeys" aria-label="快速前往">
+        <a class="hmi-key" href={styleUrl('hmi', '/services/')}>
+          <span class="fk">F1</span>業務項目
+        </a>
+        <a class="hmi-key" href={styleUrl('hmi', '/about/')}>
+          <span class="fk">F2</span>公司資料
+        </a>
+        <a class="hmi-key" href={styleUrl('hmi', '/contact/')}>
+          <span class="fk">F3</span>聯絡・地圖
+        </a>
+        <a class="hmi-key hmi-key--primary" href={links.tel}>
+          <Glyph name="phone" />
+          <span class="mono">{company.contact.phone}</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<script>
+  /**
+   * 線切割加工模擬：取樣靜態路徑上的點，以 Canvas 逐步畫出切割軌跡、
+   * 線電極亮點與放電火花，並同步更新座標讀數與 G-code。
+   * 畫面不在視窗內或分頁隱藏時暫停。
+   */
+  type Spark = { x: number; y: number; vx: number; vy: number; life: number; max: number };
+
+  const fig = document.querySelector<HTMLElement>('[data-hmi-sim]');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (fig && !reduce) start(fig);
+
+  function start(fig: HTMLElement) {
+    const canvas = fig.querySelector('canvas');
+    const pathEl = fig.querySelector<SVGPathElement>('.static-cut');
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !pathEl || !ctx) return;
+
+    const VW = Number(fig.dataset.vw);
+    const cx = Number(fig.dataset.cx);
+    const cy = Number(fig.dataset.cy);
+    const k = 24 / Number(fig.dataset.outer); // 畫面單位 → mm（示意）
+
+    const dro = document.querySelector<HTMLElement>('[data-hmi-dro]');
+    const elX = dro?.querySelector<HTMLElement>('[data-x]');
+    const elY = dro?.querySelector<HTMLElement>('[data-y]');
+    const elPct = dro?.querySelector<HTMLElement>('[data-pct]');
+    const elBar = dro?.querySelector<HTMLElement>('[data-bar]');
+    const elCode = dro?.querySelector<HTMLElement>('[data-gcode]');
+
+    // 取樣路徑點
+    const total = pathEl.getTotalLength();
+    const pts: { x: number; y: number }[] = [];
+    for (let l = 0; l <= total; l += 1.5) {
+      const p = pathEl.getPointAtLength(l);
+      pts.push({ x: p.x, y: p.y });
+    }
+
+    const CUT_MS = 20000; // 切割一圈
+    const HOLD_MS = 2800; // 完成後停留
+    const CODE_STEP = 64; // 每隔多少取樣點輸出一行 G-code
+    const fmt = (v: number) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(3);
+    const toMm = (p: { x: number; y: number }) => ({ x: (p.x - cx) * k, y: -(p.y - cy) * k });
+
+    let scale = 1;
+    let elapsed = 0;
+    let last = 0;
+    let running = false;
+    let raf = 0;
+    let cycle = -1;
+    let codeIndex = 0;
+    let lines: string[] = [];
+    let sparks: Spark[] = [];
+
+    function resize() {
+      const rect = canvas!.getBoundingClientRect();
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas!.width = Math.round(rect.width * dpr);
+      canvas!.height = Math.round(rect.height * dpr);
+      scale = (rect.width / VW) * dpr;
+    }
+
+    function pushLine(text: string) {
+      lines.push(text);
+      if (lines.length > 6) lines = lines.slice(-6);
+      if (elCode) {
+        elCode.innerHTML = lines.map((l, i) => `<li${i === lines.length - 1 ? ' class="cur"' : ''}>${l}</li>`).join('');
+      }
+    }
+
+    function frame(now: number) {
+      const dt = Math.min(50, last ? now - last : 16);
+      last = now;
+      elapsed += dt;
+
+      const period = CUT_MS + HOLD_MS;
+      const thisCycle = Math.floor(elapsed / period);
+      const t = elapsed % period;
+      const progress = Math.min(1, t / CUT_MS);
+      const idx = Math.floor(progress * (pts.length - 1));
+      const cutting = progress < 1;
+
+      // 新的一輪：重設程式
+      if (thisCycle !== cycle) {
+        cycle = thisCycle;
+        codeIndex = 0;
+        lines = [];
+        const s = toMm(pts[0]);
+        pushLine('O1995 (GEAR Z18)');
+        pushLine(`G92 X${fmt(s.x)} Y${fmt(s.y)}`);
+        pushLine('G41 D01');
+      }
+      while (codeIndex + CODE_STEP <= idx) {
+        codeIndex += CODE_STEP;
+        const m = toMm(pts[codeIndex]);
+        pushLine(`N${String(codeIndex / CODE_STEP * 10).padStart(4, '0')} G01 X${fmt(m.x)} Y${fmt(m.y)}`);
+      }
+      if (!cutting && !lines[lines.length - 1].startsWith('M30')) {
+        pushLine('G40');
+        pushLine('M30');
+      }
+
+      // 繪圖
+      const c = ctx!;
+      c.setTransform(1, 0, 0, 1, 0, 0);
+      c.clearRect(0, 0, canvas!.width, canvas!.height);
+      c.setTransform(scale, 0, 0, scale, 0, 0);
+      const p = pts[idx];
+
+      // 十字游標
+      c.strokeStyle = 'rgba(245, 197, 24, 0.16)';
+      c.lineWidth = 1 / (scale / (window.devicePixelRatio || 1));
+      c.setLineDash([3, 4]);
+      c.beginPath();
+      c.moveTo(0, p.y);
+      c.lineTo(VW, p.y);
+      c.moveTo(p.x, 0);
+      c.lineTo(p.x, 440);
+      c.stroke();
+      c.setLineDash([]);
+
+      // 切割軌跡
+      c.lineJoin = 'round';
+      c.lineCap = 'round';
+      c.strokeStyle = '#f5c518';
+      c.lineWidth = 2.4;
+      c.shadowColor = 'rgba(245, 197, 24, 0.5)';
+      c.shadowBlur = 8;
+      c.beginPath();
+      c.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i <= idx; i++) c.lineTo(pts[i].x, pts[i].y);
+      c.stroke();
+
+      // 放電火花
+      const sec = dt / 1000;
+      if (cutting) {
+        const n = Math.random() < 0.55 ? 1 : 2;
+        for (let i = 0; i < n && sparks.length < 60; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const sp = 40 + Math.random() * 110;
+          sparks.push({ x: p.x, y: p.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0, max: 0.15 + Math.random() * 0.3 });
+        }
+      }
+      c.shadowBlur = 0;
+      c.lineWidth = 1.2;
+      sparks = sparks.filter((s) => {
+        s.life += sec;
+        if (s.life > s.max) return false;
+        s.x += s.vx * sec;
+        s.y += s.vy * sec;
+        s.vy += 80 * sec;
+        const alpha = 1 - s.life / s.max;
+        c.strokeStyle = `rgba(255, 220, 110, ${alpha.toFixed(2)})`;
+        c.beginPath();
+        c.moveTo(s.x - s.vx * 0.035, s.y - s.vy * 0.035);
+        c.lineTo(s.x, s.y);
+        c.stroke();
+        return true;
+      });
+
+      // 線電極亮點
+      c.shadowColor = 'rgba(255, 225, 120, 0.95)';
+      c.shadowBlur = cutting ? 18 : 6;
+      c.fillStyle = '#fff6d0';
+      c.beginPath();
+      c.arc(p.x, p.y, cutting ? 3.2 : 2.4, 0, Math.PI * 2);
+      c.fill();
+      c.shadowBlur = 0;
+
+      // 讀數
+      const m = toMm(p);
+      if (elX) elX.textContent = fmt(m.x);
+      if (elY) elY.textContent = fmt(m.y);
+      if (elPct) elPct.textContent = `${Math.round(progress * 100)}%`;
+      if (elBar) elBar.style.transform = `scaleX(${progress})`;
+
+      if (running) raf = requestAnimationFrame(frame);
+    }
+
+    function play() {
+      if (running || document.hidden) return;
+      running = true;
+      last = 0;
+      raf = requestAnimationFrame(frame);
+    }
+    function pause() {
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
+    resize();
+    new ResizeObserver(resize).observe(canvas);
+    new IntersectionObserver(([entry]) => (entry.isIntersecting ? play() : pause())).observe(fig);
+    document.addEventListener('visibilitychange', () => (document.hidden ? pause() : play()));
+    fig.classList.add('is-live');
+  }
+</script>
+
+<style>
+  .hero {
+    padding-block: clamp(20px, 3vw, 36px) 0;
+    background:
+      radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.05) 1px, transparent 0) 0 0 / 14px 14px,
+      var(--hmi-bg);
+  }
+
+  .console {
+    background: var(--hmi-panel);
+    border: 1px solid var(--hmi-line);
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
+  }
+
+  /* 狀態列 */
+  .c-status {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 9px 20px;
+    background: var(--hmi-screen);
+    border-bottom: 1px solid var(--hmi-line);
+    font-size: 0.8125rem;
+    color: var(--hmi-muted);
+    white-space: nowrap;
+  }
+  .mode {
+    padding: 1px 8px;
+    background: var(--hmi-yellow);
+    color: var(--hmi-yellow-ink);
+    font-weight: 700;
+  }
+  .state {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--hmi-text);
+  }
+  .c-status-right {
+    margin-left: auto;
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  /* 主體三欄 */
+  .c-body {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6.2fr) 248px;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 22px;
+    padding: clamp(28px, 3.4vw, 48px) clamp(24px, 3vw, 44px);
+  }
+  .who {
+    font-size: 0.9375rem;
+    color: var(--hmi-muted);
+    letter-spacing: 0.08em;
+  }
+  h1 {
+    font-size: clamp(2.25rem, 4.4vw, 3.6rem);
+    line-height: 1.16;
+    letter-spacing: 0.03em;
+  }
+  .lead {
+    max-width: 30em;
+    font-size: 1.0625rem;
+  }
+
+  /* 模擬畫面 */
+  .screen {
+    position: relative;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    background: var(--hmi-screen);
+    border-inline: 1px solid var(--hmi-line);
+  }
+  .screen svg,
+  .screen canvas {
+    width: 100%;
+    aspect-ratio: 560 / 440;
+    height: auto;
+  }
+  .screen canvas {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    translate: 0 -50%;
+    pointer-events: none;
+  }
+  .s-grid {
+    stroke: #1a1f23;
+    stroke-width: 1;
+  }
+  .s-ticks {
+    stroke: #4a535b;
+    stroke-width: 1;
+  }
+  .s-center {
+    stroke: #4a535b;
+    stroke-width: 0.8;
+    stroke-dasharray: 14 4 2 4;
+    fill: none;
+  }
+  .s-outline {
+    fill: rgb(255 255 255 / 0.02);
+    stroke: #5b656e;
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+  .s-bore {
+    fill: none;
+    stroke: #7d8790;
+    stroke-width: 1.2;
+  }
+  .static-cut {
+    fill: none;
+    stroke: var(--hmi-yellow);
+    stroke-width: 2.4;
+    stroke-linejoin: round;
+    transition: opacity 0.4s;
+  }
+  .is-live .static-cut {
+    opacity: 0;
+  }
+  .s-hole {
+    fill: var(--hmi-screen);
+    stroke: var(--hmi-yellow);
+    stroke-width: 1.5;
+  }
+  .s-axis path {
+    fill: none;
+    stroke: #8f98a0;
+    stroke-width: 1.2;
+  }
+  .s-axis text,
+  .s-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: #8f98a0;
+  }
+
+  /* 座標讀數 */
+  .dro {
+    display: flex;
+    flex-direction: column;
+    padding: 18px 18px 16px;
+    gap: 16px;
+    min-width: 0;
+  }
+  .dro-head,
+  .prog-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    color: var(--hmi-muted);
+  }
+  .axes {
+    display: grid;
+    gap: 8px;
+  }
+  .axis {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    align-items: baseline;
+    padding: 8px 12px;
+    background: var(--hmi-screen);
+    border: 1px solid var(--hmi-line-soft);
+  }
+  .axis dt {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--hmi-yellow);
+  }
+  .axis dd {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--hmi-text);
+    text-align: right;
+    line-height: 1.3;
+  }
+  .bar {
+    height: 6px;
+    margin-top: 6px;
+    background: var(--hmi-screen);
+    border: 1px solid var(--hmi-line-soft);
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    background: var(--hmi-yellow);
+    transform-origin: left;
+  }
+  .gcode {
+    flex: 1;
+    min-height: 132px;
+    padding: 10px 12px;
+    background: var(--hmi-screen);
+    border: 1px solid var(--hmi-line-soft);
+    font-size: 0.75rem;
+    line-height: 1.75;
+    color: #7f8992;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .gcode :global(li.cur) {
+    color: var(--hmi-yellow);
+  }
+
+  /* 軟體鍵 */
+  .softkeys {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) 1.4fr;
+    gap: 1px;
+    background: var(--hmi-line);
+    border-top: 1px solid var(--hmi-line);
+  }
+  .softkeys .hmi-key {
+    justify-content: flex-start;
+    min-height: 60px;
+    padding-inline: 20px;
+    border: 0;
+    background: var(--hmi-panel);
+    font-size: 1rem;
+  }
+  .softkeys .hmi-key:hover {
+    background: var(--hmi-panel-2);
+    box-shadow: inset 0 -3px 0 var(--hmi-yellow);
+  }
+  .softkeys .hmi-key--primary {
+    justify-content: center;
+    background: var(--hmi-yellow);
+    font-size: 1.125rem;
+  }
+  .softkeys .hmi-key--primary:hover {
+    background: var(--hmi-yellow-hover);
+    box-shadow: none;
+  }
+
+  /* 平板：標題獨立一列 */
+  @media (max-width: 1180px) {
+    .c-body {
+      grid-template-columns: minmax(0, 1fr) 236px;
+    }
+    .intro {
+      grid-column: 1 / -1;
+      border-bottom: 1px solid var(--hmi-line);
+    }
+    .screen {
+      border-left: 0;
+    }
+  }
+
+  /* 手機：全部直排 */
+  @media (max-width: 700px) {
+    .console {
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    }
+    .c-status {
+      gap: 12px;
+      padding-inline: 14px;
+    }
+    .c-status-right {
+      display: none;
+    }
+    .c-body {
+      grid-template-columns: 1fr;
+    }
+    .intro {
+      padding: 26px 20px 28px;
+      gap: 16px;
+    }
+    .screen {
+      border: 0;
+      border-bottom: 1px solid var(--hmi-line);
+    }
+    .dro {
+      padding: 14px;
+    }
+    .axes {
+      grid-template-columns: 1fr 1fr;
+    }
+    .axis dd {
+      font-size: 1.125rem;
+    }
+    .gcode {
+      display: none;
+    }
+    .softkeys {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .softkeys .hmi-key {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      min-height: 64px;
+      padding: 10px 12px;
+      font-size: 0.9375rem;
+    }
+    /* 手機已有底部聯絡列，這裡不再重複撥號鍵 */
+    .softkeys .hmi-key--primary {
+      display: none;
+    }
+  }
+</style>

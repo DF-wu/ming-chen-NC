@@ -1,0 +1,165 @@
+---
+/**
+ * 首頁「特點」：左側以規格表呈現公司優勢（src/data/services.ts 的 highlights），
+ * 右側是公司資訊讀數（開始營運、經驗、工廠登記、統一編號）。
+ */
+import Glyph from './Glyph.astro';
+import { highlights } from '../../../data/services';
+import { company, experienceYears } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+
+const readouts = [
+  { label: '開始營運', value: String(company.foundedYear), unit: `民國 ${company.foundedYear - 1911} 年` },
+  { label: '加工經驗', value: `${experienceYears}+`, unit: '年' },
+  { label: '工廠登記', value: company.factory.registrationNo, unit: company.factory.status, live: true },
+  { label: '統一編號', value: company.taxId, unit: '' },
+];
+---
+
+<section class="hmi-section">
+  <div class="hmi-wrap split">
+    <div class="hmi-panel reveal">
+      <header class="hmi-titlebar">
+        <h2>特點</h2>
+        <span class="tb-en">SPECIFICATION</span>
+      </header>
+      <dl class="spec">
+        {
+          highlights.map((h) => (
+            <div class="spec-row">
+              <dt>{h.title}</dt>
+              <dd>{h.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    <div class="hmi-panel side reveal" style="--reveal-delay: 0.1s">
+      <header class="hmi-titlebar">
+        <h2>公司資訊</h2>
+        <span class="tb-en">COMPANY</span>
+      </header>
+      <dl class="readouts">
+        {
+          readouts.map((r) => (
+            <div class="ro">
+              <dt>{r.label}</dt>
+              <dd>
+                <span class="ro-value display">{r.value}</span>
+                {r.unit && (
+                  <span class="ro-unit">
+                    {r.live && <span class="led" />}
+                    {r.unit}
+                  </span>
+                )}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+      <a class="more" href={styleUrl('hmi', '/about/')}>
+        公司沿革與登記資料
+        <Glyph name="arrow" size={18} />
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .spec-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--hmi-line-soft);
+  }
+  .spec-row:last-child {
+    border-bottom: 0;
+  }
+  .spec dt {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--hmi-text);
+  }
+  .spec dd {
+    color: var(--hmi-text-2);
+  }
+
+  .readouts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--hmi-line-soft);
+  }
+  .ro {
+    padding: 18px 20px;
+    background: var(--hmi-panel);
+  }
+  .ro dt {
+    font-size: 0.8125rem;
+    color: var(--hmi-muted);
+  }
+  .ro dd {
+    display: flex;
+    flex-direction: column;
+  }
+  .ro-value {
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--hmi-yellow);
+    font-variant-numeric: tabular-nums;
+  }
+  .ro-unit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--hmi-text-2);
+  }
+  .more {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--hmi-line-soft);
+    color: var(--hmi-text);
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      background-color 0.15s,
+      color 0.15s;
+  }
+  .more:hover {
+    background: var(--hmi-panel-2);
+    color: var(--hmi-yellow);
+  }
+
+  @media (max-width: 1080px) {
+    .split {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .spec-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding: 18px 16px;
+    }
+    .ro {
+      padding: 14px 16px;
+    }
+    .ro-value {
+      font-size: 1.75rem;
+    }
+  }
+</style>

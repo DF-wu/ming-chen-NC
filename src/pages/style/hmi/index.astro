@@ -1,0 +1,23 @@
+---
+/**
+ * 控制面板風格 — 首頁
+ */
+import Layout from '../../../themes/hmi/Layout.astro';
+import HeroConsole from '../../../themes/hmi/components/HeroConsole.astro';
+import ProgramList from '../../../themes/hmi/components/ProgramList.astro';
+import SpecSection from '../../../themes/hmi/components/SpecSection.astro';
+import OperationListing from '../../../themes/hmi/components/OperationListing.astro';
+import ContactConsole from '../../../themes/hmi/components/ContactConsole.astro';
+---
+
+<Layout canonicalPath="/">
+  <HeroConsole />
+  <ProgramList />
+  <SpecSection />
+  <OperationListing />
+  <section class="hmi-section">
+    <div class="hmi-wrap">
+      <ContactConsole />
+    </div>
+  </section>
+</Layout>

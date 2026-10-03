@@ -1,0 +1,91 @@
+---
+/**
+ * ============================================================
+ *  控制面板（Machine HMI）風格 — 共用版型
+ * ============================================================
+ *  參考與借用的特質：
+ *  - FANUC 控制器：訊號黃 × 石墨灰、位置畫面的大型座標讀數、
+ *    螢幕下方的軟體鍵（F1–F10）→ 主選單與首頁快捷鍵做成軟體鍵。
+ *  - Hadrian（hadrian.co）：頁首以框線格呈現的等寬資料列、切角面板、
+ *    深色底上的黃色刀具路徑 → 狀態列、切角面板、加工模擬動畫。
+ *  - Sodick：黑底、窄體大字、克制的強調色 → Barlow Condensed 數字與標籤。
+ *
+ *  結構：狀態列＋頁首（Header）→ 頁面內容 → 頁尾（Footer）；
+ *  手機版另有底部常駐聯絡列（MobileDock）。
+ *  刪除 src/themes/hmi/ 與 src/pages/style/hmi/ 即可移除此風格。
+ */
+import './theme.css';
+import PreviewMeta from '../../components/preview/PreviewMeta.astro';
+import StyleSwitcher from '../../components/preview/StyleSwitcher.astro';
+import Header from './components/Header.astro';
+import Footer from './components/Footer.astro';
+import MobileDock from './components/MobileDock.astro';
+
+interface Props {
+  /** 頁面標題；首頁不需要提供 */
+  title?: string;
+  description?: string;
+  /** 對應的正式版頁面路徑，例如 '/services/' */
+  canonicalPath?: string;
+}
+
+const { title, description, canonicalPath = '/' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <PreviewMeta title={title} description={description} canonicalPath={canonicalPath} />
+    <meta name="theme-color" content="#131517" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+    />
+    <!-- 啟用動畫用的 .js 標記；若動畫程式 2.5 秒內沒有啟動，就移除標記讓內容直接顯示 -->
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        setTimeout(function () {
+          if (!d.classList.contains('reveal-ready')) d.classList.remove('js');
+        }, 2500);
+      })();
+    </script>
+  </head>
+  <body>
+    <StyleSwitcher current="hmi" />
+    <a class="hmi-skip" href="#main">跳到主要內容</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <MobileDock />
+
+    <script>
+      // 捲動顯現：元素進入畫面時加上 .is-in
+      const root = document.documentElement;
+      const items = document.querySelectorAll<HTMLElement>('.reveal');
+      if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        items.forEach((el) => el.classList.add('is-in'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px' },
+        );
+        items.forEach((el) => io.observe(el));
+      }
+      root.classList.add('reveal-ready');
+    </script>
+  </body>
+</html>

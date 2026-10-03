@@ -1,0 +1,93 @@
+---
+/**
+ * 控制面板風格 — 關於我們頁。
+ * 公司簡介文字直接在下方修改；沿革與公司資料在 src/data/company.ts 修改。
+ */
+import Layout from '../../../themes/hmi/Layout.astro';
+import PageHead from '../../../themes/hmi/components/PageHead.astro';
+import Readouts from '../../../themes/hmi/components/Readouts.astro';
+import LogList from '../../../themes/hmi/components/LogList.astro';
+import SystemInfo from '../../../themes/hmi/components/SystemInfo.astro';
+import ContactConsole from '../../../themes/hmi/components/ContactConsole.astro';
+import { company, experienceYears } from '../../../data/company';
+
+const roc = (year: number) => year - 1911;
+const incorporatedYear = Number(company.incorporatedOn.slice(0, 4));
+const factoryYear = Number(company.factory.approvedOn.slice(0, 4));
+/** 路段名稱（去掉門牌號碼），例如「海佃路二段」 */
+const road = company.contact.street.replace(/\d+號$/, '');
+---
+
+<Layout
+  title="關於我們"
+  canonicalPath="/about/"
+  description={`${company.name}自 ${company.foundedYear} 年開始營運，以 CNC 線切割為核心技術，承接模具、夾具、治具與精密機械零件加工。`}>
+  <PageHead title="關於我們" en="ABOUT" lead={`自 ${company.foundedYear} 年起，專注精密線切割與模具加工。`}>
+    <Readouts
+      slot="readouts"
+      items={[
+        { label: '開始營運', value: String(company.foundedYear), unit: `民國 ${roc(company.foundedYear)} 年` },
+        { label: '加工經驗', value: `${experienceYears}+`, unit: '年' },
+        { label: '公司設立', value: String(incorporatedYear), unit: `民國 ${roc(incorporatedYear)} 年` },
+        { label: '工廠狀態', value: company.factory.status, unit: '經濟部工廠登記', live: true },
+      ]}
+    />
+  </PageHead>
+
+  <section class="hmi-section">
+    <div class="hmi-wrap intro">
+      <div class="text reveal">
+        <h2>公司簡介</h2>
+        <p>
+          {company.name}位於{company.contact.city}{company.contact.district}{road}，自民國 {roc(company.foundedYear)} 年（{
+            company.foundedYear
+          } 年）開始營運，民國 {roc(incorporatedYear)} 年正式成立公司，並於民國 {roc(factoryYear)} 年完成經濟部工廠登記。
+        </p>
+        <p>
+          我們以 CNC 線切割為核心技術，提供精密、高效率的加工服務。除了一般模具加工，也承接夾具、治具與各式精密機械零件，服務臺南在地客戶，最遠至臺北。
+        </p>
+        <p>
+          營運三年即在業界打開知名度。多年來，我們在既有技術的基礎上，持續嘗試新的、更有效率的加工方法，以穩定的品質與交期，成為客戶信賴的加工夥伴。
+        </p>
+      </div>
+      <LogList />
+    </div>
+  </section>
+
+  <section class="hmi-section">
+    <div class="hmi-wrap">
+      <SystemInfo />
+    </div>
+  </section>
+
+  <section class="hmi-section">
+    <div class="hmi-wrap">
+      <ContactConsole />
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: clamp(28px, 5vw, 72px);
+    align-items: start;
+  }
+  .text h2 {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    margin-bottom: 20px;
+  }
+  .text p {
+    font-size: 1.0625rem;
+  }
+  .text p + p {
+    margin-top: 1.1em;
+  }
+
+  @media (max-width: 960px) {
+    .intro {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

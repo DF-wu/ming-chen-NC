@@ -1,0 +1,103 @@
+---
+/**
+ * 公司資料表：仿控制器的「系統資訊」畫面。內容全部取自 src/data/company.ts。
+ */
+import { company, address } from '../../../data/company';
+
+/** 2002-11-18 → 「民國 91 年 11 月 18 日（2002）」 */
+function toRocDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `民國 ${y - 1911} 年 ${m} 月 ${d} 日（${y}）`;
+}
+
+const rows: { label: string; value: string; mono?: boolean; live?: boolean }[] = [
+  { label: '公司名稱', value: company.name },
+  { label: '統一編號', value: company.taxId, mono: true },
+  { label: '代表人', value: company.representative },
+  { label: '開始營運', value: `民國 ${company.foundedYear - 1911} 年（${company.foundedYear}）` },
+  { label: '公司設立', value: toRocDate(company.incorporatedOn) },
+  { label: '工廠登記編號', value: company.factory.registrationNo, mono: true },
+  { label: '工廠狀態', value: company.factory.status, live: true },
+  { label: '產業類別', value: company.factory.industries.join('、') },
+  { label: '主要產品', value: company.factory.products.join('；') },
+  { label: '營業項目', value: company.businessItems.join('、') },
+  { label: '營業地址', value: address },
+  { label: '公司登記地址', value: company.registeredAddress },
+];
+---
+
+<div class="hmi-panel info reveal">
+  <header class="hmi-titlebar">
+    <h2>公司資料</h2>
+    <span class="tb-en">SYSTEM INFO</span>
+    <span class="tb-right">依經濟部商工登記與工廠登記公示資料</span>
+  </header>
+  <dl>
+    {
+      rows.map((row) => (
+        <div class="row">
+          <dt>{row.label}</dt>
+          <dd class:list={{ mono: row.mono }}>
+            {row.live && <span class="led" />}
+            {row.value}
+          </dd>
+        </div>
+      ))
+    }
+  </dl>
+</div>
+
+<style>
+  dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 132px 1fr;
+    gap: 16px;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--hmi-line-soft);
+  }
+  .row:nth-child(odd) {
+    border-right: 1px solid var(--hmi-line-soft);
+  }
+  dt {
+    font-size: 0.9375rem;
+    color: var(--hmi-muted);
+  }
+  dd {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--hmi-text);
+    overflow-wrap: anywhere;
+  }
+  dd.mono {
+    font-size: 1.0625rem;
+  }
+
+  @media (max-width: 1080px) {
+    .tb-right {
+      display: none;
+    }
+  }
+  @media (max-width: 900px) {
+    dl {
+      grid-template-columns: 1fr;
+    }
+    .row:nth-child(odd) {
+      border-right: 0;
+    }
+  }
+  @media (max-width: 520px) {
+    .row {
+      grid-template-columns: 1fr;
+      gap: 2px;
+      padding: 12px 16px;
+    }
+    dt {
+      font-size: 0.8125rem;
+    }
+  }
+</style>
