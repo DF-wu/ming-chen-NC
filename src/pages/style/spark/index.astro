@@ -1,0 +1,171 @@
+---
+/**
+ * 「鋼與光」風格：首頁
+ */
+import Layout from '../../../themes/spark/Layout.astro';
+import EdmCanvas from '../../../themes/spark/EdmCanvas.astro';
+import ContactStrip from '../../../themes/spark/ContactStrip.astro';
+import Figures from '../../../themes/spark/Figures.astro';
+import ServiceIndex from '../../../themes/spark/ServiceIndex.astro';
+import EdmPrinciple from '../../../themes/spark/EdmPrinciple.astro';
+import ContactBand from '../../../themes/spark/ContactBand.astro';
+import Icon from '../../../components/Icon.astro';
+import { company } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+---
+
+<Layout canonicalPath="/">
+  <!-- 主視覺 -->
+  <section class="hero">
+    <div class="sp-container hero-head">
+      <h1>在火花之間，<br />切出精準。</h1>
+      <p class="hero-note">
+        {company.name}位於臺南市安南區。自 {company.foundedYear} 年起，以 CNC
+        線切割為核心，承接模具零件、夾具治具與精密機械零件加工。
+      </p>
+    </div>
+    <div class="hero-stage">
+      <div class="sp-frame stage-frame">
+        <div class="sp-frame-inner">
+          <EdmCanvas />
+        </div>
+      </div>
+      <ContactStrip />
+    </div>
+  </section>
+
+  <!-- 公司概述 -->
+  <section class="sp-section">
+    <div class="sp-container">
+      <div class="statement">
+        <p class="statement-label sp-label" data-reveal>關於明泉</p>
+        <div>
+          <p class="statement-text" data-reveal>
+            民國 {company.foundedYear - 1911} 年開始營運，我們以 CNC
+            線切割為核心技術，處理高硬度材料與複雜輪廓；除了一般模具加工，也承接夾具、治具與各式精密機械零件。營運三年即在業界打開知名度，客戶遍及南部，遠至臺北。
+          </p>
+          <a class="sp-link statement-link" href={styleUrl('spark', '/about/')} data-reveal>
+            公司介紹與沿革 <Icon name="arrowRight" size={16} />
+          </a>
+        </div>
+      </div>
+      <Figures />
+    </div>
+  </section>
+
+  <!-- 業務項目 -->
+  <section class="sp-section services">
+    <div class="sp-container">
+      <div class="section-head">
+        <h2 data-reveal>業務項目</h2>
+        <p data-reveal style="--delay: 0.08s">以線切割為核心，涵蓋模具零件、夾具治具與精密機械零件。</p>
+      </div>
+      <ServiceIndex />
+    </div>
+  </section>
+
+  <!-- 線切割原理 -->
+  <section class="sp-section principle-section">
+    <div class="sp-container">
+      <EdmPrinciple />
+    </div>
+  </section>
+
+  <ContactBand />
+</Layout>
+
+<style>
+  .hero {
+    padding-top: clamp(40px, 5.5vw, 80px);
+  }
+  .hero-head {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 24px 64px;
+    align-items: start;
+    margin-bottom: clamp(32px, 4vw, 52px);
+  }
+  h1 {
+    font-size: clamp(2.625rem, 6.4vw, 5.75rem);
+    font-weight: 300;
+    line-height: 1.12;
+    letter-spacing: 0.06em;
+  }
+  .hero-note {
+    max-width: 26em;
+    padding-top: 0.6em;
+    font-size: 1.0625rem;
+    color: var(--sp-text-2);
+  }
+
+  /* 主視覺框比內容區更寬，像 Hadrian 的全幅切角框 */
+  .hero-stage {
+    width: min(100% - 2 * clamp(12px, 2vw, 28px), 1440px);
+    margin-inline: auto;
+  }
+  .stage-frame {
+    --c: 28px;
+    height: clamp(320px, 52vh, 580px);
+  }
+
+  .statement {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px 32px;
+    margin-bottom: clamp(56px, 8vw, 104px);
+  }
+  .statement-label {
+    padding-top: 0.9em;
+  }
+  .statement-text {
+    font-size: clamp(1.25rem, 2.6vw, 2.25rem);
+    font-weight: 300;
+    line-height: 1.65;
+    letter-spacing: 0.05em;
+    color: var(--sp-text);
+  }
+  .statement-link {
+    margin-top: 32px;
+  }
+
+  .services {
+    background: var(--sp-bg-2);
+    border-top: 1px solid var(--sp-line);
+    border-bottom: 1px solid var(--sp-line);
+  }
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px 40px;
+    margin-bottom: clamp(32px, 4vw, 48px);
+  }
+  .section-head h2 {
+    font-size: clamp(2rem, 4.4vw, 3.5rem);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+  }
+  .section-head p {
+    color: var(--sp-text-2);
+  }
+
+  @media (max-width: 860px) {
+    .hero-head {
+      grid-template-columns: 1fr;
+    }
+    .hero-note {
+      padding-top: 0;
+    }
+    .statement {
+      grid-template-columns: 1fr;
+    }
+    .statement-label {
+      padding-top: 0;
+    }
+    .stage-frame {
+      --c: 18px;
+      height: 300px;
+    }
+  }
+</style>

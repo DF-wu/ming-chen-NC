@@ -1,0 +1,98 @@
+---
+/**
+ * 關鍵數字：金屬質感大字，進入畫面時光澤掃過一次。
+ */
+import { company, experienceYears } from '../../data/company';
+
+const figures = [
+  { value: String(company.foundedYear), unit: '', label: `開始營運（民國 ${company.foundedYear - 1911} 年）` },
+  { value: String(experienceYears), unit: '+ 年', label: 'CNC 線切割與模具加工經驗' },
+  { value: company.factory.registrationNo, unit: '', label: `經濟部工廠登記編號・${company.factory.status}` },
+];
+---
+
+<dl class="figures">
+  {
+    figures.map((f, i) => (
+      <div class="fig" data-reveal style={`--delay: ${i * 0.12}s`}>
+        <dt class="label">{f.label}</dt>
+        <dd class="value">
+          <span class="num sp-metal sp-num">{f.value}</span>
+          {f.unit && <span class="unit">{f.unit}</span>}
+        </dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .figures {
+    display: grid;
+    grid-template-columns: 0.9fr 0.8fr 1.3fr;
+    border-top: 1px solid var(--sp-line-strong);
+    border-bottom: 1px solid var(--sp-line-strong);
+  }
+  .fig {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 14px;
+    padding: 36px 32px 32px;
+  }
+  .fig + .fig {
+    border-left: 1px solid var(--sp-line-strong);
+  }
+  .fig:first-child {
+    padding-left: 0;
+  }
+  .label {
+    font-size: 0.9375rem;
+    color: var(--sp-text-2);
+  }
+  .value {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .num {
+    font-size: clamp(2.75rem, 6vw, 5rem);
+    font-weight: 200;
+    line-height: 1;
+  }
+  .unit {
+    font-size: 1.125rem;
+    color: var(--sp-copper);
+  }
+  :global(html.js) .fig.is-in .num {
+    animation: sheen 2.2s ease 0.3s backwards;
+  }
+  @keyframes sheen {
+    from {
+      background-position: 100% 50%;
+    }
+    to {
+      background-position: 0% 50%;
+    }
+  }
+
+  @media (max-width: 860px) {
+    .figures {
+      grid-template-columns: 1fr 1fr;
+    }
+    .fig + .fig:nth-child(3) {
+      grid-column: 1 / -1;
+      border-left: 0;
+      border-top: 1px solid var(--sp-line-strong);
+      padding-left: 0;
+    }
+  }
+  @media (max-width: 480px) {
+    .fig {
+      padding: 26px 0 22px 18px;
+    }
+    .fig:first-child,
+    .fig:nth-child(3) {
+      padding-left: 0;
+    }
+  }
+</style>

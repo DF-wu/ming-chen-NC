@@ -1,0 +1,242 @@
+---
+/**
+ * 線切割原理（首頁）：側視示意圖＋三點說明。
+ * 圖中電極線持續往下送出、放電間隙裡的火花閃爍；說明文字為線切割的一般特性。
+ */
+import { experienceYears } from '../../data/company';
+
+const facts = [
+  { title: '不受材料硬度影響', text: '靠放電蝕除金屬，淬火後的模具鋼、碳化鎢等高硬度材料也能加工。' },
+  { title: '適合複雜輪廓', text: '依程式路徑走線，窄槽、尖角、異形孔都能精準成形。' },
+  { title: '非接觸加工', text: '電極線不接觸工件，幾乎沒有切削力，薄件與細小零件不易變形。' },
+];
+---
+
+<div class="principle">
+  <div class="copy">
+    <h2 data-reveal>線切割，<br />是用放電「蝕」出形狀。</h2>
+    <p class="lead" data-reveal style="--delay: 0.1s">
+      通電的細金屬線（電極線）貼近工件，在極小的間隙中連續放電，把金屬一點一點蝕除。這是明泉逾 {experienceYears} 年來的核心技術。
+    </p>
+    <ul class="facts">
+      {
+        facts.map((f, i) => (
+          <li data-reveal style={`--delay: ${0.15 + i * 0.08}s`}>
+            <h3>{f.title}</h3>
+            <p>{f.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <figure class="sp-frame diagram" data-reveal style="--delay: 0.1s">
+    <div class="sp-frame-inner">
+      <svg viewBox="0 0 480 540" role="img" aria-label="線切割側視示意圖：電極線穿過工件，在放電間隙產生火花">
+        <defs>
+          <pattern id="sp-hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <path d="M0 0V10" class="hatch"></path>
+          </pattern>
+          <linearGradient id="sp-steel" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2a3038"></stop>
+            <stop offset="1" stop-color="#181c21"></stop>
+          </linearGradient>
+        </defs>
+
+        <!-- 工件剖面（左右兩塊之間是已切開的切縫） -->
+        <path d="M60 220H226V350H60Z" class="work"></path>
+        <path d="M60 220H226V350H60Z" fill="url(#sp-hatch)"></path>
+        <path d="M250 220H420V350H250Z" class="work"></path>
+        <path d="M250 220H420V350H250Z" fill="url(#sp-hatch)"></path>
+
+        <!-- 加工液噴流 -->
+        <path d="M222 128L200 214M258 128L280 214M222 442L200 356M258 442L280 356" class="fluid"></path>
+
+        <!-- 上、下導線嘴 -->
+        <path d="M196 54H284L266 128H214Z" class="guide"></path>
+        <path d="M214 442H266L284 516H196Z" class="guide"></path>
+
+        <!-- 電極線（虛線往下流動表示持續送線） -->
+        <path d="M232 14V530" class="wire-base"></path>
+        <path d="M232 14V530" class="wire-flow"></path>
+
+        <!-- 放電火花（電極線與工件之間） -->
+        <g class="sparks">
+          <path d="M235 236l5 4-3 3 9 5" style="--d: 0s"></path>
+          <path d="M235 262l6-3-2 5 8-2" style="--d: 0.35s"></path>
+          <path d="M235 288l4 5 2-4 7 4" style="--d: 0.15s"></path>
+          <path d="M235 312l6-4-1 5 7-3" style="--d: 0.55s"></path>
+          <path d="M235 334l5 3-2 3 8 3" style="--d: 0.25s"></path>
+        </g>
+
+        <!-- 加工方向 -->
+        <path d="M300 384H392M382 377l10 7-10 7" class="dir"></path>
+        <text x="300" y="408" class="t-small">加工方向</text>
+
+        <!-- 標註 -->
+        <path d="M284 80H330" class="leader"></path>
+        <text x="338" y="85" class="t">上導線嘴</text>
+        <path d="M232 168H330" class="leader"></path>
+        <text x="338" y="173" class="t t-copper">電極線</text>
+        <path d="M249 284L330 284" class="leader"></path>
+        <text x="338" y="289" class="t">放電間隙</text>
+        <path d="M60 236H40V200" class="leader"></path>
+        <text x="28" y="190" class="t">工件</text>
+        <path d="M282 450H330" class="leader"></path>
+        <text x="338" y="455" class="t">加工液</text>
+        <path d="M284 490H330" class="leader"></path>
+        <text x="338" y="495" class="t">下導線嘴</text>
+        <path d="M218 470V522M211 512l7 10 7-10" class="dir"></path>
+        <text x="40" y="500" class="t-small">電極線持續送出</text>
+      </svg>
+    </div>
+  </figure>
+</div>
+
+<style>
+  .principle {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(40px, 7vw, 112px);
+    align-items: center;
+  }
+  h2 {
+    font-size: clamp(1.875rem, 3.8vw, 3.25rem);
+    font-weight: 300;
+    line-height: 1.3;
+  }
+  .lead {
+    margin-top: 24px;
+    max-width: 32em;
+    font-size: 1.0625rem;
+    color: var(--sp-text-2);
+  }
+  .facts {
+    margin-top: 40px;
+    border-top: 1px solid var(--sp-line-strong);
+  }
+  .facts li {
+    display: grid;
+    grid-template-columns: 11em 1fr;
+    gap: 6px 24px;
+    padding-block: 20px;
+    border-bottom: 1px solid var(--sp-line);
+  }
+  .facts h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--sp-copper);
+  }
+  .facts p {
+    color: var(--sp-text-2);
+    font-size: 0.9375rem;
+  }
+
+  .diagram .sp-frame-inner {
+    padding: clamp(12px, 2.4vw, 28px);
+    background:
+      radial-gradient(70% 60% at 50% 50%, #161a1f, var(--sp-bg-2));
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    font-family: var(--sp-font);
+  }
+  .work {
+    fill: url(#sp-steel);
+    stroke: rgb(255 255 255 / 0.35);
+    stroke-width: 1;
+  }
+  .hatch {
+    stroke: rgb(255 255 255 / 0.07);
+    stroke-width: 1;
+  }
+  .guide {
+    fill: #1d2228;
+    stroke: rgb(255 255 255 / 0.45);
+    stroke-width: 1;
+  }
+  .fluid {
+    fill: none;
+    stroke: rgb(140 186 220 / 0.45);
+    stroke-width: 1;
+    stroke-dasharray: 2 5;
+    animation: flow 0.9s linear infinite;
+  }
+  .wire-base {
+    stroke: rgb(214 160 101 / 0.55);
+    stroke-width: 2.5;
+  }
+  .wire-flow {
+    stroke: var(--sp-copper-2);
+    stroke-width: 2.5;
+    stroke-dasharray: 6 18;
+    animation: flow 0.8s linear infinite;
+  }
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -24;
+    }
+  }
+  .sparks path {
+    fill: none;
+    stroke: var(--sp-hot);
+    stroke-width: 1.3;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 3px rgb(255 200 130 / 0.9));
+    animation: flicker 0.9s steps(1) infinite;
+    animation-delay: var(--d);
+  }
+  @keyframes flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    30% {
+      opacity: 0.15;
+    }
+    55% {
+      opacity: 0.9;
+    }
+    70% {
+      opacity: 0;
+    }
+  }
+  .dir {
+    fill: none;
+    stroke: var(--sp-muted);
+    stroke-width: 1.2;
+  }
+  .leader {
+    fill: none;
+    stroke: rgb(174 181 188 / 0.5);
+    stroke-width: 0.8;
+  }
+  .t {
+    font-size: 14px;
+    fill: var(--sp-text-2);
+    letter-spacing: 0.06em;
+  }
+  .t-copper {
+    fill: var(--sp-copper);
+  }
+  .t-small {
+    font-size: 12px;
+    fill: var(--sp-muted);
+    letter-spacing: 0.06em;
+  }
+
+  @media (max-width: 960px) {
+    .principle {
+      grid-template-columns: 1fr;
+    }
+    .diagram {
+      max-width: 520px;
+    }
+  }
+  @media (max-width: 560px) {
+    .facts li {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

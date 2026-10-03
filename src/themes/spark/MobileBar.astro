@@ -1,0 +1,71 @@
+---
+/**
+ * 手機底部的快速聯絡列：撥打電話、地圖、Email。只在手機寬度顯示。
+ */
+import Icon from '../../components/Icon.astro';
+import { company, links } from '../../data/company';
+---
+
+<nav class="bar" aria-label="快速聯絡">
+  <a class="call" href={links.tel}>
+    <Icon name="phone" size={20} />
+    <span>撥打 <span class="num">{company.contact.phone}</span></span>
+  </a>
+  <a href={links.map} target="_blank" rel="noopener">
+    <Icon name="pin" size={20} />
+    <span>地圖</span>
+  </a>
+  <a href={links.mailto}>
+    <Icon name="mail" size={20} />
+    <span>Email</span>
+  </a>
+</nav>
+
+<style>
+  .bar {
+    display: none;
+  }
+  @media (max-width: 860px) {
+    .bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 200;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: #121417;
+      border-top: 1px solid rgb(214 160 101 / 0.45);
+    }
+    .bar a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: var(--sp-mobile-bar);
+      font-size: 0.9375rem;
+      color: var(--sp-text);
+      text-decoration: none;
+    }
+    .bar a + a {
+      border-left: 1px solid var(--sp-line);
+    }
+    .bar :global(svg) {
+      color: var(--sp-copper);
+    }
+    .call {
+      font-weight: 500;
+      color: var(--sp-copper) !important;
+    }
+    .num {
+      font-family: var(--sp-font-latin);
+      letter-spacing: 0.03em;
+    }
+  }
+  @media (max-width: 380px) {
+    .num {
+      display: none;
+    }
+  }
+</style>

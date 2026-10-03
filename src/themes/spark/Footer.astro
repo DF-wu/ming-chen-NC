@@ -1,0 +1,142 @@
+---
+/**
+ * 頁尾：完整聯絡資訊、網站導覽、公司登記資料。
+ */
+import Logo from './Logo.astro';
+import { navigation, site } from '../../data/site';
+import { company, fullAddress, links } from '../../data/company';
+import { styleUrl } from '../../utils/url';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="sp-container grid">
+    <div class="brand">
+      <Logo />
+      <p class="tagline">{site.tagline}</p>
+      <p class="coord sp-label">
+        {company.geo.lat.toFixed(4)}°N&nbsp;&nbsp;{company.geo.lng.toFixed(4)}°E
+      </p>
+    </div>
+
+    <div>
+      <h2 class="title">聯絡</h2>
+      <dl class="list">
+        <div><dt>電話</dt><dd><a class="hl" href={links.tel}>{company.contact.phone}</a></dd></div>
+        <div><dt>傳真</dt><dd>{company.contact.fax}</dd></div>
+        <div><dt>Email</dt><dd><a href={links.mailto}>{company.contact.email}</a></dd></div>
+        <div><dt>地址</dt><dd><a href={links.map} target="_blank" rel="noopener">{fullAddress}</a></dd></div>
+      </dl>
+    </div>
+
+    <nav aria-label="頁尾選單">
+      <h2 class="title">網站導覽</h2>
+      <ul class="nav">
+        {
+          navigation.map((item) => (
+            <li>
+              <a href={styleUrl('spark', item.href)}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="title">公司登記</h2>
+      <dl class="list">
+        <div><dt>統一編號</dt><dd class="num">{company.taxId}</dd></div>
+        <div><dt>工廠登記</dt><dd class="num">{company.factory.registrationNo}</dd></div>
+        <div><dt>狀態</dt><dd>{company.factory.status}</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="sp-container bottom">
+    <p>© {year} {company.name}</p>
+    <p>臺南市安南區・CNC 線切割與精密加工</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--sp-line);
+    background: var(--sp-bg);
+    font-size: 0.9375rem;
+    color: var(--sp-text-2);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1.6fr 0.8fr 1fr;
+    gap: 40px;
+    padding-block: 64px 48px;
+  }
+  .tagline {
+    margin-top: 18px;
+  }
+  .coord {
+    margin-top: 10px;
+  }
+  .title {
+    margin-bottom: 16px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    color: var(--sp-muted);
+  }
+  .list div {
+    display: grid;
+    grid-template-columns: 4.5em 1fr;
+    gap: 8px;
+    padding-block: 3px;
+  }
+  .list dt {
+    color: var(--sp-muted);
+  }
+  .list dd {
+    overflow-wrap: anywhere;
+  }
+  .num {
+    font-family: var(--sp-font-latin);
+    letter-spacing: 0.04em;
+  }
+  .footer a {
+    color: var(--sp-text);
+    text-decoration: none;
+  }
+  .footer a:hover {
+    color: var(--sp-copper-2);
+  }
+  .footer a.hl {
+    font-family: var(--sp-font-latin);
+    letter-spacing: 0.04em;
+    color: var(--sp-copper);
+  }
+  .nav li {
+    padding-block: 3px;
+  }
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding-block: 22px;
+    border-top: 1px solid var(--sp-line);
+    font-size: 0.8125rem;
+    color: var(--sp-muted);
+  }
+
+  @media (max-width: 1000px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 36px;
+      padding-block: 48px 36px;
+    }
+  }
+</style>

@@ -1,0 +1,143 @@
+---
+/**
+ * 頁面底部的詢價區塊：超大字電話號碼，其他聯絡方式排在下方。
+ */
+import Icon from '../../components/Icon.astro';
+import { company, fullAddress, links } from '../../data/company';
+import { styleUrl } from '../../utils/url';
+
+interface Props {
+  /** 是否顯示「聯絡資訊與地圖」連結（聯絡頁本身不需要） */
+  showLink?: boolean;
+}
+
+const { showLink = true } = Astro.props;
+---
+
+<section class="band" aria-labelledby="band-title">
+  <div class="sp-container">
+    <div class="head" data-reveal>
+      <h2 id="band-title">加工詢價，請直接來電。</h2>
+      <p>提供圖面、材質與數量，我們為您評估加工方式並報價。</p>
+    </div>
+
+    <a class="phone sp-metal sp-num" href={links.tel} data-reveal style="--delay: 0.1s">
+      {company.contact.phone}
+    </a>
+
+    <dl class="others" data-reveal style="--delay: 0.2s">
+      <div>
+        <dt class="sp-label">傳真</dt>
+        <dd class="sp-num">{company.contact.fax}</dd>
+      </div>
+      <div>
+        <dt class="sp-label">Email</dt>
+        <dd><a href={links.mailto}>{company.contact.email}</a></dd>
+      </div>
+      <div>
+        <dt class="sp-label">地址</dt>
+        <dd>{fullAddress}</dd>
+      </div>
+      {
+        showLink && (
+          <div class="go">
+            <a class="sp-link" href={styleUrl('spark', '/contact/')}>
+              聯絡資訊與地圖 <Icon name="arrowRight" size={16} />
+            </a>
+          </div>
+        )
+      }
+    </dl>
+  </div>
+</section>
+
+<style>
+  .band {
+    position: relative;
+    padding-block: var(--sp-section);
+    border-top: 1px solid var(--sp-line);
+    background:
+      radial-gradient(60% 80% at 15% 100%, rgb(214 160 101 / 0.08), transparent 70%),
+      var(--sp-bg);
+    overflow: hidden;
+  }
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px 40px;
+  }
+  h2 {
+    font-size: clamp(1.375rem, 2.4vw, 1.875rem);
+    font-weight: 300;
+  }
+  .head p {
+    color: var(--sp-text-2);
+  }
+
+  .phone {
+    display: block;
+    width: fit-content;
+    margin-block: clamp(20px, 3vw, 36px) clamp(28px, 4vw, 48px);
+    font-size: clamp(3rem, 12.5vw, 10.5rem);
+    font-weight: 200;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    transition: background-position 1.2s ease;
+  }
+  .phone:hover {
+    background-position: 100% 50%;
+  }
+  /* 進入畫面時金屬光澤掃過一次 */
+  :global(html.js) .phone.is-in {
+    animation: sheen 2.4s ease 0.4s backwards; /* 結束後交還給 :hover 控制 */
+  }
+  @keyframes sheen {
+    from {
+      background-position: 100% 50%;
+    }
+    to {
+      background-position: 0% 50%;
+    }
+  }
+
+  .others {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr 1.7fr auto;
+    gap: 24px 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--sp-line-strong);
+  }
+  .others dd {
+    margin-top: 4px;
+    color: var(--sp-text);
+    overflow-wrap: anywhere;
+  }
+  .others a {
+    color: var(--sp-text);
+    text-decoration: none;
+  }
+  .others dd a:hover {
+    color: var(--sp-copper-2);
+  }
+  .go {
+    align-self: end;
+  }
+  .go .sp-link {
+    color: var(--sp-copper);
+  }
+
+  @media (max-width: 900px) {
+    .others {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .others {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+</style>

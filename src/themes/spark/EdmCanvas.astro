@@ -1,0 +1,501 @@
+---
+/**
+ * 首頁主視覺：線切割放電加工模擬。
+ * 發光的放電點從穿線孔進刀，沿零件輪廓移動；切過的路徑由白熱逐漸冷卻成銅色，
+ * 偶爾迸出火花。先切內孔、再「穿線」到外側切外形，完成後停留片刻再重來。
+ *
+ * - 沒有 JavaScript 或偏好減少動態：顯示已切割完成的靜態輪廓（下方 SVG）。
+ * - 畫面外或分頁隱藏時暫停，節省效能。
+ * - 純示意圖，尺寸不代表實際加工規格。
+ */
+import { company } from '../../data/company';
+
+// 零件輪廓（座標單位任意，畫面只顯示 VIEW 範圍）。每一段切割都從穿線孔（路徑起點）進刀。
+const cuts = [
+  // 內孔
+  'M 400 340 L 438 340 A 38 38 0 1 1 362 340 A 38 38 0 1 1 438 340',
+  // 外形：上緣窄槽、半圓凸台、右側凹弧、下緣段差與 V 形缺口
+  [
+    'M 110 300 L 180 300 L 180 170 A 30 30 0 0 1 210 140 L 300 140',
+    'L 300 230 L 318 230 L 318 140 L 368 140 L 368 230 L 386 230 L 386 140',
+    'L 436 140 L 436 230 L 454 230 L 454 140 L 504 140 L 504 230 L 522 230 L 522 140',
+    'L 600 140 A 70 70 0 0 1 740 140 L 790 140 A 30 30 0 0 1 820 170 L 820 250',
+    'A 70 70 0 0 0 820 390 L 820 410 A 30 30 0 0 1 790 440 L 640 440 L 640 470 L 470 470 L 470 440',
+    'L 320 440 L 290 400 L 260 440 L 210 440 A 30 30 0 0 1 180 410 L 180 300',
+  ].join(' '),
+];
+const holes = [
+  [400, 340],
+  [110, 300],
+];
+---
+
+<div class="edm" data-edm>
+  <!-- 靜態圖（沒有 JS 時顯示；JS 也從這裡讀取輪廓） -->
+  <svg class="fallback" viewBox="50 30 900 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <path d="M 90 50 H 930 V 490 L 910 510 H 70 V 70 Z" class="plate"></path>
+    {cuts.map((d) => <path d={d} class="cut" data-cut />)}
+    {holes.map(([x, y]) => <circle cx={x} cy={y} r="5" class="hole" />)}
+  </svg>
+  <canvas aria-hidden="true"></canvas>
+
+  <div class="hud hud-tl sp-label">WIRE EDM&nbsp;&nbsp;線切割放電加工示意</div>
+  <div class="hud hud-tr sp-label">
+    {company.geo.lat.toFixed(4)}°N&nbsp;&nbsp;{company.geo.lng.toFixed(4)}°E
+  </div>
+  <div class="hud hud-bl sp-label">
+    <span class="state" data-edm-state>輪廓完成</span>
+    <span class="progress" data-edm-progress>100%</span>
+  </div>
+  <div class="hud hud-br sp-label">示意圖・非實際加工數據</div>
+</div>
+
+<style>
+  .edm {
+    position: relative;
+    height: 100%;
+    min-height: 300px;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 90% at 50% 45%, #15191e 0%, #0d0f12 60%, #0a0b0d 100%);
+  }
+  .fallback,
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .fallback {
+    padding: 28px;
+  }
+  .plate {
+    fill: rgb(255 255 255 / 0.015);
+    stroke: rgb(255 255 255 / 0.14);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .cut {
+    fill: none;
+    stroke: var(--sp-copper);
+    stroke-width: 1.6;
+    vector-effect: non-scaling-stroke;
+  }
+  .hole {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.4);
+    vector-effect: non-scaling-stroke;
+  }
+  /* JS 接手後隱藏靜態圖（保留在 DOM 供量測路徑長度） */
+  .edm.is-live .fallback {
+    visibility: hidden;
+  }
+
+  .hud {
+    position: absolute;
+    z-index: 2;
+    font-size: 0.6875rem;
+    color: rgb(174 181 188 / 0.85);
+    pointer-events: none;
+  }
+  .hud-tl {
+    top: 18px;
+    left: 28px;
+  }
+  .hud-tr {
+    top: 18px;
+    right: 22px;
+  }
+  .hud-bl {
+    bottom: 16px;
+    left: 22px;
+    display: flex;
+    gap: 14px;
+  }
+  .hud-br {
+    bottom: 16px;
+    right: 28px;
+  }
+  .state {
+    color: var(--sp-copper);
+  }
+  .progress {
+    min-width: 4ch;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 640px) {
+    .hud-tr,
+    .hud-br {
+      display: none;
+    }
+    .fallback {
+      padding: 16px;
+    }
+  }
+</style>
+
+<script>
+  type Pt = { x: number; y: number };
+  type Seg = { x1: number; y1: number; x2: number; y2: number; t: number };
+  type Spark = { x: number; y: number; vx: number; vy: number; life: number; max: number };
+
+  // 畫面顯示的範圍（與靜態 SVG 的 viewBox 相同）
+  const VIEW = { x: 50, y: 30, w: 900, h: 500 };
+  const SPEED = 330; // 放電點移動速度（座標單位／秒）
+  const STEP = 3; // 路徑取樣間距
+
+  document.querySelectorAll<HTMLElement>('[data-edm]').forEach(init);
+
+  function init(root: HTMLElement) {
+    const canvas = root.querySelector('canvas');
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+
+    const stateEl = root.querySelector<HTMLElement>('[data-edm-state]');
+    const progressEl = root.querySelector<HTMLElement>('[data-edm-progress]');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // 由靜態 SVG 的路徑取樣成點列
+    const cuts: Pt[][] = [...root.querySelectorAll<SVGPathElement>('path[data-cut]')].map((path) => {
+      const len = path.getTotalLength();
+      const pts: Pt[] = [];
+      for (let s = 0; s < len; s += STEP) {
+        const p = path.getPointAtLength(s);
+        pts.push({ x: p.x, y: p.y });
+      }
+      const end = path.getPointAtLength(len);
+      pts.push({ x: end.x, y: end.y });
+      return pts;
+    });
+    const totalPts = cuts.reduce((n, c) => n + c.length, 0);
+
+    root.classList.add('is-live');
+
+    // 畫布尺寸與座標轉換
+    let dpr = 1;
+    let scale = 1;
+    let ox = 0;
+    let oy = 0;
+    let width = 0;
+    let height = 0;
+    const bg = document.createElement('canvas');
+    const bgCtx = bg.getContext('2d')!;
+
+    function resize() {
+      const rect = root.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) return; // 尚未排版或被隱藏時略過
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = rect.width;
+      height = rect.height;
+      canvas!.width = bg.width = Math.round(width * dpr);
+      canvas!.height = bg.height = Math.round(height * dpr);
+      const pad = width < 640 ? 16 : 28;
+      scale = Math.min((width - pad * 2) / VIEW.w, (height - pad * 2) / VIEW.h);
+      ox = (width - VIEW.w * scale) / 2 - VIEW.x * scale;
+      oy = (height - VIEW.h * scale) / 2 - VIEW.y * scale;
+      drawBackground();
+      drawFrame(performance.now()); // 改變尺寸會清空畫布，立即重畫避免閃白
+    }
+
+    const X = (x: number) => (ox + x * scale) * dpr;
+    const Y = (y: number) => (oy + y * scale) * dpr;
+
+    // 背景：工件板、細格線、穿線孔（只在尺寸改變時重畫）
+    function drawBackground() {
+      bgCtx.clearRect(0, 0, bg.width, bg.height);
+      bgCtx.lineWidth = 1 * dpr;
+      bgCtx.strokeStyle = 'rgba(255,255,255,0.035)';
+      bgCtx.beginPath();
+      for (let x = 90; x <= 930; x += 40) {
+        bgCtx.moveTo(X(x), Y(50));
+        bgCtx.lineTo(X(x), Y(510));
+      }
+      for (let y = 70; y <= 510; y += 40) {
+        bgCtx.moveTo(X(70), Y(y));
+        bgCtx.lineTo(X(930), Y(y));
+      }
+      bgCtx.stroke();
+
+      bgCtx.strokeStyle = 'rgba(255,255,255,0.16)';
+      bgCtx.fillStyle = 'rgba(255,255,255,0.018)';
+      bgCtx.beginPath();
+      bgCtx.moveTo(X(90), Y(50));
+      bgCtx.lineTo(X(930), Y(50));
+      bgCtx.lineTo(X(930), Y(490));
+      bgCtx.lineTo(X(910), Y(510));
+      bgCtx.lineTo(X(70), Y(510));
+      bgCtx.lineTo(X(70), Y(70));
+      bgCtx.closePath();
+      bgCtx.fill();
+      bgCtx.stroke();
+
+      // 輪廓參考線（虛線）
+      bgCtx.setLineDash([3 * dpr, 4 * dpr]);
+      bgCtx.strokeStyle = 'rgba(174,181,188,0.22)';
+      for (const pts of cuts) {
+        bgCtx.beginPath();
+        pts.forEach((p, i) => (i ? bgCtx.lineTo(X(p.x), Y(p.y)) : bgCtx.moveTo(X(p.x), Y(p.y))));
+        bgCtx.stroke();
+      }
+      bgCtx.setLineDash([]);
+
+      bgCtx.strokeStyle = 'rgba(255,255,255,0.45)';
+      for (const pts of cuts) {
+        bgCtx.beginPath();
+        bgCtx.arc(X(pts[0].x), Y(pts[0].y), 4.5 * dpr, 0, Math.PI * 2);
+        bgCtx.stroke();
+      }
+
+      // 圓弧標註（裝飾）
+      bgCtx.fillStyle = 'rgba(134,143,152,0.8)';
+      bgCtx.font = `${10 * dpr}px "IBM Plex Mono", monospace`;
+      bgCtx.fillText('R70', X(752), Y(96));
+      bgCtx.fillText('R70', X(712), Y(326));
+      bgCtx.fillText('R30', X(828), Y(158));
+    }
+
+    // 動畫狀態
+    let cutIndex = 0;
+    let head = 0; // 目前切割內的進度（點的索引，可為小數）
+    let phase: 'cut' | 'rapid' | 'hold' | 'fade' = 'cut';
+    let phaseTime = 0;
+    let segs: Seg[] = [];
+    let sparks: Spark[] = [];
+    let fadeAlpha = 1;
+    let last = 0;
+    let running = false;
+    let raf = 0;
+    let lastHud = 0;
+
+    function reset() {
+      cutIndex = 0;
+      head = 0;
+      phase = 'cut';
+      phaseTime = 0;
+      segs = [];
+      sparks = [];
+      fadeAlpha = 1;
+    }
+
+    function pointAt(pts: Pt[], i: number): Pt {
+      const a = pts[Math.floor(i)];
+      const b = pts[Math.min(pts.length - 1, Math.floor(i) + 1)];
+      const f = i - Math.floor(i);
+      return { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f };
+    }
+
+    function spawn(p: Pt, n: number) {
+      for (let k = 0; k < n && sparks.length < 90; k++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 60 + Math.random() * 220;
+        const max = 0.12 + Math.random() * 0.4;
+        sparks.push({ x: p.x, y: p.y, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, life: max, max });
+      }
+    }
+
+    function update(dt: number, now: number) {
+      phaseTime += dt;
+      const pts = cuts[cutIndex];
+
+      if (phase === 'cut') {
+        // 沿取樣點逐段前進，轉角處才不會被「抄捷徑」
+        const from = head;
+        head = Math.min(pts.length - 1, head + (SPEED * dt) / STEP);
+        let prev = pointAt(pts, from);
+        for (let i = Math.floor(from) + 1; i <= Math.floor(head); i++) {
+          segs.push({ x1: prev.x, y1: prev.y, x2: pts[i].x, y2: pts[i].y, t: now });
+          prev = pts[i];
+        }
+        const p = pointAt(pts, head);
+        segs.push({ x1: prev.x, y1: prev.y, x2: p.x, y2: p.y, t: now });
+        if (Math.random() < 0.4) spawn(p, 1 + Math.floor(Math.random() * 2));
+        if (Math.random() < 0.025) spawn(p, 6 + Math.floor(Math.random() * 6));
+        if (head >= pts.length - 1) {
+          phase = cutIndex < cuts.length - 1 ? 'rapid' : 'hold';
+          phaseTime = 0;
+        }
+      } else if (phase === 'rapid' && phaseTime > 0.9) {
+        cutIndex++;
+        head = 0;
+        phase = 'cut';
+        phaseTime = 0;
+      } else if (phase === 'hold' && phaseTime > 2.6) {
+        phase = 'fade';
+        phaseTime = 0;
+      } else if (phase === 'fade') {
+        fadeAlpha = Math.max(0, 1 - phaseTime / 0.9);
+        if (fadeAlpha === 0) reset();
+      }
+
+      for (const s of sparks) {
+        s.life -= dt;
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        s.vx *= 0.94;
+        s.vy *= 0.94;
+      }
+      sparks = sparks.filter((s) => s.life > 0);
+    }
+
+    // 依「冷卻時間」把切縫分組上色：白熱 → 亮銅 → 銅 → 冷卻
+    const BUCKETS = [
+      { age: Infinity, color: 'rgba(206,150,92,0.78)', width: 1.4 },
+      { age: 2.2, color: 'rgba(230,170,104,0.95)', width: 1.6 },
+      { age: 0.7, color: 'rgba(255,210,150,1)', width: 1.9 },
+      { age: 0.18, color: 'rgba(255,247,228,1)', width: 2.3 },
+    ];
+
+    function drawFrame(now: number) {
+      if (!bg.width || !bg.height) return; // 尺寸還沒設定好
+      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+      ctx!.drawImage(bg, 0, 0);
+
+      if (reduced) {
+        // 減少動態：直接畫出完成的輪廓
+        ctx!.strokeStyle = BUCKETS[0].color;
+        ctx!.lineWidth = 1.5 * dpr;
+        for (const pts of cuts) {
+          ctx!.beginPath();
+          pts.forEach((p, i) => (i ? ctx!.lineTo(X(p.x), Y(p.y)) : ctx!.moveTo(X(p.x), Y(p.y))));
+          ctx!.stroke();
+        }
+        return;
+      }
+
+      ctx!.globalAlpha = fadeAlpha;
+      ctx!.lineCap = 'round';
+      ctx!.lineJoin = 'round';
+      for (let b = 0; b < BUCKETS.length; b++) {
+        const lo = b + 1 < BUCKETS.length ? BUCKETS[b + 1].age : 0;
+        const hi = BUCKETS[b].age;
+        ctx!.beginPath();
+        for (const s of segs) {
+          const age = (now - s.t) / 1000;
+          if (age >= lo && age < hi) {
+            ctx!.moveTo(X(s.x1), Y(s.y1));
+            ctx!.lineTo(X(s.x2), Y(s.y2));
+          }
+        }
+        ctx!.strokeStyle = BUCKETS[b].color;
+        ctx!.lineWidth = BUCKETS[b].width * dpr;
+        ctx!.stroke();
+      }
+
+      // 完成時整個輪廓微微發亮
+      if (phase === 'hold') {
+        const glow = Math.sin(Math.min(1, phaseTime / 1.2) * Math.PI) * 0.5;
+        ctx!.save();
+        ctx!.shadowColor = 'rgba(255,190,120,0.9)';
+        ctx!.shadowBlur = 14 * dpr;
+        ctx!.globalAlpha = glow;
+        ctx!.strokeStyle = 'rgba(255,214,160,1)';
+        ctx!.lineWidth = 1.4 * dpr;
+        for (const pts of cuts) {
+          ctx!.beginPath();
+          pts.forEach((p, i) => (i ? ctx!.lineTo(X(p.x), Y(p.y)) : ctx!.moveTo(X(p.x), Y(p.y))));
+          ctx!.stroke();
+        }
+        ctx!.restore();
+      }
+
+      // 穿線：兩個穿線孔之間的移動（虛線）
+      if (phase === 'rapid' && cutIndex < cuts.length - 1) {
+        const a = cuts[cutIndex][cuts[cutIndex].length - 1];
+        const b = cuts[cutIndex + 1][0];
+        const f = Math.min(1, phaseTime / 0.9);
+        ctx!.setLineDash([4 * dpr, 5 * dpr]);
+        ctx!.strokeStyle = 'rgba(174,181,188,0.55)';
+        ctx!.lineWidth = 1 * dpr;
+        ctx!.beginPath();
+        ctx!.moveTo(X(a.x), Y(a.y));
+        ctx!.lineTo(X(a.x + (b.x - a.x) * f), Y(a.y + (b.y - a.y) * f));
+        ctx!.stroke();
+        ctx!.setLineDash([]);
+      }
+
+      ctx!.globalCompositeOperation = 'lighter';
+
+      // 火花
+      for (const s of sparks) {
+        const a = s.life / s.max;
+        ctx!.strokeStyle = `rgba(255,${180 + Math.round(60 * a)},${110 + Math.round(100 * a)},${a})`;
+        ctx!.lineWidth = 1.1 * dpr;
+        ctx!.beginPath();
+        ctx!.moveTo(X(s.x), Y(s.y));
+        ctx!.lineTo(X(s.x - s.vx * 0.035), Y(s.y - s.vy * 0.035));
+        ctx!.stroke();
+      }
+
+      // 放電點的光暈
+      if (phase === 'cut') {
+        const p = pointAt(cuts[cutIndex], head);
+        const r = (16 + Math.random() * 8) * dpr;
+        const g = ctx!.createRadialGradient(X(p.x), Y(p.y), 0, X(p.x), Y(p.y), r);
+        g.addColorStop(0, 'rgba(255,250,236,1)');
+        g.addColorStop(0.18, 'rgba(255,214,150,0.85)');
+        g.addColorStop(0.5, 'rgba(230,150,80,0.25)');
+        g.addColorStop(1, 'rgba(230,150,80,0)');
+        ctx!.fillStyle = g;
+        ctx!.beginPath();
+        ctx!.arc(X(p.x), Y(p.y), r, 0, Math.PI * 2);
+        ctx!.fill();
+      }
+
+      ctx!.globalCompositeOperation = 'source-over';
+      ctx!.globalAlpha = 1;
+
+      // 左下角讀數（每秒更新約 8 次）
+      if (now - lastHud > 120) {
+        lastHud = now;
+        const done = cuts.slice(0, cutIndex).reduce((n, c) => n + c.length, 0) + (phase === 'cut' ? head : cuts[cutIndex].length);
+        const pct = phase === 'hold' || phase === 'fade' ? 100 : Math.floor((done / totalPts) * 100);
+        if (progressEl) progressEl.textContent = `${pct}%`;
+        if (stateEl) {
+          stateEl.textContent =
+            phase === 'rapid' ? '穿線移動' : phase === 'cut' ? (cutIndex === 0 ? '放電加工・內孔' : '放電加工・外形') : '輪廓完成';
+        }
+      }
+    }
+
+    function loop(now: number) {
+      // 第一幀的時間戳可能早於 start() 記錄的時間，限制在 0～0.05 秒之間
+      const dt = Math.max(0, Math.min(0.05, (now - last) / 1000));
+      last = now;
+      update(dt, now);
+      drawFrame(now);
+      if (running) raf = requestAnimationFrame(loop);
+    }
+
+    function start() {
+      if (running || reduced) return;
+      running = true;
+      last = performance.now();
+      raf = requestAnimationFrame(loop);
+    }
+    function stop() {
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
+    new ResizeObserver(resize).observe(root);
+    resize();
+
+    if (reduced) {
+      drawFrame(performance.now());
+      return;
+    }
+
+    // 只有在畫面內、且分頁可見時才播放
+    let inView = false;
+    new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      if (inView && !document.hidden) start();
+      else stop();
+    }).observe(root);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+      else if (inView) start();
+    });
+  }
+</script>
