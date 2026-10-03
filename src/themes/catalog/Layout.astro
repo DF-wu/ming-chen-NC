@@ -1,0 +1,109 @@
+---
+/**
+ * 技術型錄風格（catalog）的共用外框。
+ *
+ * 設計參考與借用的特質：
+ * - Sandvik Coromant 知識頁：左側章節導覽（細直線層級）、大標題、麵包屑。
+ * - MISUMI／Hoffmann Group 型錄：灰色桌面上的白色頁面、規格表、灰底表頭、單一品牌色。
+ * - 瑞士網格（Müller-Brockmann）：嚴謹欄位、章節編號、粗細線分隔，資訊即設計。
+ * 本風格重點：章節編號（1.1）、規格表、會標示閱讀位置的側欄目錄、
+ * 印刷型錄的側邊索引標籤、版權頁式頁尾；動畫只有首頁游標卡尺與表格逐列出現。
+ *
+ * 用法：
+ *   <Layout title="業務項目" canonicalPath="/services/" chapter={1}>…</Layout>
+ */
+import './theme.css';
+import PreviewMeta from '../../components/preview/PreviewMeta.astro';
+import StyleSwitcher from '../../components/preview/StyleSwitcher.astro';
+import Header from './components/Header.astro';
+import Sidebar from './components/Sidebar.astro';
+import ThumbIndex from './components/ThumbIndex.astro';
+import Footer from './components/Footer.astro';
+import MobileBar from './components/MobileBar.astro';
+
+interface Props {
+  /** 頁面標題；首頁不需要提供 */
+  title?: string;
+  description?: string;
+  /** 對應的正式版頁面路徑 */
+  canonicalPath: string;
+  /** 目前所在的章節編號（見 chapters.ts） */
+  chapter: number;
+}
+
+const { title, description, canonicalPath, chapter } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <PreviewMeta title={title} description={description} canonicalPath={canonicalPath} />
+    <meta name="theme-color" content="#0050a0" />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+    />
+  </head>
+  <body>
+    <StyleSwitcher current="catalog" />
+    <a class="skip-link" href="#main">跳到主要內容</a>
+    <Header chapter={chapter} />
+    <div class="shell">
+      <Sidebar chapter={chapter} />
+      <main id="main" class="main">
+        <slot />
+      </main>
+    </div>
+    <ThumbIndex chapter={chapter} />
+    <Footer />
+    <MobileBar />
+
+    <script>
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // 捲動顯現：區塊或表格進入畫面時才出現（減少動態時不啟用）
+      const revealItems = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      if (!reduceMotion && 'IntersectionObserver' in window && revealItems.length) {
+        document.documentElement.classList.add('reveal-on');
+        const revealObserver = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                revealObserver.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -6% 0px' },
+        );
+        revealItems.forEach((el) => revealObserver.observe(el));
+      }
+
+      // 側欄目錄：標示目前正在閱讀的小節
+      const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+      const targets = tocLinks
+        .map((link) => document.getElementById(link.hash.slice(1)))
+        .filter((el): el is HTMLElement => el !== null);
+      if ('IntersectionObserver' in window && targets.length) {
+        const setActive = (id: string) => {
+          for (const link of tocLinks) {
+            link.toggleAttribute('data-active', link.hash === `#${id}`);
+          }
+        };
+        const spy = new IntersectionObserver(
+          (entries) => {
+            const visible = entries.filter((e) => e.isIntersecting);
+            if (visible.length) setActive(visible[0].target.id);
+          },
+          { rootMargin: '-15% 0px -70% 0px' },
+        );
+        targets.forEach((el) => spy.observe(el));
+      }
+    </script>
+  </body>
+</html>

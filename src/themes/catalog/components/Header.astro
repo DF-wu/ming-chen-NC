@@ -1,0 +1,190 @@
+---
+/**
+ * 頁首：公司標記、章節選單、電話與傳真（桌機）。
+ * 手機版：選單換到第二行，電話改由底部的快速聯絡列提供。
+ */
+import Badge from './Badge.astro';
+import { chapters } from '../chapters';
+import { company, links } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+
+interface Props {
+  chapter: number;
+}
+
+const { chapter } = Astro.props;
+---
+
+<header class="hd">
+  <div class="hd-inner">
+    <a class="hd-brand" href={styleUrl('catalog', '/')}>
+      <Badge />
+      <span class="hd-text">
+        <span class="hd-name">{company.name}</span>
+        <span class="hd-sub">加工服務型錄・CNC 線切割／模具／夾治具</span>
+      </span>
+    </a>
+
+    <nav class="hd-nav" aria-label="主選單">
+      <ul>
+        {
+          chapters.map((c) => (
+            <li>
+              <a href={styleUrl('catalog', c.path)} aria-current={c.no === chapter ? 'page' : undefined}>
+                {c.no > 0 && <span class="mono">{c.no}</span>}
+                {c.title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="hd-contact">
+      <a class="hd-tel" href={links.tel}>
+        <span class="lbl">TEL</span>
+        <span class="mono">{company.contact.phone}</span>
+      </a>
+      <span class="hd-fax">
+        <span class="lbl">FAX</span>
+        <span class="mono">{company.contact.fax}</span>
+      </span>
+    </div>
+  </div>
+</header>
+
+<style>
+  .hd {
+    background: var(--c-sheet);
+    border-bottom: 1px solid var(--c-rule);
+  }
+  .hd-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 32px;
+    max-width: calc(var(--shell) + var(--gutter) * 2);
+    margin: 0 auto;
+    padding: 14px var(--gutter);
+  }
+
+  .hd-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+  .hd-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+  }
+  .hd-name {
+    font-family: 'Noto Sans TC', var(--font-sans);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .hd-sub {
+    font-size: 0.75rem;
+    color: var(--c-muted);
+    white-space: nowrap;
+  }
+
+  .hd-nav ul {
+    display: flex;
+    gap: 2px;
+  }
+  .hd-nav a {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 8px 12px;
+    font-weight: 500;
+    color: var(--c-ink-2);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+  }
+  .hd-nav a .mono {
+    font-size: 0.8125rem;
+    color: var(--c-muted);
+  }
+  .hd-nav a:hover {
+    color: var(--c-ink);
+    border-bottom-color: var(--c-rule);
+  }
+  .hd-nav a[aria-current='page'] {
+    color: var(--c-blue);
+    border-bottom-color: var(--c-blue);
+  }
+  .hd-nav a[aria-current='page'] .mono {
+    color: var(--c-blue);
+  }
+
+  .hd-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.35;
+  }
+  .hd-contact .lbl {
+    display: inline-block;
+    width: 2.6em;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--c-muted);
+  }
+  .hd-tel {
+    font-size: 1.1875rem;
+    font-weight: 500;
+    color: var(--c-blue);
+    text-decoration: none;
+  }
+  .hd-tel:hover .mono {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .hd-fax {
+    font-size: 0.875rem;
+    color: var(--c-ink-2);
+  }
+
+  /* 中等寬度：選單換到第二行 */
+  @media (max-width: 1120px) {
+    .hd-inner {
+      grid-template-columns: 1fr auto;
+      row-gap: 10px;
+    }
+    .hd-nav {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      margin-inline: -12px;
+    }
+  }
+
+  /* 手機：隱藏電話（由底部快速聯絡列提供），選單平均分配 */
+  @media (max-width: 720px) {
+    .hd-inner {
+      grid-template-columns: 1fr;
+      padding-top: 12px;
+      padding-bottom: 0;
+    }
+    .hd-contact,
+    .hd-sub {
+      display: none;
+    }
+    .hd-nav {
+      margin-inline: calc(var(--gutter) * -1);
+      border-top: 1px solid var(--c-rule-soft);
+    }
+    .hd-nav li {
+      flex: 1;
+    }
+    .hd-nav a {
+      justify-content: center;
+      padding: 11px 2px;
+      font-size: 0.9375rem;
+    }
+  }
+</style>

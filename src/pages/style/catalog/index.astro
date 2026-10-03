@@ -1,0 +1,318 @@
+---
+/**
+ * 技術型錄風格：首頁（型錄封面＋業務一覽＋公司概況＋洽詢方式）
+ */
+import Layout from '../../../themes/catalog/Layout.astro';
+import SectionHead from '../../../themes/catalog/components/SectionHead.astro';
+import Caliper from '../../../themes/catalog/components/Caliper.astro';
+import ContactTable from '../../../themes/catalog/components/ContactTable.astro';
+import { chapters } from '../../../themes/catalog/chapters';
+import { company, address, experienceYears, links } from '../../../data/company';
+import { services } from '../../../data/services';
+import { styleUrl } from '../../../utils/url';
+
+const serviceSections = chapters[1].sections;
+const edition = new Date().getFullYear();
+
+/** 公司概況（摘要；完整資料見 2.4 登記資料） */
+const facts = [
+  { label: '公司名稱', value: company.name },
+  { label: '開始營運', value: `民國 ${company.foundedYear - 1911} 年（${company.foundedYear}）` },
+  { label: '核心技術', value: 'CNC 線切割' },
+  { label: '工廠登記', value: `經濟部工廠登記編號 ${company.factory.registrationNo}（${company.factory.status}）` },
+  { label: '產業類別', value: company.factory.industries.join('、') },
+  { label: '營業地址', value: address },
+];
+---
+
+<Layout canonicalPath="/" chapter={0}>
+  <!-- 型錄封面 -->
+  <section class="cover sheet" aria-labelledby="cover-title">
+    <div class="cover-run">
+      <span>加工服務型錄</span>
+      <span class="mono">{edition}</span>
+    </div>
+
+    <div class="cover-head">
+      <h1 id="cover-title">精密線切割<br />與模具零件加工</h1>
+      <p class="cover-lead">
+        {company.name}位於臺南市安南區，自 {company.foundedYear} 年開始營運。以 CNC 線切割為核心技術，承接模具零件、夾具、治具與各式精密機械零件加工。
+      </p>
+    </div>
+
+    <div class="cover-fig">
+      <Caliper caption="圖 0　游標卡尺量測線切割模具入子（示意插圖，數值為裝飾）" />
+    </div>
+
+    <dl class="cover-facts">
+      <div>
+        <dt>開始營運</dt>
+        <dd class="mono">{company.foundedYear}</dd>
+      </div>
+      <div>
+        <dt>加工經驗</dt>
+        <dd><span class="mono">{experienceYears}+</span><small>年</small></dd>
+      </div>
+      <div>
+        <dt>經濟部工廠登記</dt>
+        <dd class="mono">{company.factory.registrationNo}</dd>
+      </div>
+      <div class="tel">
+        <dt>電話洽詢</dt>
+        <dd><a class="mono" href={links.tel}>{company.contact.phone}</a></dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- 0.1 業務一覽 -->
+  <section class="sheet" id="index">
+    <SectionHead chapter={0} id="index" aside="依項目編號查閱第 1 章" />
+    <table class="spec index-table" data-reveal="rows">
+      <thead>
+        <tr>
+          <th scope="col">編號</th>
+          <th scope="col">業務項目</th>
+          <th scope="col">內容摘要</th>
+          <th scope="col"><span class="visually-hidden">詳細內容</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          services.map((s, i) => (
+            <tr style={`--i: ${i}`}>
+              <td class="num">{serviceSections[i].no}</td>
+              <td class="name">
+                <a href={styleUrl('catalog', `/services/#${s.id}`)}>{s.title}</a>
+                <span class="en">{s.en}</span>
+              </td>
+              <td class="sum">{s.summary}</td>
+              <td class="go">
+                <a href={styleUrl('catalog', `/services/#${s.id}`)} aria-label={`查看 ${s.title}`}>
+                  詳細 →
+                </a>
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 0.2 公司概況 -->
+  <section class="sheet" id="facts">
+    <SectionHead chapter={0} id="facts" aside="依經濟部公示資料" />
+    <table class="spec spec--kv" data-reveal="rows">
+      <tbody>
+        {
+          facts.map((f, i) => (
+            <tr style={`--i: ${i}`}>
+              <th scope="row">{f.label}</th>
+              <td>{f.value}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p class="more">
+      <a class="ref" href={styleUrl('catalog', '/about/#registration')}><span class="mono">2.4</span>完整登記資料 →</a>
+    </p>
+  </section>
+
+  <!-- 0.3 洽詢方式 -->
+  <section class="sheet" id="inquiry">
+    <SectionHead chapter={0} id="inquiry" aside="歡迎來電或傳真圖面詢價" />
+    <ContactTable />
+    <p class="more">
+      <a class="ref" href={styleUrl('catalog', '/contact/#map')}><span class="mono">3.2</span>地圖・交通 →</a>
+      <a class="ref" href={styleUrl('catalog', '/contact/#request')}><span class="mono">3.3</span>詢價須知 →</a>
+    </p>
+  </section>
+</Layout>
+
+<style>
+  /* 封面 */
+  .cover {
+    padding-top: 0;
+    border-top: 6px solid var(--c-blue);
+  }
+  .cover-run {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 calc(clamp(20px, 3.2vw, 40px) * -1);
+    padding: 10px clamp(20px, 3.2vw, 40px);
+    border-bottom: 1px solid var(--c-rule);
+    font-size: 0.8125rem;
+    color: var(--c-muted);
+  }
+
+  .cover-head {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    gap: clamp(20px, 4vw, 56px);
+    align-items: end;
+    padding-block: clamp(28px, 5vw, 56px) clamp(20px, 3vw, 32px);
+  }
+  h1 {
+    font-family: 'Noto Sans TC', var(--font-sans);
+    font-size: clamp(2.25rem, 5.2vw, 4rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.04em;
+  }
+  .cover-lead {
+    padding-left: 16px;
+    border-left: 1px solid var(--c-ink);
+    font-size: 0.9375rem;
+    color: var(--c-ink-2);
+  }
+
+  .cover-fig {
+    padding-top: clamp(12px, 2vw, 20px);
+    border-top: 1px solid var(--c-rule);
+  }
+
+  .cover-facts {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: clamp(20px, 3vw, 32px);
+    border-top: 2px solid var(--c-ink);
+  }
+  .cover-facts div {
+    padding: 14px 16px 4px;
+    border-left: 1px solid var(--c-rule);
+  }
+  .cover-facts div:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .cover-facts dt {
+    font-size: 0.8125rem;
+    color: var(--c-muted);
+  }
+  .cover-facts dd {
+    font-size: clamp(1.375rem, 2.4vw, 1.875rem);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .cover-facts small {
+    margin-left: 4px;
+    font-size: 0.55em;
+    font-weight: 400;
+  }
+  .cover-facts .tel a {
+    color: var(--c-blue);
+    text-decoration: none;
+  }
+  .cover-facts .tel a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  /* 業務一覽表 */
+  .index-table .name a {
+    font-weight: 600;
+    color: var(--c-ink);
+    text-decoration: none;
+  }
+  .index-table .name a:hover {
+    color: var(--c-blue);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .index-table .en {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--c-muted);
+  }
+  .index-table .name {
+    width: 14em;
+  }
+  .index-table .sum {
+    color: var(--c-ink-2);
+  }
+  .index-table .go {
+    width: 5em;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .index-table .go a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--c-blue);
+    text-decoration: none;
+  }
+  .index-table .go a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .more {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    margin-top: 18px;
+  }
+
+  @media (max-width: 860px) {
+    .cover-head {
+      grid-template-columns: 1fr;
+    }
+    .cover-facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .cover-facts div:nth-child(3) {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .cover-facts div:nth-child(n + 3) {
+      border-top: 1px solid var(--c-rule);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .cover-facts .tel {
+      grid-column: 1 / -1;
+      padding-left: 0;
+      border-left: 0;
+    }
+    .cover-facts .tel dd {
+      white-space: nowrap;
+    }
+  }
+
+  /* 手機：業務一覽改為上下排列 */
+  @media (max-width: 640px) {
+    .index-table thead {
+      display: none;
+    }
+    .index-table tbody tr {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid var(--c-rule);
+    }
+    .index-table tbody tr:last-child {
+      border-bottom: 1px solid var(--c-rule);
+    }
+    .index-table tbody td {
+      padding: 0;
+      border: 0 !important;
+    }
+    .index-table .num {
+      grid-row: span 3;
+    }
+    .index-table .name,
+    .index-table .go {
+      width: auto;
+      text-align: left;
+    }
+    .index-table .sum {
+      margin-top: 4px;
+      font-size: 0.875rem;
+    }
+    .index-table .go {
+      margin-top: 4px;
+    }
+  }
+</style>

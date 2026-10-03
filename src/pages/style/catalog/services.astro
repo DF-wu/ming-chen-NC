@@ -1,0 +1,279 @@
+---
+/**
+ * 技術型錄風格：業務項目（第 1 章）
+ * 每項業務是一張規格頁：說明、服務內容、適用材料、詢價方式與示意圖。
+ * 內容來自 src/data/services.ts。
+ */
+import Layout from '../../../themes/catalog/Layout.astro';
+import ChapterHead from '../../../themes/catalog/components/ChapterHead.astro';
+import SectionHead from '../../../themes/catalog/components/SectionHead.astro';
+import ServiceFigure from '../../../themes/catalog/components/ServiceFigure.astro';
+import { findSection } from '../../../themes/catalog/chapters';
+import { company, links } from '../../../data/company';
+import { services, processSteps } from '../../../data/services';
+import { styleUrl } from '../../../utils/url';
+
+/** 服務內容的項次 a、b、c… */
+const letter = (i: number) => String.fromCharCode(97 + i);
+
+/**
+ * ISO 513 被加工材料分類（參考）：P 鋼、M 不鏽鋼、N 非鐵金屬、H 硬化材。
+ * 只對應 services.ts 中已列出的材料名稱；未列出的材料不顯示分類。
+ */
+const isoGroups: Record<string, string[]> = {
+  模具鋼: ['P', 'H'],
+  高速鋼: ['H'],
+  不鏽鋼: ['M'],
+  '銅、鋁等導電金屬': ['N'],
+};
+const isoLegend = [
+  { code: 'P', name: '鋼' },
+  { code: 'M', name: '不鏽鋼' },
+  { code: 'N', name: '非鐵金屬' },
+  { code: 'H', name: '硬化材' },
+];
+---
+
+<Layout
+  title="業務項目"
+  canonicalPath="/services/"
+  chapter={1}
+  description="明泉精密科技的業務項目：CNC 線切割加工、模具零件加工、夾具與治具製作、精密機械零件加工。"
+>
+  <ChapterHead chapter={1} lead="以 CNC 線切割為核心技術，提供模具零件、夾具治具與精密機械零件的加工。各項目的服務內容與詢價方式如下。" />
+
+  {
+    services.map((s) => {
+      const no = findSection(1, s.id).no;
+      return (
+        <section class="sheet svc" id={s.id}>
+          <SectionHead chapter={1} id={s.id} aside={s.en} />
+          <div class="svc-grid">
+            <p class="svc-desc">{s.description}</p>
+
+            <figure class="svc-fig">
+              <ServiceFigure id={s.id} icon={s.icon} label={`${s.title}示意圖`} />
+              <figcaption>
+                <span class="mono">圖 {no}</span>　{s.title}示意
+              </figcaption>
+            </figure>
+
+            <table class="spec spec--kv svc-table" data-reveal="rows">
+              <tbody>
+                <tr style="--i: 0">
+                  <th scope="row">服務內容</th>
+                  <td>
+                    <ol class="pts">
+                      {s.points.map((p, j) => (
+                        <li>
+                          <span class="mono">{letter(j)}.</span>
+                          {p}
+                        </li>
+                      ))}
+                    </ol>
+                  </td>
+                </tr>
+                {s.materials && (
+                  <tr style="--i: 1">
+                    <th scope="row">適用材料</th>
+                    <td>
+                      <ul class="mats">
+                        {s.materials.map((m) => (
+                          <li>
+                            {m}
+                            {(isoGroups[m] ?? []).map((code) => (
+                              <span class={`iso iso-${code}`} title={`ISO ${code}`}>
+                                {code}
+                              </span>
+                            ))}
+                          </li>
+                        ))}
+                      </ul>
+                      <p class="note legend-row">
+                        <span>ISO 材料分類（參考）</span>
+                        {isoLegend.map((g) => (
+                          <span class="legend">
+                            <span class={`iso iso-${g.code}`}>{g.code}</span>
+                            {g.name}
+                          </span>
+                        ))}
+                      </p>
+                      <p class="note">實際可加工的材質、尺寸與精度，請來電洽詢。</p>
+                    </td>
+                  </tr>
+                )}
+                <tr style="--i: 2">
+                  <th scope="row">詢價方式</th>
+                  <td>
+                    電話 <a class="link mono" href={links.tel}>{company.contact.phone}</a>、傳真圖面 <span class="mono">{company.contact.fax}</span>，或 Email 寄送圖檔。
+                    <a class="ref inline" href={styleUrl('catalog', '/contact/#request')}>
+                      <span class="mono">3.3</span>詢價須知
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      );
+    })
+  }
+
+  <!-- 詢價流程 -->
+  <section class="sheet" id="process">
+    <SectionHead chapter={1} id="process" aside="從洽詢到交貨" />
+    <table class="spec spec--stack process" data-reveal="rows">
+      <thead>
+        <tr>
+          <th scope="col">步驟</th>
+          <th scope="col">項目</th>
+          <th scope="col">說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          processSteps.map((step, i) => (
+            <tr style={`--i: ${i}`}>
+              <td class="num">{i + 1}</td>
+              <td class="step-title">{step.title}</td>
+              <td>{step.text}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </section>
+</Layout>
+
+<style>
+  .svc-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+    grid-template-areas:
+      'desc fig'
+      'table fig';
+    grid-template-rows: auto 1fr;
+    gap: 20px clamp(20px, 3vw, 36px);
+  }
+  .svc-desc {
+    grid-area: desc;
+    font-size: 1.0625rem;
+    color: var(--c-ink-2);
+  }
+  .svc-fig {
+    grid-area: fig;
+  }
+  .svc-fig figcaption {
+    margin-top: 8px;
+    font-size: 0.8125rem;
+    color: var(--c-muted);
+  }
+  .svc-table {
+    grid-area: table;
+    align-self: start;
+  }
+
+  .pts li {
+    display: flex;
+    gap: 8px;
+  }
+  .pts li + li {
+    margin-top: 2px;
+  }
+  .pts .mono {
+    flex: none;
+    width: 1.4em;
+    color: var(--c-blue);
+  }
+
+  .mats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+  }
+  .mats li {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px 2px 10px;
+    border: 1px solid var(--c-rule);
+    background: #fff;
+  }
+  .iso {
+    display: inline-grid;
+    place-items: center;
+    width: 1.35em;
+    height: 1.35em;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    color: #fff;
+  }
+  .iso-P {
+    background: #1f62b0;
+  }
+  .iso-M {
+    background: #f0c000;
+    color: var(--c-ink);
+  }
+  .iso-N {
+    background: #2c7a43;
+  }
+  .iso-H {
+    background: #66707a;
+  }
+  .note {
+    margin-top: 6px;
+    font-size: 0.8125rem;
+    color: var(--c-muted);
+  }
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin-top: 12px;
+  }
+  .legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .ref.inline {
+    margin-left: 6px;
+    font-size: 0.875rem;
+  }
+
+  .process .num {
+    width: 4em;
+    font-size: 1.125rem;
+  }
+  .process .step-title {
+    width: 11em;
+    font-weight: 600;
+  }
+
+  @media (max-width: 860px) {
+    .svc-grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'desc'
+        'fig'
+        'table';
+      grid-template-rows: auto;
+    }
+    .svc-fig {
+      max-width: 360px;
+    }
+  }
+  @media (max-width: 560px) {
+    .process .step-title {
+      width: auto;
+    }
+    .process .num {
+      width: 2.5em;
+    }
+  }
+</style>

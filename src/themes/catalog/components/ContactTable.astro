@@ -1,0 +1,84 @@
+---
+/**
+ * 聯絡資料表：電話、傳真、Email、地址、營業時間（full 版另含統一編號）。
+ * 首頁「洽詢方式」與聯絡頁共用。
+ */
+import { company, fullAddress, links } from '../../../data/company';
+
+interface Props {
+  full?: boolean;
+}
+
+const { full = false } = Astro.props;
+---
+
+<table class="spec spec--kv contact" data-reveal="rows">
+  <tbody>
+    <tr style="--i: 0">
+      <th scope="row">電話 <span class="mono en">TEL</span></th>
+      <td><a class="tel mono" href={links.tel}>{company.contact.phone}</a></td>
+    </tr>
+    <tr style="--i: 1">
+      <th scope="row">傳真 <span class="mono en">FAX</span></th>
+      <td class="mono big">{company.contact.fax}</td>
+    </tr>
+    <tr style="--i: 2">
+      <th scope="row">電子郵件 <span class="mono en">E-mail</span></th>
+      <td><a class="link" href={links.mailto}>{company.contact.email}</a></td>
+    </tr>
+    <tr style="--i: 3">
+      <th scope="row">地址</th>
+      <td>{fullAddress}</td>
+    </tr>
+    <tr style="--i: 4">
+      <th scope="row">營業時間</th>
+      <td>{company.contact.hours}</td>
+    </tr>
+    {
+      full && (
+        <tr style="--i: 5">
+          <th scope="row">統一編號</th>
+          <td class="mono">{company.taxId}</td>
+        </tr>
+      )
+    }
+  </tbody>
+</table>
+
+<style>
+  .en {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 400;
+    color: var(--c-muted);
+  }
+  .tel {
+    font-size: clamp(1.5rem, 3.2vw, 2rem);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--c-blue);
+    text-decoration: none;
+  }
+  .tel:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+  .big {
+    font-size: 1.125rem;
+  }
+  td {
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 560px) {
+    th[scope='row'] {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+    }
+    .en {
+      display: inline;
+    }
+  }
+</style>

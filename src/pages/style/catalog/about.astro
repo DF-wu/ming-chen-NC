@@ -1,0 +1,231 @@
+---
+/**
+ * 技術型錄風格：公司資料（第 2 章）
+ * 簡介文字在下方修改；沿革、登記資料來自 src/data/company.ts，特點來自 services.ts。
+ */
+import Layout from '../../../themes/catalog/Layout.astro';
+import ChapterHead from '../../../themes/catalog/components/ChapterHead.astro';
+import SectionHead from '../../../themes/catalog/components/SectionHead.astro';
+import { company, timeline, address, experienceYears } from '../../../data/company';
+import { highlights } from '../../../data/services';
+
+const roc = (year: number) => year - 1911;
+const incorporatedYear = Number(company.incorporatedOn.slice(0, 4));
+const factoryYear = Number(company.factory.approvedOn.slice(0, 4));
+
+/** 2002-11-18 → 民國 91 年 11 月 18 日（2002） */
+function toRocDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `民國 ${roc(y)} 年 ${m} 月 ${d} 日（${y}）`;
+}
+
+/** 2.1 簡介旁的要點 */
+const keyFacts = [
+  { label: '開始營運', value: String(company.foundedYear) },
+  { label: '公司設立', value: String(incorporatedYear) },
+  { label: '工廠登記', value: String(factoryYear) },
+  { label: '加工經驗', value: `${experienceYears}+ 年` },
+];
+
+/** 2.4 登記資料 */
+const registration = [
+  { label: '公司名稱', value: company.name },
+  { label: '統一編號', value: company.taxId, mono: true },
+  { label: '代表人', value: company.representative },
+  { label: '開始營運', value: `民國 ${roc(company.foundedYear)} 年（${company.foundedYear}）` },
+  { label: '公司設立', value: toRocDate(company.incorporatedOn) },
+  { label: '工廠登記編號', value: company.factory.registrationNo, mono: true },
+  { label: '工廠登記核准', value: toRocDate(company.factory.approvedOn) },
+  { label: '工廠狀態', value: company.factory.status },
+  { label: '產業類別', value: company.factory.industries.join('、') },
+  { label: '主要產品', value: company.factory.products.join('；') },
+  { label: '營業項目', value: company.businessItems.join('、') },
+  { label: '營業地址', value: address },
+  { label: '公司登記地址', value: company.registeredAddress },
+];
+---
+
+<Layout
+  title="公司資料"
+  canonicalPath="/about/"
+  chapter={2}
+  description={`${company.name}自 ${company.foundedYear} 年開始營運，以 CNC 線切割為核心技術。公司簡介、沿革與登記資料。`}
+>
+  <ChapterHead chapter={2} lead={`自 ${company.foundedYear} 年起專注精密線切割與模具加工。以下為公司簡介、特點、沿革與登記資料。`} />
+
+  <!-- 2.1 公司簡介 -->
+  <section class="sheet" id="profile">
+    <SectionHead chapter={2} id="profile" aside="Company Profile" />
+    <div class="profile">
+      <div class="profile-text" data-reveal="block">
+        <p>
+          {company.name}位於臺南市安南區海佃路二段，自民國 {roc(company.foundedYear)} 年（{company.foundedYear} 年）開始營運，民國 {roc(incorporatedYear)} 年正式成立公司，並於民國 {roc(factoryYear)} 年完成經濟部工廠登記。
+        </p>
+        <p>
+          我們以 CNC 線切割為核心技術，提供精密、高效率的加工服務。除了一般模具加工，也承接夾具、治具與各式精密機械零件，服務臺南在地客戶，最遠至臺北。
+        </p>
+        <p>
+          營運三年即在業界打開知名度。多年來，我們在既有技術的基礎上，持續嘗試新的、更有效率的加工方法，以穩定的品質與交期服務客戶。
+        </p>
+      </div>
+      <dl class="keys">
+        {
+          keyFacts.map((k) => (
+            <div>
+              <dt>{k.label}</dt>
+              <dd class="mono">{k.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- 2.2 特點 -->
+  <section class="sheet" id="features">
+    <SectionHead chapter={2} id="features" aside="Features" />
+    <table class="spec spec--stack features" data-reveal="rows">
+      <thead>
+        <tr>
+          <th scope="col">項次</th>
+          <th scope="col">特點</th>
+          <th scope="col">說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          highlights.map((h, i) => (
+            <tr style={`--i: ${i}`}>
+              <td class="num">{String.fromCharCode(65 + i)}</td>
+              <td class="f-title">{h.title}</td>
+              <td>{h.text}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 2.3 沿革 -->
+  <section class="sheet" id="history">
+    <SectionHead chapter={2} id="history" aside="History" />
+    <table class="spec spec--stack history" data-reveal="rows" style="--stack-col: 5.5em">
+      <thead>
+        <tr>
+          <th scope="col">年份</th>
+          <th scope="col">事項</th>
+          <th scope="col">說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          timeline.map((t, i) => (
+            <tr style={`--i: ${i}`}>
+              <td class="year">
+                <span class="mono">{t.year}</span>
+                {t.era && <span class="era">{t.era}</span>}
+              </td>
+              <td class="h-title">{t.title}</td>
+              <td>{t.text}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 2.4 登記資料 -->
+  <section class="sheet" id="registration">
+    <SectionHead chapter={2} id="registration" aside="Registration" />
+    <table class="spec spec--kv" data-reveal="rows">
+      <caption>資料來源：經濟部商工登記公示資料、經濟部工廠登記公示資料。</caption>
+      <tbody>
+        {
+          registration.map((r, i) => (
+            <tr style={`--i: ${i}`}>
+              <th scope="row">{r.label}</th>
+              <td class:list={{ mono: r.mono }}>{r.value}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </section>
+</Layout>
+
+<style>
+  .profile {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: clamp(24px, 4vw, 48px);
+    align-items: start;
+  }
+  .profile-text p {
+    font-size: 1.0625rem;
+    color: var(--c-ink-2);
+  }
+  .profile-text p + p {
+    margin-top: 1em;
+  }
+
+  .keys {
+    border-top: 2px solid var(--c-ink);
+  }
+  .keys div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--c-rule);
+  }
+  .keys dt {
+    font-size: 0.875rem;
+    color: var(--c-muted);
+  }
+  .keys dd {
+    font-size: 1.375rem;
+    font-weight: 500;
+    color: var(--c-blue);
+  }
+
+  .features .num {
+    width: 4em;
+  }
+  .features .f-title,
+  .history .h-title {
+    width: 11em;
+    font-weight: 600;
+  }
+  .history .year {
+    width: 8em;
+  }
+  .history .year .mono {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--c-blue);
+    line-height: 1.3;
+  }
+  .era {
+    font-size: 0.8125rem;
+    color: var(--c-muted);
+  }
+
+  @media (max-width: 760px) {
+    .profile {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .features .f-title,
+    .history .h-title {
+      width: auto;
+    }
+    .features .num {
+      width: 2.5em;
+    }
+    .history .year {
+      width: 5.5em;
+    }
+  }
+</style>

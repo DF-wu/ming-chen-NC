@@ -1,0 +1,213 @@
+---
+/**
+ * 側欄目錄（桌機固定在左側）：列出所有章節，目前章節展開小節，
+ * 並由 Layout 的腳本標示目前閱讀到的小節。底部附電話與傳真。
+ * 手機版：只顯示本頁小節，變成內容上方的「本頁目錄」。
+ */
+import { chapters } from '../chapters';
+import { company, links } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+
+interface Props {
+  chapter: number;
+}
+
+const { chapter } = Astro.props;
+---
+
+<aside class="sb no-print" aria-label="型錄目錄">
+  <div class="sb-inner">
+    <p class="sb-title"><span class="desk">目錄</span><span class="phone">本頁目錄</span></p>
+    <ol class="sb-list">
+      {
+        chapters.map((c) => (
+          <li class:list={{ current: c.no === chapter }}>
+            <a class="sb-ch" href={styleUrl('catalog', c.path)} aria-current={c.no === chapter ? 'page' : undefined}>
+              <span class="mono">{c.no}</span>
+              {c.title}
+            </a>
+            {c.no === chapter && (
+              <ol class="sb-sub">
+                {c.sections.map((s) => (
+                  <li>
+                    <a href={`#${s.id}`} data-toc-link>
+                      <span class="mono">{s.no}</span>
+                      {s.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="sb-contact">
+      <p class="sb-title">洽詢</p>
+      <a class="sb-tel" href={links.tel}>
+        <span class="lbl">TEL</span>
+        <span class="mono">{company.contact.phone}</span>
+      </a>
+      <p><span class="lbl">FAX</span> <span class="mono">{company.contact.fax}</span></p>
+      <a class="sb-mail" href={links.mailto}>{company.contact.email}</a>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .sb-inner {
+    position: sticky;
+    top: 24px;
+  }
+  .sb-title {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--c-ink);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--c-ink);
+  }
+  .phone {
+    display: none;
+  }
+
+  .sb-list > li {
+    border-bottom: 1px solid var(--c-rule);
+  }
+  .sb-ch {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 9px 4px;
+    font-weight: 500;
+    color: var(--c-ink-2);
+    text-decoration: none;
+  }
+  .sb-ch .mono {
+    min-width: 1.2em;
+    font-size: 0.8125rem;
+    color: var(--c-muted);
+  }
+  .sb-ch:hover {
+    color: var(--c-blue);
+  }
+  .current .sb-ch {
+    color: var(--c-ink);
+    font-weight: 600;
+  }
+  .current .sb-ch .mono {
+    color: var(--c-blue);
+  }
+
+  .sb-sub {
+    margin: 0 0 10px 6px;
+    border-left: 1px solid var(--c-rule);
+  }
+  .sb-sub a {
+    display: flex;
+    gap: 8px;
+    margin-left: -1px;
+    padding: 5px 8px 5px 12px;
+    border-left: 2px solid transparent;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--c-ink-2);
+    text-decoration: none;
+    transition:
+      color 0.15s,
+      border-color 0.15s,
+      background-color 0.15s;
+  }
+  .sb-sub a .mono {
+    font-size: 0.75rem;
+    line-height: 1.75;
+    color: var(--c-muted);
+  }
+  .sb-sub a:hover {
+    color: var(--c-blue);
+  }
+  .sb-sub a[data-active] {
+    border-left-color: var(--c-blue);
+    background: var(--c-sheet);
+    color: var(--c-blue);
+  }
+  .sb-sub a[data-active] .mono {
+    color: var(--c-blue);
+  }
+
+  .sb-contact {
+    margin-top: 28px;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+  .sb-contact .lbl {
+    display: inline-block;
+    width: 2.6em;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--c-muted);
+  }
+  .sb-tel {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--c-blue);
+    text-decoration: none;
+  }
+  .sb-tel:hover .mono {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .sb-mail {
+    display: inline-block;
+    margin-top: 4px;
+    color: var(--c-ink-2);
+    overflow-wrap: anywhere;
+    text-underline-offset: 3px;
+  }
+
+  /* 手機：只留本頁小節，橫向排列 */
+  @media (max-width: 960px) {
+    .sb-inner {
+      position: static;
+    }
+    .desk,
+    .sb-list > li:not(.current),
+    .sb-ch,
+    .sb-contact {
+      display: none;
+    }
+    .phone {
+      display: inline;
+    }
+    .sb-title {
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom-width: 1px;
+      font-size: 0.75rem;
+      color: var(--c-muted);
+    }
+    .sb-list > li {
+      border: 0;
+    }
+    .sb-sub {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0;
+      border: 0;
+    }
+    .sb-sub a {
+      margin: 0;
+      padding: 5px 10px;
+      border: 1px solid var(--c-rule);
+      background: var(--c-sheet);
+      font-size: 0.8125rem;
+    }
+    .sb-sub a[data-active] {
+      border-color: var(--c-rule);
+    }
+  }
+</style>

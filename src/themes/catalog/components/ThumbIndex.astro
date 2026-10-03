@@ -1,0 +1,69 @@
+---
+/**
+ * 側邊索引標籤：仿照印刷型錄頁緣的章節標籤，固定在畫面右緣（只在寬螢幕顯示）。
+ */
+import { chapters } from '../chapters';
+import { styleUrl } from '../../../utils/url';
+
+interface Props {
+  chapter: number;
+}
+
+const { chapter } = Astro.props;
+---
+
+<nav class="thumb no-print" aria-label="章節索引">
+  {
+    chapters.map((c) => (
+      <a
+        href={styleUrl('catalog', c.path)}
+        class:list={{ on: c.no === chapter }}
+        aria-current={c.no === chapter ? 'page' : undefined}
+        title={c.title}
+      >
+        <span class="mono">{c.no}</span>
+        <span class="visually-hidden">{c.title}</span>
+      </a>
+    ))
+  }
+</nav>
+
+<style>
+  .thumb {
+    display: none;
+  }
+  @media (min-width: 1400px) {
+    .thumb {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      transform: translateY(-50%);
+    }
+    .thumb a {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 54px;
+      background: #d3d8dc;
+      color: var(--c-ink-2);
+      font-size: 0.8125rem;
+      text-decoration: none;
+      transition:
+        width 0.15s,
+        background-color 0.15s;
+    }
+    .thumb a:hover {
+      width: 36px;
+      background: #c3c9ce;
+    }
+    .thumb a.on {
+      width: 36px;
+      background: var(--c-blue);
+      color: #fff;
+    }
+  }
+</style>

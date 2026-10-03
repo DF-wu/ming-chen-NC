@@ -1,0 +1,248 @@
+---
+/**
+ * 業務項目的示意線稿（型錄式插圖）。依業務 id 顯示對應的圖；
+ * 新增的業務項目若沒有專屬插圖，會改用該項目的圖示。
+ */
+import Icon from '../../../components/Icon.astro';
+import type { IconName } from '../../../components/icons';
+import { gearPath } from '../../../utils/gear';
+
+interface Props {
+  id: string;
+  icon: IconName;
+  label: string;
+}
+
+const { id, icon, label } = Astro.props;
+
+// 齒輪插圖（精密機械零件）
+const gear = { cx: 120, cy: 84, outer: 58, root: 48, teeth: 18 };
+const bore = 15;
+const keyHalf = 5;
+const keyY = Math.sqrt(bore ** 2 - keyHalf ** 2);
+const borePath = `M ${gear.cx - keyHalf} ${gear.cy - keyY} V ${gear.cy - bore - 6} H ${gear.cx + keyHalf} V ${gear.cy - keyY} A ${bore} ${bore} 0 1 1 ${gear.cx - keyHalf} ${gear.cy - keyY}`;
+---
+
+<div class="fig">
+  {
+    id === 'wire-edm' && (
+      <svg viewBox="0 0 240 172" role="img" aria-label={label}>
+        <rect class="plate" x="24" y="18" width="192" height="122" />
+        <path class="todo" d="M 150 96 V 110 H 80 V 80" />
+        <path class="cut" d="M 60 80 H 80 V 50 H 170 V 72 H 150 V 96" />
+        <circle class="start" cx="60" cy="80" r="3.5" />
+        <circle class="halo" cx="150" cy="96" r="7" />
+        <circle class="wire" cx="150" cy="96" r="3" />
+        <path class="lead" d="M 57 77 L 46 36 H 36" />
+        <text class="t" x="34" y="32">穿線孔</text>
+        <path class="lead" d="M 154 100 L 172 124 H 200" />
+        <text class="t" x="170" y="120">線電極</text>
+        <path class="axis" d="M 34 130 H 52 M 34 130 V 112" />
+        <text class="t s" x="55" y="133">X</text>
+        <text class="t s" x="31" y="108">Y</text>
+        <path class="cut" d="M 32 158 H 50" />
+        <text class="t" x="55" y="161">已切割</text>
+        <path class="todo" d="M 104 158 H 122" />
+        <text class="t" x="127" y="161">加工路徑</text>
+      </svg>
+    )
+  }
+  {
+    id === 'mold' && (
+      <svg viewBox="0 0 240 172" role="img" aria-label={label}>
+        <defs>
+          <pattern id="fig-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <path d="M 0 0 V 6" class="hatch-line" />
+          </pattern>
+        </defs>
+        <rect class="sect" x="100" y="14" width="40" height="60" />
+        <rect class="sheet-mat" x="20" y="78" width="200" height="6" />
+        <rect class="sect" x="20" y="88" width="78" height="44" />
+        <rect class="sect" x="142" y="88" width="78" height="44" />
+        <path class="arrow" d="M 86 18 V 50 M 81 43 L 86 52 L 91 43" />
+        <path class="lead" d="M 140 30 L 160 22 H 196" />
+        <text class="t" x="164" y="18">沖頭</text>
+        <path class="lead" d="M 40 81 L 30 64 H 18" />
+        <text class="t" x="16" y="60">材料</text>
+        <path class="lead" d="M 182 132 L 192 150 H 222" />
+        <text class="t" x="190" y="164">模板</text>
+        <path class="dimc" d="M 98 146 H 142" />
+        <path class="dimc" d="M 98 140 V 150 M 142 140 V 150" />
+        <text class="t c" x="120" y="162" text-anchor="middle">間隙</text>
+      </svg>
+    )
+  }
+  {
+    id === 'jig' && (
+      <svg viewBox="0 0 240 172" role="img" aria-label={label}>
+        <rect class="base" x="20" y="120" width="200" height="18" />
+        <rect class="work" x="48" y="88" width="120" height="22" />
+        <rect class="pin" x="60" y="80" width="9" height="40" rx="2" />
+        <rect class="pin" x="146" y="80" width="9" height="40" rx="2" />
+        <rect class="base" x="176" y="74" width="12" height="46" />
+        <rect class="clamp" x="104" y="64" width="90" height="10" />
+        <rect class="bolt" x="141" y="40" width="9" height="80" />
+        <rect class="clamp" x="135" y="34" width="21" height="8" />
+        <path class="arrow" d="M 116 40 V 58 M 111 51 L 116 60 L 121 51" />
+        <path class="lead" d="M 62 82 L 50 58 H 22" />
+        <text class="t" x="22" y="54">定位銷</text>
+        <path class="lead" d="M 190 69 L 204 50 H 226" />
+        <text class="t" x="202" y="46">壓板</text>
+        <text class="t" x="80" y="103">工件</text>
+        <text class="t" x="22" y="156">基座</text>
+      </svg>
+    )
+  }
+  {
+    id === 'parts' && (
+      <svg viewBox="0 0 240 172" role="img" aria-label={label}>
+        <path class="center" d={`M ${gear.cx - 72} ${gear.cy} H ${gear.cx + 72} M ${gear.cx} ${gear.cy - 72} V ${gear.cy + 72}`} />
+        <path class="gear" d={gearPath(gear)} />
+        <path class="bore" d={borePath} />
+        <path class="lead" d={`M ${gear.cx + 45} ${gear.cy - 34} L ${gear.cx + 66} ${gear.cy - 60} H ${gear.cx + 100}`} />
+        <text class="t" x={gear.cx + 70} y={gear.cy - 64}>齒形</text>
+        <path class="lead" d={`M ${gear.cx - 11} ${gear.cy + 11} L ${gear.cx - 66} ${gear.cy + 66} H ${gear.cx - 100}`} />
+        <text class="t" x={gear.cx - 100} y={gear.cy + 62}>軸孔</text>
+      </svg>
+    )
+  }
+  {
+    !['wire-edm', 'mold', 'jig', 'parts'].includes(id) && (
+      <div class="fallback">
+        <Icon name={icon} size={88} label={label} />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .fig {
+    background: var(--c-th);
+    border: 1px solid var(--c-rule);
+    padding: 10px;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+  }
+  .fallback {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 240 / 172;
+    color: var(--c-ink-2);
+  }
+
+  .t {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    fill: var(--c-ink-2);
+  }
+  .t.s {
+    font-family: var(--font-mono);
+    font-size: 9px;
+  }
+  .lead,
+  .axis,
+  .dimc {
+    fill: none;
+    stroke: var(--c-ink-2);
+    stroke-width: 0.7;
+  }
+  .arrow {
+    fill: none;
+    stroke: var(--c-blue);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* 線切割 */
+  .plate {
+    fill: #fff;
+    stroke: var(--c-ink);
+    stroke-width: 1;
+  }
+  .cut {
+    fill: none;
+    stroke: var(--c-blue);
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+  .todo {
+    fill: none;
+    stroke: var(--c-muted);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+  .start {
+    fill: #fff;
+    stroke: var(--c-blue);
+    stroke-width: 1.2;
+  }
+  .wire {
+    fill: var(--c-blue);
+  }
+  .halo {
+    fill: none;
+    stroke: var(--c-blue);
+    stroke-width: 0.8;
+    opacity: 0.5;
+  }
+
+  /* 模具 */
+  .sect {
+    fill: url(#fig-hatch);
+    stroke: var(--c-ink);
+    stroke-width: 1;
+  }
+  .hatch-line {
+    stroke: var(--c-ink-2);
+    stroke-width: 0.6;
+  }
+  .sheet-mat {
+    fill: var(--c-blue);
+    opacity: 0.85;
+  }
+
+  /* 夾治具 */
+  .base {
+    fill: #fff;
+    stroke: var(--c-ink);
+    stroke-width: 1;
+  }
+  .work {
+    fill: var(--c-blue-tint);
+    stroke: var(--c-blue);
+    stroke-width: 1.2;
+  }
+  .pin,
+  .bolt {
+    fill: #c3cad0;
+    stroke: var(--c-ink);
+    stroke-width: 0.8;
+  }
+  .clamp {
+    fill: #fff;
+    stroke: var(--c-ink);
+    stroke-width: 1;
+  }
+
+  /* 齒輪 */
+  .center {
+    fill: none;
+    stroke: var(--c-muted);
+    stroke-width: 0.6;
+    stroke-dasharray: 10 3 2 3;
+  }
+  .gear {
+    fill: #fff;
+    stroke: var(--c-blue);
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+  }
+  .bore {
+    fill: var(--c-th);
+    stroke: var(--c-ink);
+    stroke-width: 1;
+  }
+</style>
