@@ -1,0 +1,103 @@
+---
+/**
+ * 公司優勢：左側大標語、右側條列（以細線分隔，不用圖示卡片）。
+ * 內容來自 src/data/services.ts 的 highlights。
+ */
+import { highlights } from '../../../data/services';
+import { company, experienceYears } from '../../../data/company';
+---
+
+<section class="c-section c-band">
+  <div class="c-container c-grid">
+    <div class="intro">
+      <p class="en c-display">Since {company.foundedYear}</p>
+      <h2>
+        {experienceYears} 年的實務，<br />累積成穩定的加工品質。
+      </h2>
+      <span class="rule" data-reveal="line" aria-hidden="true"></span>
+      <p class="lead">從民國 {company.foundedYear - 1911} 年開始營運至今，明泉以 CNC 線切割為核心，持續累積模具與精密零件的加工經驗。</p>
+    </div>
+
+    <ol class="list">
+      {
+        highlights.map((h, i) => (
+          <li data-reveal style={`--delay: ${i * 0.08}s`}>
+            <h3>{h.title}</h3>
+            <p>{h.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .intro {
+    grid-column: 1 / span 5;
+    align-self: start;
+    position: sticky;
+    top: calc(var(--header-h) + 40px);
+  }
+  .en {
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--blue);
+  }
+  h2 {
+    margin-top: 10px;
+    font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+    font-weight: 900;
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+  }
+  .rule {
+    display: block;
+    width: 72px;
+    height: 4px;
+    margin-top: 24px;
+    background: var(--blue);
+  }
+  .lead {
+    margin-top: 22px;
+    max-width: 26em;
+    color: var(--ink-2);
+  }
+
+  .list {
+    grid-column: 7 / span 6;
+    border-top: 2px solid var(--ink);
+  }
+  .list li {
+    display: grid;
+    grid-template-columns: 11em 1fr;
+    gap: 8px 28px;
+    padding-block: 28px;
+    border-bottom: 1px solid #cfd6dd;
+  }
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .list p {
+    color: var(--ink-2);
+  }
+
+  @media (max-width: 1000px) {
+    .intro,
+    .list {
+      grid-column: 1 / -1;
+    }
+    .intro {
+      position: static;
+      margin-bottom: 40px;
+    }
+  }
+  @media (max-width: 640px) {
+    .list li {
+      grid-template-columns: 1fr;
+      padding-block: 22px;
+    }
+  }
+</style>

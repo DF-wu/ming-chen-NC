@@ -1,0 +1,114 @@
+---
+/**
+ * 公司沿革：桌機為橫向時間軸（軸線進入畫面時延伸），手機為直向。
+ * 內容來自 src/data/company.ts 的 timeline。
+ */
+import { timeline } from '../../../data/company';
+---
+
+<div class="tl">
+  <span class="axis" data-reveal="line" aria-hidden="true"></span>
+  <ol>
+    {
+      timeline.map((item, i) => (
+        <li data-reveal style={`--delay: ${0.2 + i * 0.15}s`}>
+          <span class="node" aria-hidden="true" />
+          <p class="year c-display">{item.year}</p>
+          {item.era && <p class="era">{item.era}</p>}
+          <h3>{item.title}</h3>
+          <p class="text">{item.text}</p>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .tl {
+    position: relative;
+  }
+  .axis {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 9px;
+    height: 2px;
+    background: var(--ink);
+  }
+  ol {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(20px, 3vw, 40px);
+  }
+  li {
+    position: relative;
+    padding-top: 44px;
+  }
+  .node {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    background: var(--white);
+    border: 4px solid var(--blue);
+  }
+  li:last-child .node {
+    background: var(--blue);
+  }
+  .year {
+    font-size: clamp(2.75rem, 4.6vw, 4rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+  }
+  li:last-child .year {
+    font-family: var(--font-sans);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: var(--blue);
+    font-size: clamp(2.25rem, 3.6vw, 3.25rem);
+    line-height: 1.24;
+  }
+  .era {
+    margin-top: 6px;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  h3 {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+  .text {
+    margin-top: 6px;
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+  }
+
+  @media (max-width: 860px) {
+    .axis {
+      top: 0;
+      bottom: 0;
+      left: 9px;
+      right: auto;
+      width: 2px;
+      height: auto;
+    }
+    :global(.motion) .axis[data-reveal='line'] {
+      transform-origin: center top;
+    }
+    :global(.motion) .axis[data-reveal='line']:not(.is-in) {
+      transform: scaleY(0);
+    }
+    ol {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+    li {
+      padding: 0 0 0 44px;
+    }
+  }
+</style>

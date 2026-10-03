@@ -1,0 +1,49 @@
+---
+/**
+ * 桌機右側固定的「聯絡我們」直式頁籤（參考 Hermle），捲到哪裡都能一鍵前往聯絡頁。
+ * 手機版改用底部快速聯絡列（MobileBar），此頁籤隱藏。
+ */
+import Icon from '../../../components/Icon.astro';
+import { styleUrl } from '../../../utils/url';
+---
+
+<a class="tab" href={styleUrl('corporate', '/contact/')}>
+  <Icon name="mail" size={20} />
+  <span>聯絡我們</span>
+</a>
+
+<style>
+  .tab {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 12px 22px;
+    background: var(--blue);
+    color: var(--white);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-decoration: none;
+    writing-mode: vertical-rl;
+    transform: translateY(-50%);
+    clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+    transition: background-color 0.2s, padding 0.25s var(--ease);
+  }
+  .tab :global(svg) {
+    writing-mode: horizontal-tb;
+  }
+  .tab:hover {
+    background: var(--blue-deep);
+    padding-right: 18px;
+  }
+  @media (max-width: 860px) {
+    .tab {
+      display: none;
+    }
+  }
+</style>

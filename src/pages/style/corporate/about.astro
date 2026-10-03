@@ -1,0 +1,165 @@
+---
+/**
+ * 「國際大廠」風格：關於我們頁。
+ * 公司簡介文字直接在下方修改；沿革與公司資料在 src/data/company.ts 修改。
+ */
+import Layout from '../../../themes/corporate/Layout.astro';
+import PageHeader from '../../../themes/corporate/components/PageHeader.astro';
+import Heading from '../../../themes/corporate/components/Heading.astro';
+import Timeline from '../../../themes/corporate/components/Timeline.astro';
+import ProfileTable from '../../../themes/corporate/components/ProfileTable.astro';
+import ContactBand from '../../../themes/corporate/components/ContactBand.astro';
+import { company, experienceYears } from '../../../data/company';
+
+const roc = (year: number) => year - 1911;
+const incorporatedYear = Number(company.incorporatedOn.slice(0, 4));
+const factoryYear = Number(company.factory.approvedOn.slice(0, 4));
+---
+
+<Layout
+  title="關於我們"
+  description={`${company.name}自 ${company.foundedYear} 年開始營運，以 CNC 線切割為核心技術，承接模具、夾具、治具與精密機械零件加工。`}
+  canonicalPath="/about/"
+>
+  <PageHeader title="關於我們" en="About Us" lead={`自 ${company.foundedYear} 年起，專注精密線切割與模具加工。`} />
+
+  <!-- 公司簡介 -->
+  <section class="c-section">
+    <div class="c-container c-grid intro">
+      <div class="intro-text">
+        <Heading title="公司簡介" en="Company" />
+        <p class="lead">
+          {company.name}位於臺南市安南區海佃路二段，自民國 {roc(company.foundedYear)} 年開始營運，以 CNC 線切割為核心技術。
+        </p>
+        <p>
+          民國 {roc(incorporatedYear)} 年正式成立公司，並於民國 {roc(factoryYear)}
+          年完成經濟部工廠登記。我們提供精密、高效率的加工服務：除了一般模具加工，也承接夾具、治具與各式精密機械零件，服務臺南在地客戶，最遠至臺北。
+        </p>
+        <p>
+          營運三年即在業界打開知名度。多年來，我們在既有技術的基礎上，持續嘗試新的、更有效率的加工方法，以穩定的品質與交期，成為客戶信賴的加工夥伴。
+        </p>
+      </div>
+
+      <dl class="facts" data-reveal>
+        <div>
+          <dt>開始營運</dt>
+          <dd class="c-display">{company.foundedYear}</dd>
+        </div>
+        <div>
+          <dt>公司設立</dt>
+          <dd class="c-display">{incorporatedYear}</dd>
+        </div>
+        <div>
+          <dt>工廠登記</dt>
+          <dd class="c-display">{factoryYear}</dd>
+        </div>
+        <div>
+          <dt>加工經驗</dt>
+          <dd class="c-display">{experienceYears}<span>+ 年</span></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 沿革 -->
+  <section class="c-section c-band">
+    <div class="c-container">
+      <Heading title="公司沿革" en="History" />
+      <Timeline />
+    </div>
+  </section>
+
+  <!-- 公司資料 -->
+  <section class="c-section">
+    <div class="c-container c-grid">
+      <div class="profile-head">
+        <Heading title="公司資料" en="Profile" />
+        <p class="source">依經濟部商工登記與工廠登記公示資料。</p>
+      </div>
+      <div class="profile-table" data-reveal>
+        <ProfileTable />
+      </div>
+    </div>
+  </section>
+
+  <ContactBand />
+</Layout>
+
+<style>
+  .intro-text {
+    grid-column: 1 / span 7;
+  }
+  .intro-text p {
+    color: var(--ink-2);
+    font-size: 1.0625rem;
+  }
+  .intro-text p + p {
+    margin-top: 1.1em;
+  }
+  .intro-text .lead {
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  .facts {
+    grid-column: 9 / span 4;
+    align-self: start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 2px solid var(--ink);
+  }
+  .facts div {
+    padding: 20px 0 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .facts div:nth-child(odd) {
+    padding-right: 16px;
+    border-right: 1px solid var(--line);
+  }
+  .facts div:nth-child(even) {
+    padding-left: 20px;
+  }
+  .facts dt {
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .facts dd {
+    font-size: clamp(2.5rem, 4vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .facts dd span {
+    margin-left: 4px;
+    font-size: 0.4em;
+    color: var(--blue);
+  }
+
+  .profile-head {
+    grid-column: 1 / span 4;
+  }
+  .source {
+    margin-top: -24px;
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+  .profile-table {
+    grid-column: 5 / span 8;
+  }
+
+  @media (max-width: 1000px) {
+    .intro-text,
+    .facts,
+    .profile-head,
+    .profile-table {
+      grid-column: 1 / -1;
+    }
+    .facts {
+      margin-top: 40px;
+    }
+    .profile-head {
+      margin-bottom: 32px;
+    }
+  }
+</style>

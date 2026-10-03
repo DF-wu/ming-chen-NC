@@ -1,0 +1,108 @@
+---
+/**
+ * 詢價到交貨的流程：全幅藍色色帶上的箭形分段（工業流程圖常見的 chevron）。
+ * 內容來自 src/data/services.ts 的 processSteps。
+ */
+import Heading from './Heading.astro';
+import { processSteps } from '../../../data/services';
+---
+
+<section class="flow">
+  <div class="c-container">
+    <Heading title="從詢價到交貨" en="Process" inverse />
+    <ol class="steps">
+      {
+        processSteps.map((step, i) => (
+          <li class="step" data-reveal style={`--delay: ${i * 0.12}s`}>
+            <div class="chevron">
+              <span class="c-display step-no">STEP {i + 1}</span>
+              <h3>{step.title}</h3>
+            </div>
+            <p>{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .flow {
+    padding-block: var(--section);
+    background: var(--blue);
+    color: var(--white);
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .chevron {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 112px;
+    padding: 18px 44px 18px 28px;
+    background: rgb(255 255 255 / 0.1);
+    clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%, 28px 50%);
+    margin-right: -20px;
+  }
+  .step:first-child .chevron {
+    clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%);
+  }
+  .step:nth-child(2) .chevron {
+    background: rgb(255 255 255 / 0.16);
+  }
+  .step:nth-child(3) .chevron {
+    background: rgb(255 255 255 / 0.22);
+  }
+  .step:last-child .chevron {
+    background: var(--white);
+    color: var(--blue);
+  }
+  .step:not(:first-child) .chevron {
+    padding-left: 48px;
+  }
+  .step-no {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    opacity: 0.8;
+  }
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+  }
+  .step p {
+    padding: 18px 32px 0 28px;
+    font-size: 0.9375rem;
+    color: #dce8f7;
+  }
+  .step:not(:first-child) p {
+    padding-left: 48px;
+  }
+
+  @media (max-width: 900px) {
+    .steps {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .chevron,
+    .step:first-child .chevron {
+      min-height: 0;
+      margin-right: 0;
+      padding: 16px 24px;
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), 50% 100%, 0 calc(100% - 14px));
+      padding-bottom: 28px;
+    }
+    .step:not(:first-child) .chevron {
+      padding-left: 24px;
+    }
+    .step p,
+    .step:not(:first-child) p {
+      padding: 10px 24px 12px;
+    }
+  }
+</style>

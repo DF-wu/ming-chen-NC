@@ -1,0 +1,150 @@
+---
+/**
+ * 頁尾：公司、業務項目、網站導覽、聯絡資訊四欄，底部為版權與統一編號。
+ */
+import Logo from './Logo.astro';
+import { navigation, site } from '../../../data/site';
+import { company, fullAddress, links } from '../../../data/company';
+import { services } from '../../../data/services';
+import { styleUrl } from '../../../utils/url';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="c-container footer-top">
+    <div class="col col--brand">
+      <Logo inverse />
+      <p>{site.tagline}</p>
+    </div>
+
+    <nav class="col" aria-label="業務項目">
+      <h2>業務項目</h2>
+      <ul>
+        {
+          services.map((s) => (
+            <li>
+              <a href={styleUrl('corporate', `/services/#${s.id}`)}>{s.title}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <nav class="col" aria-label="網站導覽">
+      <h2>網站導覽</h2>
+      <ul>
+        {
+          navigation.map((item) => (
+            <li>
+              <a href={styleUrl('corporate', item.href)}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="col col--contact">
+      <h2>聯絡資訊</h2>
+      <dl>
+        <div><dt>電話</dt><dd><a class="c-display" href={links.tel}>{company.contact.phone}</a></dd></div>
+        <div><dt>傳真</dt><dd class="c-display">{company.contact.fax}</dd></div>
+        <div><dt>Email</dt><dd><a href={links.mailto}>{company.contact.email}</a></dd></div>
+        <div><dt>地址</dt><dd><a href={links.map} target="_blank" rel="noopener">{fullAddress}</a></dd></div>
+        <div><dt>統編</dt><dd class="c-display">{company.taxId}</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="c-container footer-bottom">
+    <p>© {year} {company.name}</p>
+    <p>經濟部工廠登記 <span class="c-display">{company.factory.registrationNo}</span></p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--footer);
+    color: #c3ccd5;
+    font-size: 0.9375rem;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 0.8fr 1.6fr;
+    gap: 40px;
+    padding-block: 64px 48px;
+  }
+  .col--brand p {
+    margin-top: 18px;
+    max-width: 22em;
+    color: var(--steel);
+  }
+  h2 {
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgb(255 255 255 / 0.14);
+    font-size: 0.9375rem;
+    letter-spacing: 0.12em;
+    color: var(--white);
+  }
+  li {
+    padding-block: 3px;
+  }
+  .footer a {
+    color: #e3e8ed;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  .footer a:hover {
+    color: var(--blue-light);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  dl div {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 8px;
+    padding-block: 3px;
+  }
+  dt {
+    color: var(--steel);
+  }
+  dd.c-display,
+  dd .c-display {
+    font-size: 1.0625rem;
+    font-weight: 500;
+  }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding-block: 20px;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+    font-size: 0.8125rem;
+    color: var(--steel);
+  }
+
+  @media (max-width: 1000px) {
+    .footer-top {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .footer-top {
+      gap: 32px 20px;
+      padding-block: 48px 32px;
+    }
+    .col--brand,
+    .col--contact {
+      grid-column: 1 / -1;
+    }
+  }
+  /* 手機版底部有快速聯絡列，預留空間 */
+  @media (max-width: 860px) {
+    .footer {
+      padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+</style>

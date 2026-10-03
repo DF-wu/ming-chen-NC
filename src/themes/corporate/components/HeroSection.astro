@@ -1,0 +1,190 @@
+---
+/**
+ * 首頁主視覺：全幅深藍插圖＋左下角的白色倒角標題面板（參考 DMG MORI）。
+ * 左上角顯示公司實際座標，呼應精密量測的氛圍。
+ */
+import HeroArt from './HeroArt.astro';
+import Icon from '../../../components/Icon.astro';
+import { company, links } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+import { heroLead, heroTitle } from '../content';
+
+const lat = company.geo.lat.toFixed(4);
+const lng = company.geo.lng.toFixed(4);
+---
+
+<section class="hero">
+  <div class="hero-art">
+    <HeroArt />
+  </div>
+
+  <div class="c-container hero-meta" aria-hidden="true">
+    <p class="c-display">CNC WIRE EDM</p>
+    <p class="c-display">N {lat}° &nbsp;E {lng}°</p>
+  </div>
+
+  <div class="c-container hero-panel-wrap">
+    <div class="hero-panel">
+      <p class="kicker">臺南安南・自 {company.foundedYear} 年</p>
+      <h1>{heroTitle[0]}<br />{heroTitle[1]}</h1>
+      <p class="lead">{heroLead}</p>
+      <div class="actions">
+        <a class="c-btn c-btn--blue" href={styleUrl('corporate', '/services/')}>
+          業務項目 <Icon name="arrowRight" />
+        </a>
+        <a class="hotline" href={links.tel}>
+          <span class="hotline-label">服務專線</span>
+          <span class="c-display">{company.contact.phone}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 線切割發光點：與路徑描繪同步沿齒形移動（使用者關閉動態效果時不執行）
+  const motion = document.getElementById('c-wire-motion') as unknown as SVGAnimationElement | null;
+  const dot = motion?.parentElement;
+  if (motion && dot && document.documentElement.classList.contains('motion')) {
+    setTimeout(() => {
+      dot.style.visibility = 'visible';
+      motion.beginElement();
+    }, 600);
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    height: clamp(560px, 78vh, 720px);
+    background: var(--navy);
+    color: var(--white);
+  }
+  .hero-art {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .hero-meta {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 28px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--steel);
+  }
+  .hero-meta p:first-child {
+    color: var(--blue-light);
+    font-weight: 600;
+  }
+
+  .hero-panel-wrap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  /* 白色面板向左延伸到螢幕邊緣，文字與上方標誌對齊；右上角為倒角 */
+  .hero-panel {
+    position: relative;
+    width: min(680px, 100%);
+    padding: clamp(32px, 4vw, 52px) clamp(28px, 4vw, 64px) clamp(32px, 3.4vw, 44px) 0;
+    background: var(--white);
+    color: var(--ink);
+    clip-path: polygon(-100vw 0, calc(100% - 56px) 0, 100% 56px, 100% 100%, -100vw 100%);
+  }
+  .hero-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    width: 100vw;
+    background: var(--white);
+  }
+  .kicker {
+    display: inline-block;
+    padding: 4px 14px 4px 12px;
+    background: var(--blue);
+    color: var(--white);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  }
+  h1 {
+    margin-top: 20px;
+    font-size: clamp(2.125rem, 4.4vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.22;
+    letter-spacing: 0.06em;
+  }
+  .lead {
+    max-width: 30em;
+    margin-top: 18px;
+    font-size: 1.0625rem;
+    color: var(--ink-2);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 32px;
+    margin-top: 28px;
+  }
+  .hotline {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+    text-decoration: none;
+  }
+  .hotline-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+  }
+  .hotline .c-display {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--blue);
+  }
+  .hotline:hover .c-display {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  /* 手機：插圖在上、面板在下 */
+  @media (max-width: 860px) {
+    .hero {
+      height: auto;
+      background: var(--white);
+    }
+    .hero-art {
+      position: relative;
+      height: 360px;
+    }
+    .hero-meta {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding-top: 18px;
+      font-size: 0.8125rem;
+    }
+    .hero-meta p + p {
+      display: none;
+    }
+    .hero-panel-wrap {
+      position: relative;
+      margin-top: -64px;
+    }
+    .hero-panel {
+      padding: 28px 20px 32px 0;
+      clip-path: polygon(-100vw 0, calc(100% - 36px) 0, 100% 36px, 100% 100%, -100vw 100%);
+    }
+  }
+</style>
