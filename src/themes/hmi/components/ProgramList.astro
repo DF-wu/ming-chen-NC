@@ -1,0 +1,189 @@
+---
+/**
+ * 業務項目清單：仿控制器的「程式一覽」畫面，每列連到業務項目頁的對應段落。
+ * 內容來自 src/data/services.ts。
+ */
+import Glyph from './Glyph.astro';
+import { services } from '../../../data/services';
+import { styleUrl } from '../../../utils/url';
+
+/** 程式號（純示意，依順序產生） */
+const programNo = (i: number) => `O${String(i + 1).padStart(4, '0')}`;
+---
+
+<section class="hmi-section">
+  <div class="hmi-wrap">
+    <div class="hmi-panel list reveal">
+      <header class="hmi-titlebar">
+        <h2>業務項目</h2>
+        <span class="tb-en">PROGRAM LIST</span>
+        <span class="tb-right">{services.length} 項</span>
+      </header>
+
+      <div class="head" aria-hidden="true">
+        <span>程式</span>
+        <span>項目</span>
+        <span>說明</span>
+        <span></span>
+      </div>
+
+      <ol>
+        {
+          services.map((s, i) => (
+            <li class="row">
+              <span class="pno mono" aria-hidden="true">
+                {programNo(i)}
+              </span>
+              <div class="name">
+                <h3>
+                  <a href={styleUrl('hmi', `/services/#${s.id}`)}>{s.title}</a>
+                </h3>
+                <span class="en">{s.en}</span>
+                {i === 0 && <span class="tag">核心技術</span>}
+              </div>
+              <p class="sum">{s.summary}</p>
+              <span class="go" aria-hidden="true">
+                <Glyph name="arrow" size={18} />
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .head,
+  .row {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1.1fr) minmax(0, 2fr) 56px;
+    gap: 24px;
+    align-items: center;
+    padding-inline: 20px;
+  }
+  .head {
+    padding-block: 10px;
+    border-bottom: 1px solid var(--hmi-line-soft);
+    font-size: 0.8125rem;
+    color: var(--hmi-muted);
+  }
+
+  .row {
+    position: relative;
+    padding-block: 22px;
+    border-bottom: 1px solid var(--hmi-line-soft);
+    transition: background-color 0.15s;
+  }
+  .row:last-child {
+    border-bottom: 0;
+  }
+  /* 選取列：像控制器上反白的游標列 */
+  .row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--hmi-yellow);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+  }
+  .row:hover {
+    background: var(--hmi-yellow-soft);
+  }
+  .row:hover::before {
+    transform: scaleY(1);
+  }
+
+  .pno {
+    font-size: 0.9375rem;
+    color: var(--hmi-muted);
+  }
+  .row:hover .pno {
+    color: var(--hmi-yellow);
+  }
+
+  .name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 12px;
+  }
+  h3 {
+    font-size: 1.1875rem;
+    width: 100%;
+  }
+  h3 a {
+    text-decoration: none;
+  }
+  /* 整列可點擊 */
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .en {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--hmi-muted);
+  }
+  .tag {
+    padding: 0 7px;
+    border: 1px solid var(--hmi-yellow);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--hmi-yellow);
+  }
+  .sum {
+    color: var(--hmi-text-2);
+  }
+  .go {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    justify-self: end;
+    border: 1px solid var(--hmi-line);
+    color: var(--hmi-muted);
+    transition:
+      border-color 0.15s,
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .row:hover .go {
+    background: var(--hmi-yellow);
+    border-color: var(--hmi-yellow);
+    color: var(--hmi-yellow-ink);
+  }
+
+  @media (max-width: 860px) {
+    .head {
+      display: none;
+    }
+    .row {
+      grid-template-columns: 1fr 40px;
+      gap: 8px 16px;
+      padding: 18px 16px;
+    }
+    .pno {
+      grid-column: 1 / -1;
+      font-size: 0.8125rem;
+    }
+    .name {
+      grid-column: 1;
+    }
+    .go {
+      grid-column: 2;
+      grid-row: 2 / span 2;
+      align-self: center;
+    }
+    .sum {
+      grid-column: 1;
+      font-size: 0.9375rem;
+    }
+  }
+</style>

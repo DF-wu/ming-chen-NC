@@ -1,0 +1,101 @@
+---
+/**
+ * 位置面板：嵌入 Google 地圖（不需 API 金鑰），下方為路線與開啟地圖的操作鍵。
+ */
+import Glyph from './Glyph.astro';
+import { company, fullAddress, links } from '../../../data/company';
+
+const road = company.contact.street.replace(/\d+號$/, '');
+---
+
+<div class="hmi-panel map-panel reveal">
+  <header class="hmi-titlebar">
+    <h2>位置</h2>
+    <span class="tb-en">MAP</span>
+    <span class="tb-right">N {company.geo.lat.toFixed(4)}° ／ E {company.geo.lng.toFixed(4)}°</span>
+  </header>
+  <div class="frame">
+    <iframe
+      src={links.mapEmbed}
+      title={`${company.name} 位置地圖`}
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen></iframe>
+  </div>
+  <p class="addr">
+    <span class="addr-main">{fullAddress}</span>
+    <span class="addr-sub">位於{road}（台 17 甲線）上</span>
+  </p>
+  <nav class="keys" aria-label="地圖操作">
+    <a class="hmi-key hmi-key--primary" href={links.directions} target="_blank" rel="noopener"><Glyph name="route" />規劃路線</a>
+    <a class="hmi-key" href={links.map} target="_blank" rel="noopener">在 Google 地圖開啟<Glyph name="external" /></a>
+  </nav>
+</div>
+
+<style>
+  .map-panel {
+    display: flex;
+    flex-direction: column;
+  }
+  .frame {
+    position: relative;
+    flex: 1;
+    min-height: 360px;
+    background: var(--hmi-screen);
+  }
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    /* 地圖略降飽和，與面板色調協調 */
+    filter: grayscale(0.35) contrast(1.02);
+  }
+  .addr {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px;
+    border-top: 1px solid var(--hmi-line);
+  }
+  .addr-main {
+    color: var(--hmi-text);
+    font-weight: 500;
+  }
+  .addr-sub {
+    font-size: 0.875rem;
+    color: var(--hmi-muted);
+  }
+  .keys {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--hmi-line);
+    border-top: 1px solid var(--hmi-line);
+  }
+  .keys .hmi-key {
+    justify-content: center;
+    min-height: 56px;
+    border: 0;
+    background: var(--hmi-panel);
+  }
+  .keys .hmi-key:hover {
+    background: var(--hmi-panel-2);
+    box-shadow: inset 0 -3px 0 var(--hmi-yellow);
+  }
+  .keys .hmi-key--primary {
+    background: var(--hmi-yellow);
+  }
+  .keys .hmi-key--primary:hover {
+    background: var(--hmi-yellow-hover);
+    box-shadow: none;
+  }
+  @media (max-width: 520px) {
+    .tb-right {
+      display: none;
+    }
+    .keys {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

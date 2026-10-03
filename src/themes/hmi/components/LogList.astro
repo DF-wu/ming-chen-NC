@@ -1,0 +1,102 @@
+---
+/**
+ * 公司沿革：以控制器的「運轉紀錄」畫面呈現。內容來自 src/data/company.ts 的 timeline。
+ */
+import { timeline } from '../../../data/company';
+---
+
+<div class="hmi-panel log reveal">
+  <header class="hmi-titlebar">
+    <h2>公司沿革</h2>
+    <span class="tb-en">LOG</span>
+    <span class="tb-right">{timeline.length} 筆</span>
+  </header>
+  <ol>
+    {
+      timeline.map((item, i) => {
+        const last = i === timeline.length - 1;
+        return (
+          <li class:list={['entry', { 'entry--now': last }]}>
+            <div class="when">
+              <span class="year display">{item.year}</span>
+              {item.era && <span class="era">{item.era}</span>}
+            </div>
+            <div class="what">
+              <h3>
+                {last && <span class="led" />}
+                {item.title}
+              </h3>
+              <p>{item.text}</p>
+            </div>
+          </li>
+        );
+      })
+    }
+  </ol>
+</div>
+
+<style>
+  .log {
+    background: var(--hmi-screen);
+    border: 1px solid var(--hmi-line);
+  }
+  ol {
+    padding-block: 6px;
+  }
+  .entry {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 20px;
+    padding: 18px 22px;
+  }
+  .entry + .entry {
+    border-top: 1px dashed #262b30;
+  }
+  .when {
+    display: flex;
+    flex-direction: column;
+  }
+  .year {
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--hmi-yellow);
+    font-variant-numeric: tabular-nums;
+  }
+  .era {
+    margin-top: 2px;
+    font-size: 0.8125rem;
+    color: var(--hmi-muted);
+  }
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.0625rem;
+  }
+  p {
+    margin-top: 4px;
+    color: var(--hmi-text-2);
+  }
+  .entry--now .year {
+    font-family: var(--font-sans);
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  @media (max-width: 560px) {
+    .entry {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding: 16px;
+    }
+    .when {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .year {
+      font-size: 1.625rem;
+    }
+  }
+</style>

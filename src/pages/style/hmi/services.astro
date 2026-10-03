@@ -1,0 +1,324 @@
+---
+/**
+ * 控制面板風格 — 業務項目頁。各項目內容在 src/data/services.ts 修改。
+ */
+import Layout from '../../../themes/hmi/Layout.astro';
+import PageHead from '../../../themes/hmi/components/PageHead.astro';
+import Readouts from '../../../themes/hmi/components/Readouts.astro';
+import OperationListing from '../../../themes/hmi/components/OperationListing.astro';
+import ContactConsole from '../../../themes/hmi/components/ContactConsole.astro';
+import { services } from '../../../data/services';
+import { company, links } from '../../../data/company';
+
+/** 項目代號（純示意） */
+const toolNo = (i: number) => `T${String(i + 1).padStart(2, '0')}`;
+---
+
+<Layout
+  title="業務項目"
+  canonicalPath="/services/"
+  description="明泉精密科技的業務項目：CNC 線切割加工、模具零件加工、夾具與治具製作、精密機械零件加工。">
+  <PageHead
+    title="業務項目"
+    en="SERVICES"
+    lead="以 CNC 線切割為核心技術，提供模具零件、夾具治具與精密機械零件的加工服務。">
+    <Readouts
+      slot="readouts"
+      items={[
+        { label: '業務項目', value: String(services.length), unit: '項' },
+        { label: '核心技術', value: 'WIRE EDM', unit: 'CNC 線切割' },
+      ]}
+    />
+  </PageHead>
+
+  <!-- 項目快捷鍵 -->
+  <nav class="tool-keys" aria-label="業務項目快速連結">
+    <div class="hmi-wrap">
+      <ul>
+        {
+          services.map((s, i) => (
+            <li>
+              <a href={`#${s.id}`}>
+                <span class="mono">{toolNo(i)}</span>
+                {s.title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hmi-section">
+    <div class="hmi-wrap list">
+      {
+        services.map((s, i) => (
+          <article class="hmi-panel svc reveal" id={s.id}>
+            <header class="hmi-titlebar">
+              <span class="tno mono">{toolNo(i)}</span>
+              <h2>{s.title}</h2>
+              <span class="tb-en">{s.en.toUpperCase()}</span>
+              {i === 0 && <span class="tb-right core">核心技術</span>}
+            </header>
+
+            <div class="svc-body">
+              <div class="svc-main">
+                <p class="desc">{s.description}</p>
+                <h3>服務內容</h3>
+                <ul class="points">
+                  {s.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <aside class="svc-side">
+                {s.materials && (
+                  <div class="side-block">
+                    <h3>適用材料</h3>
+                    <ul class="chips">
+                      {s.materials.map((m) => (
+                        <li>{m}</li>
+                      ))}
+                    </ul>
+                    <p class="note">實際可加工的材質、尺寸與精度，歡迎來電洽詢。</p>
+                  </div>
+                )}
+                <div class="side-block">
+                  <h3>詢價</h3>
+                  <dl class="ask">
+                    <div>
+                      <dt>電話</dt>
+                      <dd>
+                        <a class="mono" href={links.tel}>
+                          {company.contact.phone}
+                        </a>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>傳真圖面</dt>
+                      <dd class="mono">{company.contact.fax}</dd>
+                    </div>
+                    <div>
+                      <dt>Email</dt>
+                      <dd>
+                        <a href={links.mailto}>{company.contact.email}</a>
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </aside>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <OperationListing />
+
+  <section class="hmi-section">
+    <div class="hmi-wrap">
+      <ContactConsole />
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* 項目快捷鍵（桌機固定在頁首下方） */
+  .tool-keys {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 40;
+    background: rgb(23 26 29 / 0.97);
+    border-bottom: 1px solid var(--hmi-line);
+  }
+  .tool-keys ul {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tool-keys li {
+    flex: 1 0 auto;
+  }
+  .tool-keys a {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 14px 18px;
+    border-left: 1px solid var(--hmi-line-soft);
+    color: var(--hmi-text-2);
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .tool-keys li:last-child a {
+    border-right: 1px solid var(--hmi-line-soft);
+  }
+  .tool-keys a:hover {
+    background: var(--hmi-panel);
+    color: var(--hmi-text);
+  }
+  .tool-keys .mono {
+    font-size: 0.8125rem;
+    color: var(--hmi-yellow);
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .svc {
+    scroll-margin-top: calc(var(--header-h) + 64px);
+  }
+  .tno {
+    color: var(--hmi-yellow);
+    font-weight: 600;
+  }
+  .core {
+    color: var(--hmi-yellow);
+    font-family: var(--font-sans);
+  }
+
+  .svc-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+  .svc-main {
+    padding: clamp(22px, 3vw, 36px);
+  }
+  .desc {
+    font-size: 1.0625rem;
+    max-width: 40em;
+  }
+  h3 {
+    margin: 26px 0 10px;
+    font-size: 0.9375rem;
+    letter-spacing: 0.08em;
+    color: var(--hmi-muted);
+    font-weight: 500;
+  }
+  .points {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--hmi-line-soft);
+    border: 1px solid var(--hmi-line-soft);
+  }
+  .points li {
+    position: relative;
+    padding: 12px 14px 12px 34px;
+    background: var(--hmi-panel);
+    color: var(--hmi-text);
+  }
+  /* 奇數項時，最後一項跨滿整列，避免出現空格 */
+  .points li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .points li::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 1.15em;
+    width: 8px;
+    height: 8px;
+    background: var(--hmi-yellow);
+  }
+
+  .svc-side {
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid var(--hmi-line);
+    background: var(--hmi-bg-2);
+  }
+  .side-block {
+    padding: clamp(18px, 2.4vw, 28px);
+  }
+  .side-block + .side-block {
+    border-top: 1px solid var(--hmi-line-soft);
+  }
+  .side-block h3 {
+    margin-top: 0;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chips li {
+    padding: 3px 10px;
+    border: 1px solid var(--hmi-line);
+    background: var(--hmi-screen);
+    font-size: 0.9375rem;
+    color: var(--hmi-text);
+  }
+  .note {
+    margin-top: 12px;
+    font-size: 0.875rem;
+    color: var(--hmi-muted);
+  }
+  .ask div {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    gap: 10px;
+    padding-block: 7px;
+  }
+  .ask dt {
+    font-size: 0.875rem;
+    color: var(--hmi-muted);
+  }
+  .ask dd {
+    color: var(--hmi-text);
+    overflow-wrap: anywhere;
+  }
+  .ask a {
+    color: var(--hmi-text);
+    text-underline-offset: 3px;
+  }
+  .ask a.mono {
+    color: var(--hmi-yellow);
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .ask a:hover {
+    color: var(--hmi-yellow);
+  }
+
+  @media (max-width: 960px) {
+    .svc-body {
+      grid-template-columns: 1fr;
+    }
+    .svc-side {
+      border-left: 0;
+      border-top: 1px solid var(--hmi-line);
+    }
+  }
+  @media (max-width: 860px) {
+    .tool-keys {
+      position: relative;
+      top: 0;
+    }
+    .svc {
+      scroll-margin-top: 16px;
+    }
+    .tool-keys .hmi-wrap {
+      padding-inline: 0;
+    }
+    .tool-keys li:first-child a {
+      border-left: 0;
+    }
+  }
+  @media (max-width: 600px) {
+    .points {
+      grid-template-columns: 1fr;
+    }
+    .hmi-titlebar .tb-en {
+      display: none;
+    }
+  }
+</style>
