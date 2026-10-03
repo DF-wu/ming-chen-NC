@@ -25,7 +25,9 @@
 - 每個風格頁面的最上方有一條深色的「設計提案」列，可以切換上一個／下一個風格。
 - 預覽頁設定了 `noindex`，也不會列入 sitemap，不影響正式網站的搜尋排名。
 
-**選定風格後的整理步驟**
+所有風格目前都保留供檢視，沒有預定刪除。
+
+**若日後要把某個風格設為正式版**
 
 1. 把選定風格的頁面 `src/pages/style/<id>/*.astro` 移到 `src/pages/`，取代原本的頁面，並把頁面裡的 `styleUrl('<id>', …)` 改成 `withBase(…)`。
 2. 刪除其餘風格的 `src/themes/<id>/`、`src/pages/style/<id>/`，以及 `src/pages/styles.astro`、`src/data/styles.ts`、`src/components/preview/`、`public/styles/`。
