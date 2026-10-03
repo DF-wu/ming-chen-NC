@@ -1,22 +1,278 @@
 ---
 /**
- * 設計風格比較頁（暫定版，各風格完成後補上截圖）。
+ * 設計風格比較頁：列出所有風格提案，附桌機與手機截圖。
+ * 截圖放在 public/styles/<id>-desktop.jpg、<id>-mobile.jpg。
+ * 決定風格後可刪除本頁。
  */
 import { styles } from '../data/styles';
+import { company } from '../data/company';
 import { withBase } from '../utils/url';
+
+const pages = [
+  { label: '首頁', path: '' },
+  { label: '業務項目', path: 'services/' },
+  { label: '關於我們', path: 'about/' },
+  { label: '聯絡我們', path: 'contact/' },
+];
 ---
 
+<!doctype html>
 <html lang="zh-Hant-TW">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
-    <title>設計風格比較｜明泉精密科技有限公司</title>
+    <title>網站設計提案｜{company.name}</title>
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+    />
   </head>
   <body>
-    <h1>設計風格比較</h1>
-    <ul>
-      {styles.map((s) => <li><a href={withBase(s.path)}>{s.name}</a>：{s.summary}</li>)}
-    </ul>
+    <header class="top">
+      <div class="wrap">
+        <p class="client">{company.name}</p>
+        <h1>網站設計提案</h1>
+        <p class="intro">
+          共 {styles.length} 種風格，使用同一份公司資料。每種風格都有完整的四個頁面，可直接點進去瀏覽；
+          每頁最上方的深色列可切換上一個／下一個風格。
+        </p>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <ol class="list">
+        {
+          styles.map((s, i) => (
+            <li class="item" id={s.id}>
+              <a class="shots" href={withBase(s.path)} aria-label={`瀏覽「${s.name}」風格`}>
+                <img
+                  class="shot-desktop"
+                  src={withBase(`/styles/${s.id}-desktop.jpg`)}
+                  alt={`「${s.name}」風格首頁（桌機）`}
+                  width="1366"
+                  height="854"
+                  loading={i < 2 ? 'eager' : 'lazy'}
+                />
+                <img
+                  class="shot-mobile"
+                  src={withBase(`/styles/${s.id}-mobile.jpg`)}
+                  alt={`「${s.name}」風格首頁（手機）`}
+                  width="390"
+                  height="844"
+                  loading={i < 2 ? 'eager' : 'lazy'}
+                />
+              </a>
+
+              <div class="meta">
+                <p class="no">
+                  {String(i + 1).padStart(2, '0')}
+                  {s.id === 'current' && <span class="badge">目前正式版</span>}
+                </p>
+                <h2>
+                  {s.name}
+                  <span class="en">{s.en}</span>
+                </h2>
+                <p class="summary">{s.summary}</p>
+                <p class="refs">
+                  <span>參考</span>
+                  {s.references}
+                </p>
+                <nav class="links" aria-label={`「${s.name}」的頁面`}>
+                  {pages.map((p) => (
+                    <a href={withBase(`${s.path}${p.path}`)}>{p.label}</a>
+                  ))}
+                </nav>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </main>
+
+    <footer class="wrap foot">
+      <p>
+        本頁與各風格預覽頁不會被搜尋引擎收錄。選定風格後，會把該風格設為正式版並移除其餘提案。
+      </p>
+    </footer>
   </body>
 </html>
+
+<style is:global>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: #f3f3f1;
+    color: #16191c;
+    font:
+      400 16px/1.75 'Noto Sans TC',
+      system-ui,
+      sans-serif;
+  }
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+</style>
+
+<style>
+  .wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding-inline: clamp(16px, 4vw, 40px);
+  }
+
+  .top {
+    padding-block: clamp(48px, 8vw, 96px) clamp(32px, 5vw, 56px);
+    background: #fff;
+    border-bottom: 1px solid #ddddd8;
+  }
+  .client {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #5d646b;
+  }
+  h1 {
+    margin: 4px 0 16px;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+  }
+  .intro {
+    max-width: 40em;
+    margin: 0;
+    color: #3b4248;
+  }
+
+  .list {
+    margin: 0;
+    padding: clamp(32px, 5vw, 64px) 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(40px, 6vw, 72px);
+  }
+  .item {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: center;
+  }
+
+  .shots {
+    position: relative;
+    display: block;
+    padding-right: 9%;
+    padding-bottom: 6%;
+  }
+  .shot-desktop {
+    width: 100%;
+    border-radius: 6px;
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.08),
+      0 18px 40px -20px rgb(0 0 0 / 0.35);
+    transition: transform 0.3s;
+  }
+  .shot-mobile {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 22%;
+    border-radius: 10px;
+    border: 4px solid #16191c;
+    box-shadow: 0 16px 32px -14px rgb(0 0 0 / 0.5);
+  }
+  .shots:hover .shot-desktop {
+    transform: translateY(-3px);
+  }
+
+  .no {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.875rem;
+    color: #5d646b;
+  }
+  .badge {
+    padding: 1px 8px;
+    border-radius: 3px;
+    background: #16191c;
+    color: #fff;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.75rem;
+  }
+  h2 {
+    margin: 6px 0 12px;
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    line-height: 1.3;
+  }
+  .en {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #5d646b;
+  }
+  .summary {
+    margin: 0 0 12px;
+    color: #2c3238;
+  }
+  .refs {
+    margin: 0 0 20px;
+    font-size: 0.875rem;
+    color: #5d646b;
+  }
+  .refs span {
+    margin-right: 6px;
+    padding: 1px 6px;
+    border: 1px solid #c9c9c3;
+    border-radius: 3px;
+    font-size: 0.75rem;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .links a {
+    padding: 6px 14px;
+    border: 1px solid #16191c;
+    border-radius: 4px;
+    color: #16191c;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .links a:first-child {
+    background: #16191c;
+    color: #fff;
+  }
+  .links a:hover {
+    background: #16191c;
+    color: #fff;
+  }
+
+  .foot {
+    padding-block: 24px 48px;
+    border-top: 1px solid #ddddd8;
+    font-size: 0.875rem;
+    color: #5d646b;
+  }
+  .foot p {
+    margin: 0;
+  }
+
+  @media (max-width: 860px) {
+    .item {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
