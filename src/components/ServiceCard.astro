@@ -1,0 +1,112 @@
+---
+/**
+ * 首頁的業務項目卡片，點擊後連到業務項目頁的對應段落。
+ */
+import Icon from './Icon.astro';
+import type { Service } from '../data/services';
+import { withBase } from '../utils/url';
+
+interface Props {
+  service: Service;
+  index: number;
+}
+
+const { service, index } = Astro.props;
+const number = String(index + 1).padStart(2, '0');
+---
+
+<article class="card">
+  <div class="card-top">
+    <span class="card-icon"><Icon name={service.icon} size={28} /></span>
+    <span class="card-no mono" aria-hidden="true">{number}</span>
+  </div>
+  <h3>
+    <a href={withBase(`/services/#${service.id}`)}>{service.title}</a>
+  </h3>
+  <p class="card-en mono">{service.en}</p>
+  <p class="card-text">{service.summary}</p>
+  <span class="card-more" aria-hidden="true">了解更多 <Icon name="arrowRight" size={16} /></span>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 24px 24px;
+    background: var(--c-surface);
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius);
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s,
+      transform 0.2s;
+  }
+  .card:hover {
+    border-color: var(--c-brass);
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 22px;
+  }
+  .card-icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border: 1.5px solid var(--c-brass);
+    border-radius: var(--radius);
+    color: var(--c-ink);
+    background: var(--c-paper);
+  }
+  .card-no {
+    font-size: 0.875rem;
+    color: var(--c-muted);
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+  /* 讓整張卡片都可以點擊 */
+  h3 a {
+    text-decoration: none;
+  }
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+  }
+
+  .card-en {
+    margin-top: 2px;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--c-brass-text);
+  }
+  .card-text {
+    margin-top: 14px;
+    color: var(--c-ink-2);
+    flex: 1;
+  }
+  .card-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--c-brass-text);
+  }
+  .card:hover .card-more :global(svg) {
+    transform: translateX(3px);
+  }
+  .card-more :global(svg) {
+    transition: transform 0.2s;
+  }
+</style>

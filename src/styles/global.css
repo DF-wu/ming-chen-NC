@@ -1,0 +1,279 @@
+/* ==========================================================
+   全站共用樣式
+   ----------------------------------------------------------
+   1. 設計變數：顏色、字體、間距都在 :root 裡，改這裡全站生效
+   2. 基本樣式
+   3. 共用版型與元件（container、section、按鈕…）
+   各元件專屬的樣式寫在該元件 .astro 檔案底部的 <style> 中。
+   ========================================================== */
+
+/* 1. 設計變數 ------------------------------------------------ */
+:root {
+  /* 顏色 */
+  --c-ink: #15212c; /* 主要文字、深色背景 */
+  --c-ink-2: #3a4855; /* 次要文字 */
+  --c-muted: #5f6b76; /* 說明文字 */
+  --c-paper: #f6f5f1; /* 頁面底色（製圖紙） */
+  --c-surface: #ffffff; /* 卡片、白色區塊 */
+  --c-line: #dfdbd1; /* 分隔線、邊框 */
+  --c-grid: rgb(21 33 44 / 0.05); /* 背景格線 */
+  --c-steel: #1d3142; /* 深色區塊 */
+  --c-steel-2: #2a4255; /* 深色區塊上的卡片 */
+  --c-brass: #c08a2e; /* 品牌強調色（線切割用的黃銅線） */
+  --c-brass-text: #8a5f14; /* 淺色底上的強調文字 */
+  --c-brass-light: #e0ad4c; /* 深色底上的強調文字 */
+
+  /* 字體 */
+  --font-sans: 'Noto Sans TC', 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* 版面 */
+  --container: 1160px;
+  --gutter: clamp(16px, 4vw, 32px);
+  --section-space: clamp(64px, 9vw, 112px);
+  --radius: 6px;
+  --header-h: 72px;
+  --shadow: 0 12px 32px -16px rgb(21 33 44 / 0.28);
+}
+
+/* 2. 基本樣式 ------------------------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 24px);
+}
+@media (max-width: 820px) {
+  html {
+    scroll-padding-top: 16px; /* 手機版頁首不固定 */
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  color: var(--c-ink);
+  background: var(--c-paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+  text-wrap: balance;
+}
+
+p,
+ul,
+ol,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+
+p {
+  text-wrap: pretty; /* 避免段落最後一行只剩一個字 */
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-brass);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 3. 共用版型與元件 ------------------------------------------ */
+
+/* 置中容器 */
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* 區塊 */
+.section {
+  padding-block: var(--section-space);
+}
+.section--white {
+  background: var(--c-surface);
+}
+.section--dark {
+  background: var(--c-steel);
+  color: #dfe6eb;
+}
+
+/* 製圖紙格線背景 */
+.grid-bg {
+  background-color: var(--c-paper);
+  background-image:
+    linear-gradient(var(--c-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* 尺規刻度（放在區塊底部的裝飾） */
+.ruler {
+  height: 14px;
+  opacity: 0.32;
+  background:
+    linear-gradient(90deg, var(--c-ink) 1px, transparent 1px) 0 100% / 96px 14px repeat-x,
+    linear-gradient(90deg, var(--c-ink) 1px, transparent 1px) 0 100% / 48px 9px repeat-x,
+    linear-gradient(90deg, var(--c-ink) 1px, transparent 1px) 0 100% / 8px 5px repeat-x;
+}
+
+/* 小標（例如「SERVICES」） */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75em;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-brass-text);
+}
+.eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 2px;
+  background: currentColor;
+}
+.section--dark .eyebrow {
+  color: var(--c-brass-light);
+}
+
+/* 按鈕 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  min-height: 48px;
+  padding: 0.7em 1.35em;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+.btn svg {
+  flex: none;
+  width: 1.2em;
+  height: 1.2em;
+}
+.btn--primary {
+  background: var(--c-ink);
+  color: #fff;
+}
+.btn--primary:hover {
+  background: var(--c-steel-2);
+}
+.btn--brass {
+  background: var(--c-brass);
+  color: var(--c-ink);
+}
+.btn--brass:hover {
+  background: var(--c-brass-light);
+}
+.btn--outline {
+  border-color: currentColor;
+  color: var(--c-ink);
+}
+.btn--outline:hover {
+  background: var(--c-ink);
+  border-color: var(--c-ink);
+  color: #fff;
+}
+.section--dark .btn--outline {
+  color: #fff;
+}
+.section--dark .btn--outline:hover {
+  background: #fff;
+  border-color: #fff;
+  color: var(--c-ink);
+}
+
+/* 等寬數字（電話、編號、年份） */
+.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 只給螢幕閱讀器讀的文字 */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 跳到主要內容（鍵盤使用者） */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 100;
+  padding: 0.6em 1em;
+  background: var(--c-ink);
+  color: #fff;
+  border-radius: var(--radius);
+}
+.skip-link:focus {
+  top: 12px;
+}

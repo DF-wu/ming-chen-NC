@@ -1,0 +1,40 @@
+---
+/**
+ * 搜尋引擎用的結構化資料（schema.org LocalBusiness），
+ * 讓 Google 等搜尋引擎正確辨識公司名稱、電話、地址。
+ * 內容全部取自 src/data/company.ts，不需要手動修改。
+ */
+import { company } from '../data/company';
+import { withBase } from '../utils/url';
+
+const toE164 = (phone: string) => `+886-${phone.replace(/^0/, '')}`;
+
+const data = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: company.name,
+  taxID: company.taxId,
+  url: new URL(withBase('/'), Astro.site).href,
+  logo: new URL(withBase('/favicon.svg'), Astro.site).href,
+  image: new URL(withBase('/og-image.png'), Astro.site).href,
+  telephone: toE164(company.contact.phone),
+  faxNumber: toE164(company.contact.fax),
+  email: company.contact.email,
+  foundingDate: company.incorporatedOn,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: company.contact.street,
+    addressLocality: company.contact.district,
+    addressRegion: company.contact.city,
+    postalCode: company.contact.postalCode,
+    addressCountry: 'TW',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: company.geo.lat,
+    longitude: company.geo.lng,
+  },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(data)} />

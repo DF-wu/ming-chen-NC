@@ -1,0 +1,120 @@
+---
+/**
+ * 公司沿革時間軸（關於我們頁面）。內容來自 src/data/company.ts 的 timeline。
+ */
+import { timeline } from '../data/company';
+---
+
+<ol class="timeline">
+  {
+    timeline.map((item) => (
+      <li class="item">
+        <div class="when">
+          <span class="year mono">{item.year}</span>
+          {item.era && <span class="era">{item.era}</span>}
+        </div>
+        <div class="what">
+          <h3>{item.title}</h3>
+          <p>{item.text}</p>
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .timeline {
+    position: relative;
+  }
+  .item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 40px;
+    padding-bottom: 40px;
+  }
+  .item:last-child {
+    padding-bottom: 0;
+  }
+
+  /* 時間軸直線與節點 */
+  .item::before {
+    content: '';
+    position: absolute;
+    left: 180px;
+    top: 14px;
+    bottom: -14px;
+    width: 2px;
+    background: var(--c-line);
+  }
+  .item:last-child::before {
+    display: none;
+  }
+  .item::after {
+    content: '';
+    position: absolute;
+    left: 174px;
+    top: 8px;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--c-brass);
+    border-radius: 50%;
+    background: var(--c-surface);
+  }
+  .item:last-child::after {
+    background: var(--c-brass);
+  }
+
+  .when {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+  }
+  .year {
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: 1.1;
+    color: var(--c-ink);
+  }
+  .era {
+    margin-top: 4px;
+    font-size: 0.875rem;
+    color: var(--c-muted);
+  }
+  .what {
+    padding-left: 20px;
+  }
+  h3 {
+    font-size: 1.125rem;
+  }
+  p {
+    margin-top: 6px;
+    color: var(--c-ink-2);
+  }
+
+  @media (max-width: 640px) {
+    .item {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding-left: 36px;
+    }
+    .item::before {
+      left: 6px;
+    }
+    .item::after {
+      left: 0;
+    }
+    .when {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 10px;
+      text-align: left;
+    }
+    .year {
+      font-size: 1.375rem;
+    }
+    .what {
+      padding-left: 0;
+    }
+  }
+</style>

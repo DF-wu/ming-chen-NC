@@ -1,0 +1,48 @@
+---
+/**
+ * 區塊標題：小標（英文）＋標題＋說明文字。
+ * 用法：<SectionHeader eyebrow="Services" title="業務項目" lead="..." />
+ */
+interface Props {
+  eyebrow: string;
+  title: string;
+  lead?: string;
+  align?: 'left' | 'center';
+}
+
+const { eyebrow, title, lead, align = 'left' } = Astro.props;
+---
+
+<header class:list={['section-header', `section-header--${align}`]}>
+  <p class="eyebrow">{eyebrow}</p>
+  <h2>{title}</h2>
+  {lead && <p class="lead">{lead}</p>}
+</header>
+
+<style>
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 680px;
+    margin-bottom: clamp(36px, 5vw, 56px);
+  }
+  .section-header--center {
+    align-items: center;
+    margin-inline: auto;
+    text-align: center;
+  }
+  h2 {
+    font-size: clamp(1.625rem, 3.2vw, 2.25rem);
+  }
+  .lead {
+    font-size: 1.0625rem;
+    color: var(--c-muted);
+  }
+  :global(.section--dark) .lead {
+    color: rgb(255 255 255 / 0.7);
+  }
+  :global(.section--dark) h2 {
+    color: #fff;
+  }
+</style>

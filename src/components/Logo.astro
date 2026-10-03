@@ -1,0 +1,93 @@
+---
+/**
+ * 公司標誌：圖形（線切割路徑描出的「M」，起點是穿線孔）＋公司名稱。
+ * inverse：用在深色背景上。
+ */
+import { company } from '../data/company';
+
+interface Props {
+  inverse?: boolean;
+}
+
+const { inverse = false } = Astro.props;
+---
+
+<span class:list={['logo', { 'logo--inverse': inverse }]}>
+  <svg class="logo-mark" viewBox="0 0 40 40" width="40" height="40" aria-hidden="true">
+    <rect width="40" height="40" rx="7" class="logo-bg"></rect>
+    <path d="M11 29V12l9 9.5 9-9.5v17" class="logo-path"></path>
+    <circle cx="11" cy="29" r="2.6" class="logo-hole"></circle>
+  </svg>
+  <span class="logo-text">
+    <span class="logo-name">{company.name}</span>
+    <span class="logo-sub">CNC WIRE EDM · SINCE {company.foundedYear}</span>
+  </span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--c-ink);
+  }
+  .logo-mark {
+    flex: none;
+  }
+  .logo-bg {
+    fill: var(--c-ink);
+  }
+  .logo-path {
+    fill: none;
+    stroke: var(--c-brass);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .logo-hole {
+    fill: var(--c-ink);
+    stroke: var(--c-brass);
+    stroke-width: 2;
+  }
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+  .logo-name {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .logo-sub {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    color: var(--c-muted);
+  }
+
+  .logo--inverse {
+    color: #fff;
+  }
+  .logo--inverse .logo-bg {
+    fill: var(--c-brass);
+  }
+  .logo--inverse .logo-path {
+    stroke: var(--c-ink);
+  }
+  .logo--inverse .logo-hole {
+    fill: var(--c-brass);
+    stroke: var(--c-ink);
+  }
+  .logo--inverse .logo-sub {
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  @media (max-width: 380px) {
+    .logo-name {
+      font-size: 0.9375rem;
+      letter-spacing: 0.03em;
+    }
+  }
+</style>

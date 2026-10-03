@@ -1,0 +1,102 @@
+---
+/**
+ * 合作流程（四個步驟）。內容來自 src/data/services.ts 的 processSteps。
+ */
+import SectionHeader from './SectionHeader.astro';
+import { processSteps } from '../data/services';
+---
+
+<section class="section section--white">
+  <div class="container">
+    <SectionHeader eyebrow="Process" title="合作流程" lead="從洽詢到交貨，流程簡單清楚。歡迎直接來電或傳真圖面詢價。" />
+    <ol class="steps">
+      {
+        processSteps.map((step, i) => (
+          <li class="step">
+            <span class="step-no mono">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+  }
+  .step {
+    position: relative;
+    padding-top: 72px;
+  }
+  /* 連接各步驟的「加工路徑」線 */
+  .step::before {
+    content: '';
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: -28px;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, var(--c-brass) 0 10px, transparent 10px 16px);
+  }
+  .step:last-child::before {
+    right: 0;
+    background: var(--c-brass);
+  }
+  .step-no {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border: 2px solid var(--c-brass);
+    border-radius: 50%;
+    background: var(--c-surface);
+    font-weight: 500;
+    color: var(--c-ink);
+  }
+  h3 {
+    font-size: 1.125rem;
+  }
+  p {
+    margin-top: 8px;
+    color: var(--c-ink-2);
+    font-size: 0.9375rem;
+  }
+
+  @media (max-width: 860px) {
+    .steps {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .step {
+      padding: 0 0 32px 76px;
+      min-height: 52px;
+    }
+    .step:last-child {
+      padding-bottom: 0;
+    }
+    .step::before,
+    .step:last-child::before {
+      top: 52px;
+      bottom: 0;
+      left: 25px;
+      right: auto;
+      width: 2px;
+      height: auto;
+      background: repeating-linear-gradient(180deg, var(--c-brass) 0 10px, transparent 10px 16px);
+    }
+    .step:last-child::before {
+      display: none;
+    }
+    h3 {
+      padding-top: 12px;
+    }
+  }
+</style>

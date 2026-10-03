@@ -1,0 +1,119 @@
+---
+/**
+ * 頁面底部的「聯絡我們」區塊，放在首頁、業務項目、關於我們頁面的最後。
+ */
+import Icon from './Icon.astro';
+import { company, links } from '../data/company';
+import { withBase } from '../utils/url';
+---
+
+<section class="section cta-section">
+  <div class="container">
+    <div class="cta">
+      <div class="cta-copy">
+        <p class="eyebrow">Contact</p>
+        <h2>有加工需求嗎？歡迎來電洽詢</h2>
+        <p>提供圖面、材質與數量，我們將為您評估加工方式並報價。</p>
+        <a class="btn btn--outline" href={withBase('/contact/')}>
+          聯絡資訊與地圖 <Icon name="arrowRight" />
+        </a>
+      </div>
+
+      <dl class="cta-contact">
+        <div class="row row--phone">
+          <dt>電話</dt>
+          <dd><a class="mono" href={links.tel}>{company.contact.phone}</a></dd>
+        </div>
+        <div class="row">
+          <dt>傳真</dt>
+          <dd class="mono">{company.contact.fax}</dd>
+        </div>
+        <div class="row">
+          <dt>Email</dt>
+          <dd><a href={links.mailto}>{company.contact.email}</a></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+    padding: clamp(28px, 5vw, 56px);
+    background: var(--c-surface);
+    border: 1px solid var(--c-line);
+    border-left: 4px solid var(--c-brass);
+    border-radius: var(--radius);
+  }
+
+  .cta-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+  }
+  .cta-copy > p:not(.eyebrow) {
+    color: var(--c-ink-2);
+    margin-bottom: 8px;
+  }
+
+  .cta-contact {
+    display: flex;
+    flex-direction: column;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    align-items: baseline;
+    gap: 12px;
+    padding-block: 14px;
+    border-bottom: 1px dashed var(--c-line);
+  }
+  .row:last-child {
+    border-bottom: 0;
+  }
+  dt {
+    font-size: 0.875rem;
+    color: var(--c-muted);
+  }
+  dd {
+    font-size: 1.0625rem;
+    overflow-wrap: anywhere;
+  }
+  dd a {
+    text-decoration: none;
+  }
+  dd a:hover {
+    color: var(--c-brass-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .row--phone dd {
+    font-size: clamp(1.625rem, 3.4vw, 2.25rem);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  @media (max-width: 860px) {
+    .cta {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 480px) {
+    .cta {
+      padding: 28px 22px;
+    }
+    .row {
+      grid-template-columns: 1fr;
+      gap: 2px;
+      padding-block: 12px;
+    }
+  }
+</style>

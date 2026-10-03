@@ -1,0 +1,205 @@
+---
+/**
+ * 首頁主視覺：一張工程圖紙，黃銅色的線會沿著齒輪外形「切割」一圈，
+ * 呈現線切割從穿線孔進刀、沿輪廓加工的過程。純裝飾，不影響內容。
+ */
+import { gearPath } from '../utils/gear';
+import { company } from '../data/company';
+
+// 圖面座標（viewBox 560 × 440）
+const cx = 238;
+const cy = 200;
+const gear = { cx, cy, outer: 118, root: 98, teeth: 14 };
+const hole = { x: cx + gear.outer + 56, y: cy }; // 穿線孔
+const bore = 34; // 中心軸孔半徑
+const key = { half: 7, depth: 44 }; // 鍵槽
+
+const outline = gearPath(gear);
+const cutPath = gearPath(gear, hole);
+const keyY = Math.sqrt(bore ** 2 - key.half ** 2);
+const borePath = [
+  `M ${cx - key.half} ${cy - keyY}`,
+  `L ${cx - key.half} ${cy - key.depth}`,
+  `L ${cx + key.half} ${cy - key.depth}`,
+  `L ${cx + key.half} ${cy - keyY}`,
+  `A ${bore} ${bore} 0 1 1 ${cx - key.half} ${cy - keyY}`,
+].join(' ');
+
+// 尺寸線位置
+const dimX = cx - gear.outer - 34;
+const top = cy - gear.outer;
+const bottom = cy + gear.outer;
+---
+
+<figure class="drawing">
+  <svg viewBox="0 0 560 440" role="img" aria-label="線切割加工路徑示意圖：沿齒輪外形進行精密切割">
+    <!-- 圖框 -->
+    <rect x="6" y="6" width="548" height="428" class="frame" />
+    <rect x="18" y="18" width="524" height="404" class="frame-inner" />
+    <g class="zone">
+      <text x="140" y="14">1</text><text x="280" y="14">2</text><text x="420" y="14">3</text>
+      <text x="9" y="120">A</text><text x="9" y="230">B</text><text x="9" y="340">C</text>
+    </g>
+
+    <!-- 中心線 -->
+    <path d={`M ${cx - gear.outer - 16} ${cy} H ${cx + gear.outer + 16} M ${cx} ${top - 16} V ${bottom + 16}`} class="center" />
+
+    <!-- 齒輪外形（參考線）、軸孔與鍵槽 -->
+    <path d={outline} class="ref" />
+    <path d={borePath} class="part" />
+
+    <!-- 線切割加工路徑（動畫） -->
+    <path d={cutPath} class="cut" pathLength="1" />
+    <circle cx={hole.x} cy={hole.y} r="5" class="hole" />
+    <circle cx={hole.x} cy={hole.y} r="2" class="wire" />
+
+    <!-- 外徑尺寸 -->
+    <g class="dim">
+      <path d={`M ${cx - 10} ${top} H ${dimX - 6} M ${cx - 10} ${bottom} H ${dimX - 6}`} />
+      <path d={`M ${dimX} ${top} V ${bottom}`} />
+      <path d={`M ${dimX - 4} ${top + 9} L ${dimX} ${top} L ${dimX + 4} ${top + 9} M ${dimX - 4} ${bottom - 9} L ${dimX} ${bottom} L ${dimX + 4} ${bottom - 9}`} />
+    </g>
+    <text x={dimX - 8} y={cy} class="label" transform={`rotate(-90 ${dimX - 8} ${cy})`} text-anchor="middle">Ø48.00</text>
+
+    <!-- 軸孔標註 -->
+    <path d={`M ${cx + 24} ${cy + 24} L ${cx + 42} ${cy + 46} H ${cx + 86}`} class="leader" />
+    <text x={cx + 45} y={cy + 41} class="label">Ø14.00</text>
+
+    <!-- 穿線孔標註 -->
+    <path d={`M ${hole.x + 4} ${hole.y - 4} L ${hole.x + 22} ${hole.y - 40} H ${hole.x + 62}`} class="leader" />
+    <text x={hole.x + 22} y={hole.y - 46} class="label">穿線孔 Ø1.5</text>
+
+    <!-- 齒數標註 -->
+    <path d={`M ${cx + 84} ${cy - 84} L ${cx + 118} ${cy - 132} H ${cx + 168}`} class="leader" />
+    <text x={cx + 122} y={cy - 138} class="label">Z = 14</text>
+
+    <!-- 圖例 -->
+    <g class="legend">
+      <path d="M 34 392 H 62" class="cut-static" />
+      <text x="70" y="396" class="label">加工路徑 WIRE PATH</text>
+    </g>
+
+    <!-- 標題欄 -->
+    <g class="title-block">
+      <rect x="330" y="350" width="212" height="72" />
+      <path d="M 330 374 H 542 M 330 398 H 542 M 372 374 V 422 M 452 374 V 422 M 490 374 V 422" />
+      <text x="340" y="367" class="tb-name">{company.name}</text>
+      <text x="338" y="390" class="tb-key">品名</text>
+      <text x="380" y="390" class="tb-val">齒輪</text>
+      <text x="458" y="390" class="tb-key">比例</text>
+      <text x="498" y="390" class="tb-val mono">5:1</text>
+      <text x="338" y="414" class="tb-key">加工</text>
+      <text x="380" y="414" class="tb-val">CNC 線切割</text>
+      <text x="458" y="414" class="tb-key">單位</text>
+      <text x="498" y="414" class="tb-val mono">mm</text>
+    </g>
+  </svg>
+</figure>
+
+<style>
+  .drawing {
+    background: var(--c-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: clamp(8px, 1.5vw, 14px);
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    font-family: var(--font-sans);
+  }
+
+  .frame {
+    fill: none;
+    stroke: var(--c-ink);
+    stroke-width: 1.5;
+  }
+  .frame-inner {
+    fill: none;
+    stroke: var(--c-ink);
+    stroke-width: 0.6;
+  }
+  .zone text {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    fill: var(--c-muted);
+  }
+  .center {
+    fill: none;
+    stroke: var(--c-muted);
+    stroke-width: 0.7;
+    stroke-dasharray: 16 4 2 4;
+  }
+  .ref {
+    fill: rgb(21 33 44 / 0.025);
+    stroke: var(--c-ink-2);
+    stroke-width: 0.8;
+    stroke-dasharray: 3 3;
+  }
+  .part {
+    fill: var(--c-paper);
+    stroke: var(--c-ink);
+    stroke-width: 1.4;
+  }
+
+  /* 線切割路徑：從穿線孔開始畫完一圈 */
+  .cut {
+    fill: none;
+    stroke: var(--c-brass);
+    stroke-width: 2.4;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: cut 4.5s cubic-bezier(0.45, 0.05, 0.35, 1) 0.4s forwards;
+  }
+  @keyframes cut {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .cut-static {
+    stroke: var(--c-brass);
+    stroke-width: 2.4;
+  }
+  .hole {
+    fill: var(--c-surface);
+    stroke: var(--c-brass);
+    stroke-width: 1.5;
+  }
+  .wire {
+    fill: var(--c-brass);
+  }
+
+  .dim path,
+  .leader {
+    fill: none;
+    stroke: var(--c-ink-2);
+    stroke-width: 0.8;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: var(--c-ink-2);
+  }
+
+  .title-block rect,
+  .title-block path {
+    fill: none;
+    stroke: var(--c-ink);
+    stroke-width: 0.8;
+  }
+  .tb-name {
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--c-ink);
+    letter-spacing: 0.08em;
+  }
+  .tb-key {
+    font-size: 9.5px;
+    fill: var(--c-muted);
+  }
+  .tb-val {
+    font-size: 10.5px;
+    fill: var(--c-ink);
+  }
+</style>

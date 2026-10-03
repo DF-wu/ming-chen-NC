@@ -1,0 +1,46 @@
+---
+/**
+ * 找不到頁面（404）
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { withBase } from '../utils/url';
+---
+
+<BaseLayout title="找不到頁面">
+  <section class="section grid-bg not-found">
+    <div class="container">
+      <p class="code mono">404</p>
+      <h1>找不到這個頁面</h1>
+      <p class="text">頁面可能已經移除或網址有誤，請回到首頁繼續瀏覽。</p>
+      <a class="btn btn--primary" href={withBase('/')}>回到首頁 <Icon name="arrowRight" /></a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .code {
+    font-size: clamp(4rem, 12vw, 7rem);
+    font-weight: 500;
+    line-height: 1;
+    color: var(--c-brass);
+  }
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+  }
+  .text {
+    color: var(--c-ink-2);
+    margin-bottom: 8px;
+  }
+</style>

@@ -1,0 +1,187 @@
+---
+/**
+ * 首頁
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import HeroDrawing from '../components/HeroDrawing.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import Highlights from '../components/Highlights.astro';
+import ProcessSteps from '../components/ProcessSteps.astro';
+import ContactCTA from '../components/ContactCTA.astro';
+import { company, experienceYears, links } from '../data/company';
+import { services } from '../data/services';
+import { withBase } from '../utils/url';
+
+const facts = [
+  { value: String(company.foundedYear), label: `開始營運（民國 ${company.foundedYear - 1911} 年）` },
+  { value: `${experienceYears}+`, label: '年精密加工經驗' },
+  { value: company.factory.registrationNo, label: '經濟部工廠登記編號' },
+];
+---
+
+<BaseLayout>
+  <!-- 主視覺 -->
+  <section class="hero grid-bg">
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow">臺南安南 · 自 {company.foundedYear} 年</p>
+        <h1>精密線切割<br />與模具零件加工</h1>
+        <p class="hero-lead">
+          {company.name}位於臺南市安南區，以 CNC 線切割為核心技術，承接模具零件、夾具、治具與各式精密機械零件加工。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn--primary" href={links.tel}>
+            <Icon name="phone" />
+            來電洽詢 <span class="mono">{company.contact.phone}</span>
+          </a>
+          <a class="btn btn--outline" href={withBase('/services/')}>
+            業務項目 <Icon name="arrowRight" />
+          </a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <HeroDrawing />
+      </div>
+    </div>
+    <div class="ruler" aria-hidden="true"></div>
+  </section>
+
+  <!-- 關鍵數字 -->
+  <section class="facts" aria-label="公司概況">
+    <div class="container">
+      <dl class="facts-grid">
+        {
+          facts.map((fact) => (
+            <div class="fact">
+              <dt>{fact.label}</dt>
+              <dd class="mono">{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- 業務項目 -->
+  <section class="section">
+    <div class="container">
+      <SectionHeader
+        eyebrow="Services"
+        title="業務項目"
+        lead="以 CNC 線切割為核心，除一般模具加工外，也提供夾具、治具與精密機械零件加工。"
+      />
+      <div class="service-grid">
+        {services.map((service, index) => <ServiceCard service={service} index={index} />)}
+      </div>
+    </div>
+  </section>
+
+  <Highlights />
+  <ProcessSteps />
+  <ContactCTA />
+</BaseLayout>
+
+<style>
+  .hero {
+    border-bottom: 1px solid var(--c-line);
+  }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+    padding-block: clamp(48px, 7vw, 96px) clamp(40px, 6vw, 80px);
+  }
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+  }
+  h1 {
+    font-size: clamp(2.25rem, 5.4vw, 3.75rem);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+  }
+  .hero-lead {
+    max-width: 34em;
+    font-size: 1.125rem;
+    color: var(--c-ink-2);
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .facts {
+    background: var(--c-surface);
+    border-bottom: 1px solid var(--c-line);
+  }
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .fact {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+    padding: 28px 24px;
+    border-left: 1px solid var(--c-line);
+  }
+  .fact:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .fact dt {
+    font-size: 0.875rem;
+    color: var(--c-muted);
+  }
+  .fact dd {
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--c-ink);
+  }
+
+  .service-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  @media (max-width: 1040px) {
+    .service-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 900px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    /* 手機：前兩項並排，登記編號獨佔一行 */
+    .facts-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .fact {
+      padding: 18px 0 18px 20px;
+    }
+    .fact:last-child {
+      grid-column: 1 / -1;
+      padding-left: 0;
+      border-left: 0;
+      border-top: 1px solid var(--c-line);
+    }
+    .service-grid {
+      grid-template-columns: 1fr;
+    }
+    .hero-actions .btn {
+      width: 100%;
+    }
+  }
+</style>
