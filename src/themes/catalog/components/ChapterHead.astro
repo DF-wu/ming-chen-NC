@@ -1,0 +1,91 @@
+---
+/**
+ * 章名頁：大號章節數字＋章名＋說明，放在各內頁最上方。
+ */
+import { chapters } from '../chapters';
+import { styleUrl } from '../../../utils/url';
+
+interface Props {
+  chapter: number;
+  lead?: string;
+}
+
+const { chapter, lead } = Astro.props;
+const c = chapters[chapter];
+---
+
+<header class="ch sheet">
+  <p class="ch-no mono" aria-hidden="true">{c.no}</p>
+  <div class="ch-body">
+    <nav class="ch-crumb" aria-label="目前位置">
+      <a href={styleUrl('catalog', '/')}>首頁</a>
+      <span aria-hidden="true">›</span>
+      <span>第 {c.no} 章</span>
+    </nav>
+    <h1>{c.title}<span class="ch-en">{c.en}</span></h1>
+    {lead && <p class="ch-lead">{lead}</p>}
+  </div>
+</header>
+
+<style>
+  .ch {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(20px, 4vw, 48px);
+    align-items: end;
+    border-top: 6px solid var(--c-blue);
+  }
+  .ch-no {
+    font-size: clamp(5rem, 11vw, 8.5rem);
+    font-weight: 500;
+    line-height: 0.8;
+    color: var(--c-blue);
+    letter-spacing: -0.04em;
+  }
+  .ch-body {
+    padding-bottom: 4px;
+  }
+  .ch-crumb {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 0.8125rem;
+    color: var(--c-muted);
+  }
+  .ch-crumb a {
+    color: var(--c-muted);
+    text-underline-offset: 3px;
+  }
+  .ch-crumb a:hover {
+    color: var(--c-blue);
+  }
+  h1 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 16px;
+    font-family: 'Noto Sans TC', var(--font-sans);
+    font-size: clamp(1.875rem, 4vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .ch-en {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: var(--c-muted);
+  }
+  .ch-lead {
+    max-width: 40em;
+    margin-top: 10px;
+    color: var(--c-ink-2);
+  }
+
+  @media (max-width: 560px) {
+    .ch {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  }
+</style>

@@ -1,0 +1,155 @@
+---
+/**
+ * 頁尾：仿型錄最後一頁的「版權頁」，列出完整聯絡資料與章節目錄。
+ */
+import Badge from './Badge.astro';
+import { chapters } from '../chapters';
+import { company, fullAddress, links } from '../../../data/company';
+import { site } from '../../../data/site';
+import { styleUrl } from '../../../utils/url';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="ft">
+  <div class="ft-inner">
+    <div class="ft-id">
+      <div class="ft-brand">
+        <Badge />
+        <p class="ft-name">{company.name}</p>
+      </div>
+      <p class="ft-tag">{site.tagline}</p>
+    </div>
+
+    <dl class="ft-data">
+      <div><dt>TEL</dt><dd><a class="mono" href={links.tel}>{company.contact.phone}</a></dd></div>
+      <div><dt>FAX</dt><dd class="mono">{company.contact.fax}</dd></div>
+      <div><dt>E-mail</dt><dd><a href={links.mailto}>{company.contact.email}</a></dd></div>
+      <div><dt>地址</dt><dd><a href={links.map} target="_blank" rel="noopener">{fullAddress}</a></dd></div>
+      <div><dt>統一編號</dt><dd class="mono">{company.taxId}</dd></div>
+    </dl>
+
+    <nav class="ft-nav no-print" aria-label="頁尾目錄">
+      <p class="ft-label">目錄</p>
+      <ol>
+        {
+          chapters.map((c) => (
+            <li>
+              <a href={styleUrl('catalog', c.path)}>
+                <span class="mono">{c.no}</span>
+                {c.title}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+  </div>
+
+  <div class="ft-bottom">
+    <p>© {year} {company.name}</p>
+    <p>本型錄公司資料依經濟部商工登記與工廠登記公示資料整理</p>
+  </div>
+</footer>
+
+<style>
+  .ft {
+    background: var(--c-ink);
+    color: rgb(255 255 255 / 0.75);
+    font-size: 0.9375rem;
+  }
+  .ft-inner {
+    display: grid;
+    grid-template-columns: 1.1fr 1.6fr 0.6fr;
+    gap: 40px;
+    max-width: calc(var(--shell) + var(--gutter) * 2);
+    margin: 0 auto;
+    padding: 48px var(--gutter) 40px;
+  }
+
+  .ft-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ft-name {
+    font-family: 'Noto Sans TC', var(--font-sans);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+  }
+  .ft-tag {
+    margin-top: 14px;
+    font-size: 0.875rem;
+  }
+
+  .ft-data div {
+    display: grid;
+    grid-template-columns: 5.5em 1fr;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgb(255 255 255 / 0.12);
+  }
+  .ft-data div:first-child {
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+  }
+  .ft-data dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 2;
+    color: rgb(255 255 255 / 0.55);
+  }
+  .ft-data dd {
+    color: #fff;
+    overflow-wrap: anywhere;
+  }
+  .ft a {
+    color: #fff;
+    text-decoration: none;
+  }
+  .ft a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .ft-label {
+    margin-bottom: 8px;
+    font-size: 0.8125rem;
+    color: rgb(255 255 255 / 0.55);
+  }
+  .ft-nav li {
+    padding: 3px 0;
+  }
+  .ft-nav .mono {
+    display: inline-block;
+    width: 1.4em;
+    color: #8fb6e3;
+  }
+
+  .ft-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 24px;
+    max-width: calc(var(--shell) + var(--gutter) * 2);
+    margin: 0 auto;
+    padding: 16px var(--gutter) 20px;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    font-size: 0.8125rem;
+    color: rgb(255 255 255 / 0.55);
+  }
+
+  @media (max-width: 900px) {
+    .ft-inner {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+  }
+  /* 手機：預留底部快速聯絡列的高度 */
+  @media (max-width: 720px) {
+    .ft-bottom {
+      padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+</style>

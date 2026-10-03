@@ -1,0 +1,51 @@
+---
+/**
+ * 手機底部的快速聯絡列：撥打電話、地圖、Email，隨時一鍵聯絡。
+ */
+import Icon from '../../../components/Icon.astro';
+import { links } from '../../../data/company';
+---
+
+<nav class="mb no-print" aria-label="快速聯絡">
+  <a class="mb-tel" href={links.tel}><Icon name="phone" size={20} />撥打電話</a>
+  <a href={links.directions} target="_blank" rel="noopener"><Icon name="pin" size={20} />地圖</a>
+  <a href={links.mailto}><Icon name="mail" size={20} />Email</a>
+</nav>
+
+<style>
+  .mb {
+    display: none;
+  }
+  @media (max-width: 720px) {
+    .mb {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 100;
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: var(--c-sheet);
+      border-top: 2px solid var(--c-ink);
+    }
+    .mb a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 56px;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--c-ink);
+      text-decoration: none;
+    }
+    .mb a + a {
+      border-left: 1px solid var(--c-rule);
+    }
+    .mb .mb-tel {
+      background: var(--c-blue);
+      color: #fff;
+    }
+  }
+</style>

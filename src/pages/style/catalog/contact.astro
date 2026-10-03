@@ -1,0 +1,170 @@
+---
+/**
+ * 技術型錄風格：聯絡我們（第 3 章）
+ * 聯絡資訊來自 src/data/company.ts；詢價須知在下方 checklist 修改。
+ */
+import Layout from '../../../themes/catalog/Layout.astro';
+import ChapterHead from '../../../themes/catalog/components/ChapterHead.astro';
+import SectionHead from '../../../themes/catalog/components/SectionHead.astro';
+import ContactTable from '../../../themes/catalog/components/ContactTable.astro';
+import Icon from '../../../components/Icon.astro';
+import { company, fullAddress, links } from '../../../data/company';
+
+/** 詢價時建議提供的資料 */
+const checklist = [
+  { item: '加工圖面', text: '紙本圖面可傳真，電子檔可寄 Email。' },
+  { item: '材質與熱處理', text: '例如模具鋼種類、是否已淬火。' },
+  { item: '數量', text: '單件試作或批量生產。' },
+  { item: '希望交期', text: '方便安排加工排程。' },
+  { item: '聯絡方式', text: '聯絡人與電話，以便回覆報價。' },
+];
+
+/** 座標以度數表示，例如 23.0345° N */
+const lat = `${company.geo.lat.toFixed(4)}° N`;
+const lng = `${company.geo.lng.toFixed(4)}° E`;
+---
+
+<Layout
+  title="聯絡我們"
+  canonicalPath="/contact/"
+  chapter={3}
+  description={`${company.name}聯絡資訊：電話 ${company.contact.phone}、傳真 ${company.contact.fax}、地址 ${fullAddress}。`}
+>
+  <ChapterHead chapter={3} lead="歡迎來電、傳真或 Email 洽詢加工需求，提供圖面即可為您評估加工方式與報價。" />
+
+  <!-- 3.1 聯絡方式 -->
+  <section class="sheet" id="contact">
+    <SectionHead chapter={3} id="contact" aside="Contact" />
+    <ContactTable full />
+    <div class="actions">
+      <a class="btn btn--blue" href={links.tel}><Icon name="phone" /> 撥打 {company.contact.phone}</a>
+      <a class="btn" href={links.mailto}><Icon name="mail" /> 寄送 Email</a>
+    </div>
+  </section>
+
+  <!-- 3.2 地圖・交通 -->
+  <section class="sheet" id="map">
+    <SectionHead chapter={3} id="map" aside="Location" />
+    <div class="map-grid">
+      <div class="map">
+        <iframe
+          src={links.mapEmbed}
+          title={`${company.name} 位置地圖`}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+      </div>
+      <div class="map-side">
+        <table class="spec" data-reveal="rows">
+          <tbody>
+            <tr style="--i: 0">
+              <th scope="row">地址</th>
+              <td>{fullAddress}</td>
+            </tr>
+            <tr style="--i: 1">
+              <th scope="row">位置</th>
+              <td>位於海佃路二段（台 17 甲線）上</td>
+            </tr>
+            <tr style="--i: 2">
+              <th scope="row">座標</th>
+              <td class="mono">{lat}<br />{lng}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="actions">
+          <a class="btn btn--blue" href={links.directions} target="_blank" rel="noopener">
+            <Icon name="route" /> 規劃路線
+          </a>
+          <a class="btn" href={links.map} target="_blank" rel="noopener">
+            Google 地圖 <Icon name="external" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3.3 詢價須知 -->
+  <section class="sheet" id="request">
+    <SectionHead chapter={3} id="request" aside="資料越完整，報價越快" />
+    <table class="spec spec--stack checklist" data-reveal="rows">
+      <thead>
+        <tr>
+          <th scope="col">項次</th>
+          <th scope="col">項目</th>
+          <th scope="col">說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          checklist.map((c, i) => (
+            <tr style={`--i: ${i}`}>
+              <td class="num">{i + 1}</td>
+              <td class="c-item">{c.item}</td>
+              <td>{c.text}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p class="note">如需到廠洽談，請先來電聯繫，以便為您安排。</p>
+  </section>
+</Layout>
+
+<style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .map-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: clamp(20px, 3vw, 32px);
+    align-items: stretch;
+  }
+  .map {
+    position: relative;
+    min-height: 340px;
+    border: 1px solid var(--c-rule);
+    background: var(--c-th);
+  }
+  .map iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .map-side .spec th[scope='row'] {
+    width: 5em;
+  }
+
+  .checklist .num {
+    width: 4em;
+  }
+  .checklist .c-item {
+    width: 10em;
+    font-weight: 600;
+  }
+  .note {
+    margin-top: 16px;
+    font-size: 0.9375rem;
+    color: var(--c-ink-2);
+  }
+
+  @media (max-width: 860px) {
+    .map-grid {
+      grid-template-columns: 1fr;
+    }
+    .map {
+      min-height: 300px;
+    }
+  }
+  @media (max-width: 560px) {
+    .actions .btn {
+      flex: 1 1 100%;
+    }
+  }
+</style>

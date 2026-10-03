@@ -1,0 +1,58 @@
+---
+/**
+ * 小節標題：「1.2 模具零件加工」＋粗線，編號與標題取自 chapters.ts。
+ * 用法：<SectionHead chapter={1} id="mold" aside="Mold & Die Components" />
+ */
+import { findSection } from '../chapters';
+
+interface Props {
+  chapter: number;
+  /** 小節錨點 id（必須在 chapters.ts 中） */
+  id: string;
+  /** 右側小字，例如英文名稱 */
+  aside?: string;
+}
+
+const { chapter, id, aside } = Astro.props;
+const section = findSection(chapter, id);
+---
+
+<header class="sh">
+  <h2>
+    <span class="sh-no mono">{section.no}</span>
+    <span>{section.title}</span>
+  </h2>
+  {aside && <p class="sh-aside">{aside}</p>}
+</header>
+
+<style>
+  .sh {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 20px;
+    margin-bottom: 22px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--c-ink);
+  }
+  h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    font-family: 'Noto Sans TC', var(--font-sans);
+    font-size: clamp(1.375rem, 2.6vw, 1.75rem);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+  .sh-no {
+    font-size: 0.8em;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--c-blue);
+  }
+  .sh-aside {
+    font-size: 0.875rem;
+    color: var(--c-muted);
+  }
+</style>
