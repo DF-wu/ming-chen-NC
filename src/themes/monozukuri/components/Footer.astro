@@ -1,0 +1,150 @@
+---
+/**
+ * 頁尾：公司名、完整聯絡資訊與統一編號、網站導覽。
+ */
+import Seal from './Seal.astro';
+import { navigation } from '../../../data/site';
+import { company, fullAddress, links } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="ft">
+  <div class="wrap ft-grid">
+    <div class="ft-brand">
+      <Seal size={52} />
+      <p class="ft-name">{company.name}</p>
+      <p class="ft-desc">CNC 線切割・模具零件・夾具治具・精密機械零件加工</p>
+    </div>
+
+    <dl class="ft-info">
+      <div>
+        <dt>電話</dt>
+        <dd><a class="num" href={links.tel}>{company.contact.phone}</a></dd>
+      </div>
+      <div>
+        <dt>傳真</dt>
+        <dd class="num">{company.contact.fax}</dd>
+      </div>
+      <div>
+        <dt>Email</dt>
+        <dd><a href={links.mailto}>{company.contact.email}</a></dd>
+      </div>
+      <div>
+        <dt>地址</dt>
+        <dd><a href={links.map} target="_blank" rel="noopener">{fullAddress}</a></dd>
+      </div>
+      <div>
+        <dt>統一編號</dt>
+        <dd class="num">{company.taxId}</dd>
+      </div>
+    </dl>
+
+    <nav class="ft-nav" aria-label="頁尾選單">
+      <ul>
+        {
+          navigation.map((item) => (
+            <li>
+              <a href={styleUrl('monozukuri', item.href)}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+
+  <div class="wrap ft-bottom">
+    <p>© {year} {company.name}</p>
+    <p>臺南市安南區</p>
+  </div>
+</footer>
+
+<style>
+  .ft {
+    background: var(--ink);
+    color: rgb(255 255 255 / 0.74);
+    font-size: 0.9375rem;
+  }
+  .ft-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1.6fr 0.6fr;
+    gap: clamp(32px, 5vw, 80px);
+    padding-block: clamp(64px, 8vw, 104px) 56px;
+  }
+
+  .ft-name {
+    margin-top: 22px;
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    letter-spacing: 0.14em;
+    color: var(--white);
+  }
+  .ft-desc {
+    margin-top: 8px;
+    font-size: 0.8125rem;
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  .ft-info div {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    gap: 16px;
+    padding-block: 11px;
+    border-bottom: 1px solid rgb(255 255 255 / 0.14);
+  }
+  .ft-info div:first-child {
+    border-top: 1px solid rgb(255 255 255 / 0.14);
+  }
+  .ft-info dt {
+    font-size: 0.8125rem;
+    color: rgb(255 255 255 / 0.55);
+    letter-spacing: 0.12em;
+  }
+  .ft-info dd {
+    color: var(--white);
+    overflow-wrap: anywhere;
+  }
+
+  .ft a {
+    color: var(--white);
+    text-decoration: none;
+  }
+  .ft a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .ft-nav li {
+    padding-block: 6px;
+    letter-spacing: 0.14em;
+  }
+
+  .ft-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 22px;
+    border-top: 1px solid rgb(255 255 255 / 0.14);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: rgb(255 255 255 / 0.5);
+  }
+
+  @media (max-width: 900px) {
+    .ft-grid {
+      grid-template-columns: 1fr;
+    }
+    .ft-nav ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 28px;
+    }
+  }
+  @media (max-width: 480px) {
+    .ft-info div {
+      grid-template-columns: 72px 1fr;
+      gap: 12px;
+    }
+  }
+</style>

@@ -1,0 +1,31 @@
+---
+/**
+ * 朱色印章標誌：「明泉」二字直排，像落款的印章。
+ */
+interface Props {
+  size?: number;
+}
+
+const { size = 40 } = Astro.props;
+---
+
+<span class="seal" style={`--size:${size}px`} aria-hidden="true">明泉</span>
+
+<style>
+  .seal {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: var(--size);
+    height: var(--size);
+    background: var(--shu);
+    color: var(--white);
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: calc(var(--size) * 0.36);
+    line-height: 1.05;
+    letter-spacing: 0;
+    writing-mode: vertical-rl;
+    border-radius: 2px;
+  }
+</style>

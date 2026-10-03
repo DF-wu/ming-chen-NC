@@ -1,0 +1,238 @@
+---
+/**
+ * 精工極簡風格 —— 聯絡我們
+ * 聯絡資訊在 src/data/company.ts 修改。
+ */
+import Layout from '../../../themes/monozukuri/Layout.astro';
+import PageTitle from '../../../themes/monozukuri/components/PageTitle.astro';
+import SectionHead from '../../../themes/monozukuri/components/SectionHead.astro';
+import { company, fullAddress, links } from '../../../data/company';
+import { formalNumber } from '../../../themes/monozukuri/lib/format';
+
+/** 詢價時建議提供的資料 */
+const checklist = [
+  { title: '加工圖面', text: '紙本圖面可傳真，電子檔可寄 Email。' },
+  { title: '材質與熱處理', text: '例如模具鋼的種類、是否已淬火。' },
+  { title: '數量', text: '單件試作或批量生產。' },
+  { title: '希望交期', text: '方便我們安排加工排程。' },
+  { title: '聯絡方式', text: '聯絡人與電話，以便回覆報價。' },
+];
+---
+
+<Layout
+  title="聯絡我們"
+  canonicalPath="/contact/"
+  description={`${company.name}聯絡資訊：電話 ${company.contact.phone}、傳真 ${company.contact.fax}、地址 ${fullAddress}。`}
+>
+  <PageTitle title="聯絡我們" lead="加工的委託與詢價，歡迎來電、傳真或 Email。" />
+
+  <section class="section contact">
+    <div class="wrap contact-grid">
+      <div class="contact-info">
+        <a class="tel" href={links.tel} data-reveal>
+          <span class="tel-label">電話</span>
+          <span class="tel-no num">{company.contact.phone}</span>
+          <span class="caption">手機點擊即可撥打</span>
+        </a>
+
+        <dl class="info" data-reveal style="--delay:.1s">
+          <div>
+            <dt>傳真</dt>
+            <dd class="num">{company.contact.fax}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd><a href={links.mailto}>{company.contact.email}</a></dd>
+          </div>
+          <div>
+            <dt>地址</dt>
+            <dd>
+              {fullAddress}
+              <span class="sub">位於海佃路二段（台 17 甲線）上</span>
+            </dd>
+          </div>
+          <div>
+            <dt>營業時間</dt>
+            <dd>{company.contact.hours}</dd>
+          </div>
+          <div>
+            <dt>統一編號</dt>
+            <dd class="num">{company.taxId}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="access" id="access">
+        <div class="map" data-reveal>
+          <iframe
+            src={links.mapEmbed}
+            title={`${company.name} 位置地圖`}
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen></iframe>
+        </div>
+        <div class="map-actions">
+          <a class="line-btn line-btn--solid" href={links.directions} target="_blank" rel="noopener">規劃路線 ↗</a>
+          <a class="line-btn" href={links.map} target="_blank" rel="noopener">在 Google 地圖開啟 ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="wrap narrow">
+      <SectionHead title="詢價時請提供" note="資料越完整，越能快速回覆報價與交期" />
+      <ol class="checklist">
+        {
+          checklist.map((item, i) => (
+            <li data-reveal style={`--delay:${i * 0.06}s`}>
+              <span class="c-no">{formalNumber(i + 1)}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="visit">如需到廠洽談，請先來電聯繫，以便為您安排。</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: clamp(40px, 6vw, 96px);
+    align-items: start;
+  }
+
+  .tel {
+    display: block;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--ink);
+    text-decoration: none;
+  }
+  .tel-label {
+    display: block;
+    font-size: 0.8125rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+  .tel-no {
+    display: block;
+    margin-block: 4px 6px;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    line-height: 1.15;
+    transition: color 0.25s;
+  }
+  .tel:hover .tel-no {
+    color: var(--shu);
+  }
+
+  .info div {
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 16px;
+    padding-block: 17px;
+    border-bottom: 1px solid var(--line);
+  }
+  .info dt {
+    font-size: 0.875rem;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+  }
+  .info dd {
+    overflow-wrap: anywhere;
+  }
+  .info a {
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .info a:hover {
+    color: var(--shu);
+    border-color: var(--shu);
+  }
+  .sub {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .map {
+    position: relative;
+    aspect-ratio: 4 / 3.4;
+    border: 1px solid var(--ink);
+    background: var(--paper-2);
+  }
+  /* 地圖轉成黑白，與整體墨色調一致 */
+  .map iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    filter: grayscale(1) contrast(1.05);
+  }
+  .map-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .narrow {
+    max-width: calc(980px + var(--gutter) * 2);
+  }
+  .checklist {
+    border-top: 1px solid var(--ink);
+  }
+  .checklist li {
+    display: grid;
+    grid-template-columns: 48px 180px minmax(0, 1fr);
+    gap: 16px;
+    align-items: baseline;
+    padding-block: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .c-no {
+    font-family: var(--font-serif);
+    color: var(--muted);
+  }
+  .checklist h3 {
+    font-size: 1.125rem;
+    letter-spacing: 0.1em;
+  }
+  .checklist p {
+    color: var(--ink-2);
+  }
+  .visit {
+    margin-top: 32px;
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .info div {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+    .map {
+      aspect-ratio: 1 / 1;
+    }
+    .map-actions .line-btn {
+      flex: 1 1 100%;
+    }
+    .checklist li {
+      grid-template-columns: 32px minmax(0, 1fr);
+      row-gap: 4px;
+    }
+    .checklist p {
+      grid-column: 2;
+    }
+  }
+</style>
