@@ -1,0 +1,28 @@
+---
+/**
+ * 「國際大廠」風格：業務項目頁。各項目內容在 src/data/services.ts 修改。
+ */
+import Layout from '../../../themes/corporate/Layout.astro';
+import PageHeader from '../../../themes/corporate/components/PageHeader.astro';
+import SubNav from '../../../themes/corporate/components/SubNav.astro';
+import ServiceDetail from '../../../themes/corporate/components/ServiceDetail.astro';
+import ProcessFlow from '../../../themes/corporate/components/ProcessFlow.astro';
+import ContactBand from '../../../themes/corporate/components/ContactBand.astro';
+import { services } from '../../../data/services';
+---
+
+<Layout
+  title="業務項目"
+  description="明泉精密科技的業務項目：CNC 線切割加工、模具零件加工、夾具與治具製作、精密機械零件加工。"
+  canonicalPath="/services/"
+>
+  <PageHeader
+    title="業務項目"
+    en="Services"
+    lead="以 CNC 線切割為核心技術，提供模具零件、夾具治具與精密機械零件的加工服務。"
+  />
+  <SubNav />
+  {services.map((service, index) => <ServiceDetail service={service} index={index} />)}
+  <ProcessFlow />
+  <ContactBand />
+</Layout>

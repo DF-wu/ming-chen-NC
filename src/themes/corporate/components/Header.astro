@@ -1,0 +1,270 @@
+---
+/**
+ * 頁首：上層工具列（地址、傳真、Email、統編）＋主選單列（標誌、選單、服務專線）。
+ * 主選單列在桌機會固定在畫面頂端；手機版選單排成第二行，不需要 JavaScript。
+ */
+import Logo from './Logo.astro';
+import Icon from '../../../components/Icon.astro';
+import { navigation } from '../../../data/site';
+import { company, address, links } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+
+const strip = (p: string) => p.replace(/\/$/, '');
+const current = strip(Astro.url.pathname);
+const isActive = (href: string) => {
+  const target = strip(styleUrl('corporate', href));
+  return href === '/' ? current === target : current.startsWith(target);
+};
+---
+
+<div class="utility">
+  <div class="c-container utility-inner">
+    <p class="utility-addr"><Icon name="pin" size={15} /> {address}</p>
+    <ul class="utility-list">
+      <li>傳真 <span class="c-display">{company.contact.fax}</span></li>
+      <li><a href={links.mailto}>{company.contact.email}</a></li>
+      <li>統一編號 <span class="c-display">{company.taxId}</span></li>
+    </ul>
+  </div>
+</div>
+
+<header class="header">
+  <div class="c-container header-inner">
+    <a class="brand" href={styleUrl('corporate', '/')} aria-label={`${company.name}首頁`}>
+      <Logo />
+    </a>
+
+    <nav class="nav" aria-label="主選單">
+      <ul>
+        {
+          navigation.map((item) => (
+            <li>
+              <a href={styleUrl('corporate', item.href)} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="hotline" href={links.tel}>
+      <span class="hotline-label">服務專線</span>
+      <span class="hotline-number c-display">{company.contact.phone}</span>
+    </a>
+    <a class="call" href={links.tel} aria-label={`撥打電話 ${company.contact.phone}`}>
+      <Icon name="phone" size={22} />
+    </a>
+  </div>
+</header>
+
+<style>
+  /* 上層工具列 */
+  .utility {
+    background: var(--band);
+    border-bottom: 1px solid var(--line);
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+  .utility-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    min-height: 38px;
+  }
+  .utility-addr {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .utility-list {
+    display: flex;
+    gap: 0;
+  }
+  .utility-list li + li {
+    margin-left: 16px;
+    padding-left: 16px;
+    border-left: 1px solid var(--line);
+  }
+  .utility-list .c-display {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .utility a {
+    text-decoration: none;
+  }
+  .utility a:hover {
+    color: var(--blue);
+    text-decoration: underline;
+  }
+
+  /* 主選單列 */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner {
+    display: flex;
+    align-items: stretch;
+    gap: 32px;
+    min-height: var(--header-h);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+    text-decoration: none;
+  }
+
+  .nav ul {
+    display: flex;
+    height: 100%;
+    gap: 6px;
+  }
+  .nav li {
+    display: flex;
+  }
+  .nav a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-inline: 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    color: var(--ink-2);
+    transition: color 0.2s;
+  }
+  .nav a::after {
+    content: '';
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: -1px;
+    height: 4px;
+    background: var(--blue);
+    transform: scaleX(0);
+    transition: transform 0.3s var(--ease);
+  }
+  .nav a:hover {
+    color: var(--ink);
+  }
+  .nav a:hover::after,
+  .nav a[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+  .nav a[aria-current='page'] {
+    color: var(--ink);
+  }
+
+  .hotline {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 28px;
+    border-left: 1px solid var(--line);
+    text-decoration: none;
+    line-height: 1.1;
+  }
+  .hotline-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+  }
+  .hotline-number {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--blue);
+  }
+  .hotline:hover .hotline-number {
+    color: var(--blue-deep);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .call {
+    display: none;
+  }
+
+  @media (max-width: 1100px) {
+    .utility-addr {
+      display: none;
+    }
+    .header-inner {
+      gap: 16px;
+    }
+    .nav a {
+      padding-inline: 10px;
+    }
+    .nav a::after {
+      left: 10px;
+      right: 10px;
+    }
+    .hotline {
+      padding-left: 16px;
+    }
+  }
+
+  /* 手機：工具列隱藏、選單換到第二行、電話改成圖示按鈕 */
+  @media (max-width: 860px) {
+    .utility {
+      display: none;
+    }
+    .header {
+      position: relative;
+    }
+    .header-inner {
+      flex-wrap: wrap;
+      gap: 0 12px;
+      min-height: 0;
+      padding-top: 12px;
+    }
+    .brand {
+      padding-bottom: 12px;
+    }
+    .hotline {
+      display: none;
+    }
+    .call {
+      display: grid;
+      place-items: center;
+      align-self: center;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      background: var(--blue);
+      color: var(--white);
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    }
+    .nav {
+      order: 3;
+      width: calc(100% + var(--gutter) * 2);
+      margin-inline: calc(var(--gutter) * -1);
+      border-top: 1px solid var(--line);
+    }
+    .nav ul {
+      gap: 0;
+    }
+    .nav li {
+      flex: 1;
+    }
+    .nav a {
+      justify-content: center;
+      width: 100%;
+      padding: 13px 4px;
+      font-size: 0.9375rem;
+      letter-spacing: 0.04em;
+    }
+    .nav a::after {
+      left: 20%;
+      right: 20%;
+    }
+  }
+</style>

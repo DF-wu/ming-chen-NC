@@ -1,0 +1,259 @@
+---
+/**
+ * 首頁主視覺插圖：深藍底上一個金屬質感的齒輪零件。
+ * - 金屬光澤會緩慢掃過零件表面
+ * - 藍色的線切割路徑從穿線孔進刀，沿齒形描繪一圈，發光點標示線的位置
+ * 圖面上的尺寸數字為裝飾用途。動畫由 HeroSection 的 script 啟動。
+ */
+import { gearPath } from '../../../utils/gear';
+
+// 圖面座標（viewBox 1440 × 640），零件放在右側，手機版裁切時仍可見
+const cx = 1092;
+const cy = 330;
+const gear = { cx, cy, outer: 240, root: 213, teeth: 24 };
+const hole = { x: cx + gear.outer + 72, y: cy }; // 穿線孔
+
+const outline = gearPath(gear);
+const cutPath = gearPath(gear, hole);
+
+// 中心軸孔與鍵槽
+const bore = 68;
+const key = { half: 11, depth: 84 };
+const keyY = Math.sqrt(bore ** 2 - key.half ** 2);
+const borePath = [
+  `M ${cx - key.half} ${cy - keyY}`,
+  `L ${cx - key.half} ${cy - key.depth}`,
+  `L ${cx + key.half} ${cy - key.depth}`,
+  `L ${cx + key.half} ${cy - keyY}`,
+  `A ${bore} ${bore} 0 1 1 ${cx - key.half} ${cy - keyY}`,
+  'Z',
+].join(' ');
+
+// 六個螺栓孔
+const bolts = Array.from({ length: 6 }, (_, i) => {
+  const a = (Math.PI / 3) * i - Math.PI / 2 + Math.PI / 6;
+  return { x: cx + 158 * Math.cos(a), y: cy + 158 * Math.sin(a) };
+});
+const boltRef = bolts[0];
+
+// 車削紋路（同心圓）
+const rings = Array.from({ length: 26 }, (_, i) => 84 + i * 5);
+
+// 標註位置
+const dimX = cx - gear.outer - 72;
+const top = cy - gear.outer;
+const bottom = cy + gear.outer;
+const tipA = (-20 * Math.PI) / 180;
+const tip = { x: cx + gear.outer * Math.cos(tipA), y: cy + gear.outer * Math.sin(tipA) };
+---
+
+<svg class="art" viewBox="0 0 1440 640" preserveAspectRatio="xMaxYMid slice" role="img" aria-label="線切割加工示意：沿齒輪外形進行精密切割">
+  <defs>
+    <radialGradient id="c-bg" cx="72%" cy="50%" r="70%">
+      <stop offset="0" stop-color="#16314d" />
+      <stop offset="1" stop-color="#0b1724" />
+    </radialGradient>
+    <pattern id="c-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="rgb(255 255 255 / 0.045)" stroke-width="1" />
+    </pattern>
+    <linearGradient id="c-metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dfe5ea" />
+      <stop offset="0.22" stop-color="#a5b1bc" />
+      <stop offset="0.46" stop-color="#f1f4f7" />
+      <stop offset="0.64" stop-color="#8f9ca8" />
+      <stop offset="0.84" stop-color="#cbd3da" />
+      <stop offset="1" stop-color="#7c8996" />
+    </linearGradient>
+    <radialGradient id="c-rim" cx="50%" cy="50%" r="50%">
+      <stop offset="0.82" stop-color="#000" stop-opacity="0" />
+      <stop offset="1" stop-color="#000" stop-opacity="0.28" />
+    </radialGradient>
+    <linearGradient id="c-sheen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0" />
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.75" />
+      <stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </linearGradient>
+    <clipPath id="c-gear-clip">
+      <path d={outline} />
+    </clipPath>
+    <filter id="c-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="b" />
+      <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+
+  <!-- 背景與格線 -->
+  <rect width="1440" height="640" fill="url(#c-bg)" />
+  <rect width="1440" height="640" fill="url(#c-grid)" />
+  <circle cx={cx} cy={cy} r="300" class="ref-circle" />
+  <circle cx={cx} cy={cy} r="352" class="ref-circle ref-circle--far" />
+
+  <!-- 中心線 -->
+  <path d={`M ${cx - 300} ${cy} H ${cx + 330} M ${cx} ${top - 40} V ${bottom + 40}`} class="center" />
+
+  <!-- 齒輪本體 -->
+  <path d={outline} fill="url(#c-metal)" />
+  <g clip-path="url(#c-gear-clip)">
+    {rings.map((r, i) => <circle cx={cx} cy={cy} r={r} class:list={['ring', { 'ring--dark': i % 2 }]} />)}
+    <!-- 金屬光澤掃過 -->
+    <g class="sheen">
+      <rect x="560" y="-80" width="200" height="800" fill="url(#c-sheen)" transform={`rotate(16 660 320)`} />
+    </g>
+  </g>
+  <path d={outline} fill="url(#c-rim)" />
+  <circle cx={cx} cy={cy} r="114" class="groove" />
+  <circle cx={cx} cy={cy} r="117" class="groove-hi" />
+  {
+    bolts.map((b) => (
+      <g>
+        <circle cx={b.x} cy={b.y} r="19" class="bolt-chamfer" />
+        <circle cx={b.x} cy={b.y} r="15" class="hole-fill" />
+      </g>
+    ))
+  }
+  <path d={borePath} class="hole-fill bore" />
+  <path d={outline} class="edge" />
+
+  <!-- 線切割路徑 -->
+  <path d={cutPath} class="trace-glow" pathLength="1" />
+  <path id="c-trace" d={cutPath} class="trace" pathLength="1" />
+  <circle cx={hole.x} cy={hole.y} r="7" class="start-hole" />
+  <circle r="5" class="wire-dot" filter="url(#c-glow)">
+    <animateMotion id="c-wire-motion" dur="6.5s" begin="indefinite" fill="freeze" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.45 0.05 0.35 1">
+      <mpath href="#c-trace" />
+    </animateMotion>
+  </circle>
+
+  <!-- 尺寸標註（裝飾） -->
+  <g class="dim">
+    <path d={`M ${cx - 30} ${top} H ${dimX - 8} M ${cx - 30} ${bottom} H ${dimX - 8} M ${dimX} ${top} V ${bottom}`} />
+    <path d={`M ${dimX - 5} ${top + 12} L ${dimX} ${top} L ${dimX + 5} ${top + 12} M ${dimX - 5} ${bottom - 12} L ${dimX} ${bottom} L ${dimX + 5} ${bottom - 12}`} />
+    <path d={`M ${boltRef.x + 14} ${boltRef.y - 12} L ${boltRef.x + 70} ${top - 30} H ${boltRef.x + 160}`} />
+    <path d={`M ${tip.x + 4} ${tip.y - 4} L ${tip.x + 54} ${tip.y - 56} H ${tip.x + 120}`} />
+    <path d={`M ${hole.x + 4} ${hole.y + 6} L ${hole.x + 24} ${hole.y + 52} H ${hole.x - 66}`} />
+  </g>
+  <g class="label">
+    <text x={dimX - 14} y={cy} transform={`rotate(-90 ${dimX - 14} ${cy})`} text-anchor="middle">Ø48.00</text>
+    <text x={boltRef.x + 76} y={top - 38}>6 × Ø3.20</text>
+    <text x={tip.x + 58} y={tip.y - 64}>Z = 24</text>
+    <text x={hole.x + 22} y={hole.y + 46} text-anchor="end">穿線孔 Ø1.5</text>
+  </g>
+</svg>
+
+<style>
+  .art {
+    width: 100%;
+    height: 100%;
+  }
+  .ref-circle {
+    fill: none;
+    stroke: rgb(127 178 240 / 0.22);
+    stroke-width: 1;
+    stroke-dasharray: 2 6;
+  }
+  .ref-circle--far {
+    stroke: rgb(127 178 240 / 0.12);
+  }
+  .center {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.22);
+    stroke-width: 1;
+    stroke-dasharray: 22 6 3 6;
+  }
+  .ring {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.16);
+    stroke-width: 1.4;
+  }
+  .ring--dark {
+    stroke: rgb(20 40 60 / 0.07);
+  }
+  .groove {
+    fill: none;
+    stroke: rgb(10 20 30 / 0.32);
+    stroke-width: 4;
+  }
+  .groove-hi {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.6);
+    stroke-width: 1.2;
+  }
+  .bolt-chamfer {
+    fill: #b6c0c9;
+    stroke: rgb(255 255 255 / 0.7);
+    stroke-width: 1.2;
+  }
+  .hole-fill {
+    fill: #0d1c2b;
+  }
+  .bore {
+    stroke: rgb(255 255 255 / 0.7);
+    stroke-width: 1.5;
+  }
+  .edge {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.7);
+    stroke-width: 1.2;
+  }
+
+  .trace {
+    fill: none;
+    stroke: #8cc0ff;
+    stroke-width: 2.2;
+    stroke-linejoin: round;
+  }
+  .trace-glow {
+    fill: none;
+    stroke: #4d97ff;
+    stroke-width: 7;
+    stroke-linejoin: round;
+    opacity: 0.35;
+  }
+  .start-hole {
+    fill: #0b1724;
+    stroke: #8cc0ff;
+    stroke-width: 2;
+  }
+  .wire-dot {
+    fill: #ffffff;
+    visibility: hidden;
+  }
+
+  .dim path {
+    fill: none;
+    stroke: #6d8197;
+    stroke-width: 1;
+  }
+  .label text {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    fill: #a9bacb;
+  }
+
+  /* 動畫：只有 html.motion 時才啟用 */
+  :global(.motion) .trace,
+  :global(.motion) .trace-glow {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: c-trace 6.5s cubic-bezier(0.45, 0.05, 0.35, 1) 0.6s forwards;
+  }
+  @keyframes c-trace {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  :global(.motion) .sheen {
+    animation: c-sheen 9s cubic-bezier(0.6, 0, 0.4, 1) 1.2s infinite;
+  }
+  @keyframes c-sheen {
+    0% {
+      transform: translateX(0);
+    }
+    55%,
+    100% {
+      transform: translateX(860px);
+    }
+  }
+</style>

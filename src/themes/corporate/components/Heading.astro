@@ -1,0 +1,85 @@
+---
+/**
+ * 區塊標題：中文粗體標題＋淺色英文窄體字，下方一條會延伸出現的藍色短線。
+ * 可在右側放一個「查看全部」之類的連結。
+ * 用法：<Heading title="業務項目" en="Services" link={{ href, label }} />
+ */
+import Icon from '../../../components/Icon.astro';
+
+interface Props {
+  title: string;
+  en?: string;
+  link?: { href: string; label: string };
+  /** 深色背景 */
+  inverse?: boolean;
+}
+
+const { title, en, link, inverse = false } = Astro.props;
+---
+
+<div class:list={['heading', { 'heading--inverse': inverse }]}>
+  <div>
+    <h2>
+      {title}
+      {en && <span class="en c-display">{en}</span>}
+    </h2>
+    <span class="rule" data-reveal="line" aria-hidden="true"></span>
+  </div>
+  {
+    link && (
+      <a class="c-link" href={link.href}>
+        {link.label} <Icon name="arrowRight" />
+      </a>
+    )
+  }
+</div>
+
+<style>
+  .heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    margin-bottom: clamp(36px, 5vw, 56px);
+  }
+  h2 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 18px;
+    font-size: clamp(1.75rem, 3.4vw, 2.625rem);
+    font-weight: 900;
+    letter-spacing: 0.06em;
+  }
+  .en {
+    font-size: 0.62em;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  .rule {
+    display: block;
+    width: 72px;
+    height: 4px;
+    margin-top: 18px;
+    background: var(--blue);
+  }
+  .heading--inverse h2 {
+    color: var(--white);
+  }
+  .heading--inverse .en {
+    color: var(--steel);
+  }
+  .heading--inverse .rule {
+    background: var(--white);
+  }
+  .heading--inverse .c-link {
+    color: var(--white);
+  }
+  @media (max-width: 640px) {
+    .heading {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

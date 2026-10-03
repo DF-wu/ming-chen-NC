@@ -1,0 +1,76 @@
+---
+/**
+ * 業務項目頁的子選單：固定在主選單下方，可直接跳到各項服務。
+ */
+import Icon from '../../../components/Icon.astro';
+import { services } from '../../../data/services';
+---
+
+<nav class="subnav" aria-label="業務項目">
+  <div class="c-container">
+    <ul>
+      {
+        services.map((s) => (
+          <li>
+            <a href={`#${s.id}`}>
+              <Icon name={s.icon} size={20} />
+              {s.title}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</nav>
+
+<style>
+  .subnav {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 50;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+  }
+  ul {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  li {
+    flex: 1 0 auto;
+  }
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 20px;
+    font-weight: 700;
+    color: var(--ink-2);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+  }
+  a :global(svg) {
+    color: var(--blue);
+  }
+  a:hover {
+    color: var(--blue);
+    border-bottom-color: var(--blue);
+  }
+  li + li a {
+    border-left: 1px solid var(--line);
+  }
+  @media (max-width: 860px) {
+    .subnav {
+      top: 0;
+    }
+    a {
+      padding: 13px 16px;
+      font-size: 0.9375rem;
+    }
+  }
+</style>

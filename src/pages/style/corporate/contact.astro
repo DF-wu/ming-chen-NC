@@ -1,0 +1,225 @@
+---
+/**
+ * 「國際大廠」風格：聯絡我們頁。聯絡資訊在 src/data/company.ts 修改。
+ */
+import Layout from '../../../themes/corporate/Layout.astro';
+import PageHeader from '../../../themes/corporate/components/PageHeader.astro';
+import Heading from '../../../themes/corporate/components/Heading.astro';
+import Icon from '../../../components/Icon.astro';
+import { company, fullAddress, links } from '../../../data/company';
+import { inquiryChecklist } from '../../../themes/corporate/content';
+---
+
+<Layout
+  title="聯絡我們"
+  description={`${company.name}聯絡資訊：電話 ${company.contact.phone}、傳真 ${company.contact.fax}、地址 ${fullAddress}。`}
+  canonicalPath="/contact/"
+>
+  <PageHeader title="聯絡我們" en="Contact" lead="歡迎來電、傳真或 Email 洽詢加工需求，我們將盡快為您評估與報價。" />
+
+  <section class="c-section">
+    <div class="c-container c-grid">
+      <div class="info">
+        <a class="hotline" href={links.tel}>
+          <span class="hotline-label">服務專線・點擊即可撥打</span>
+          <span class="hotline-number c-display">{company.contact.phone}</span>
+        </a>
+
+        <table class="c-table">
+          <caption class="visually-hidden">聯絡資訊</caption>
+          <tbody>
+            <tr>
+              <th scope="row">傳真</th>
+              <td class="c-display num">{company.contact.fax}</td>
+            </tr>
+            <tr>
+              <th scope="row">Email</th>
+              <td><a href={links.mailto}>{company.contact.email}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">地址</th>
+              <td>
+                {fullAddress}
+                <span class="sub">位於海佃路二段（台 17 甲線）上</span>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">營業時間</th>
+              <td>{company.contact.hours}</td>
+            </tr>
+            <tr>
+              <th scope="row">統一編號</th>
+              <td class="c-display num">{company.taxId}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="actions">
+          <a class="c-btn c-btn--blue" href={links.directions} target="_blank" rel="noopener">
+            <Icon name="route" /> 規劃路線
+          </a>
+          <a class="c-btn c-btn--light" href={links.map} target="_blank" rel="noopener">
+            在 Google 地圖開啟 <Icon name="external" />
+          </a>
+        </div>
+      </div>
+
+      <div class="map">
+        <iframe
+          src={links.mapEmbed}
+          title={`${company.name} 位置地圖`}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="c-section c-band">
+    <div class="c-container c-grid">
+      <div class="inq-head">
+        <Heading title="詢價時請提供" en="Inquiry" />
+        <p>資料越完整，越能快速提供準確的報價與交期。如需到廠洽談，請先來電聯繫，以便為您安排。</p>
+      </div>
+      <table class="c-table inq" data-reveal>
+        <caption class="visually-hidden">詢價時請提供的資料</caption>
+        <thead>
+          <tr>
+            <th scope="col">項目</th>
+            <th scope="col">說明</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            inquiryChecklist.map((row) => (
+              <tr>
+                <th scope="row">{row.item}</th>
+                <td>{row.note}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .info {
+    grid-column: 1 / span 5;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .hotline {
+    display: flex;
+    flex-direction: column;
+    padding: 28px 32px 30px;
+    background: var(--navy);
+    color: var(--white);
+    text-decoration: none;
+    clip-path: polygon(0 0, calc(100% - 32px) 0, 100% 32px, 100% 100%, 0 100%);
+    transition: background-color 0.2s;
+  }
+  .hotline:hover {
+    background: #12263b;
+  }
+  .hotline-label {
+    font-size: 0.875rem;
+    letter-spacing: 0.12em;
+    color: var(--steel);
+  }
+  .hotline-number {
+    font-size: clamp(3rem, 5.6vw, 4.25rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--white);
+  }
+  @media (min-width: 641px) {
+    .info .c-table th {
+      width: 7.5em;
+    }
+  }
+  .num {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  .info td a {
+    color: var(--blue);
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+  }
+  .sub {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .map {
+    grid-column: 7 / span 6;
+    position: relative;
+    min-height: 520px;
+    background: var(--band);
+    border: 1px solid var(--line);
+  }
+  .map iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .inq-head {
+    grid-column: 1 / span 4;
+  }
+  .inq-head p {
+    margin-top: -24px;
+    color: var(--ink-2);
+  }
+  .inq {
+    grid-column: 6 / span 7;
+    background: var(--white);
+  }
+  .inq thead th {
+    background: var(--ink);
+    color: var(--white);
+    font-weight: 700;
+  }
+  .inq thead th:last-child {
+    width: auto;
+  }
+  .inq tbody th {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  @media (max-width: 1000px) {
+    .info,
+    .map,
+    .inq-head,
+    .inq {
+      grid-column: 1 / -1;
+    }
+    .map {
+      margin-top: 40px;
+      min-height: 380px;
+    }
+    .inq-head {
+      margin-bottom: 32px;
+    }
+  }
+  @media (max-width: 640px) {
+    .inq thead {
+      display: none;
+    }
+    .actions .c-btn {
+      flex: 1 1 100%;
+    }
+  }
+</style>

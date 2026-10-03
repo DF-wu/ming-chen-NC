@@ -1,0 +1,100 @@
+---
+/**
+ * 「國際大廠」風格的頁面外框。
+ *
+ * 設計參考（2026-10 瀏覽）：
+ * - DMG MORI：兩層頁首（工具列＋主選單）、斜切角的標題面板、大小磚格拼貼的入口區
+ * - Hermle：粗體窄體標題配短色線、右側固定的「CONTACT」直式頁籤、淺灰色帶分段
+ * - GF Machining Solutions / Makino：沉穩的工業藍、實心 CTA、清楚的分欄頁尾
+ * 本風格的主題語彙是「倒角」：按鈕、面板都帶 45° 斜切角，呼應機械加工。
+ *
+ * 用法：<Layout title="業務項目" canonicalPath="/services/">…</Layout>
+ */
+import './theme.css';
+import PreviewMeta from '../../components/preview/PreviewMeta.astro';
+import StyleSwitcher from '../../components/preview/StyleSwitcher.astro';
+import Header from './components/Header.astro';
+import Footer from './components/Footer.astro';
+import ContactTab from './components/ContactTab.astro';
+import MobileBar from './components/MobileBar.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** 對應的正式版頁面路徑 */
+  canonicalPath?: string;
+}
+
+const { title, description, canonicalPath = '/' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <PreviewMeta title={title} description={description} canonicalPath={canonicalPath} />
+    <meta name="theme-color" content="#0b1724" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
+    />
+    <!--
+      捲動顯現與數字跳動：
+      先在 <html> 加上 motion（使用者未關閉動態效果時），再以 IntersectionObserver
+      在元素進入畫面時加上 is-in。沒有 JavaScript 時內容一律正常顯示。
+    -->
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var canObserve = 'IntersectionObserver' in window;
+        if (!reduce && canObserve) root.classList.add('motion');
+
+        function countUp(el) {
+          var target = Number(el.getAttribute('data-count'));
+          var start = performance.now();
+          var dur = 1400;
+          function tick(now) {
+            var t = Math.min(1, (now - start) / dur);
+            var eased = 1 - Math.pow(1 - t, 3);
+            el.textContent = String(Math.round(target * eased));
+            if (t < 1) requestAnimationFrame(tick);
+          }
+          el.textContent = '0';
+          requestAnimationFrame(tick);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          if (!root.classList.contains('motion')) return;
+          var io = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                var el = entry.target;
+                el.classList.add('is-in');
+                if (el.hasAttribute('data-count')) countUp(el);
+                io.unobserve(el);
+              });
+            },
+            { rootMargin: '0px 0px -8% 0px' }
+          );
+          document.querySelectorAll('[data-reveal],[data-draw],[data-count]').forEach(function (el) {
+            io.observe(el);
+          });
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <StyleSwitcher current="corporate" />
+    <a class="skip-link" href="#main">跳到主要內容</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <ContactTab />
+    <MobileBar />
+  </body>
+</html>

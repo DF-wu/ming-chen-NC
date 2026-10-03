@@ -1,0 +1,91 @@
+---
+/**
+ * 關鍵數字：開始營運年份、經驗年數（會往上跳動）、工廠狀態。
+ */
+import { company, experienceYears } from '../../../data/company';
+---
+
+<section class="figures" aria-label="公司概況">
+  <div class="c-container">
+    <dl class="grid">
+      <div class="fig">
+        <span class="line" data-reveal="line" aria-hidden="true"></span>
+        <dt>開始營運（民國 {company.foundedYear - 1911} 年）</dt>
+        <dd class="c-display">{company.foundedYear}</dd>
+      </div>
+      <div class="fig">
+        <span class="line" data-reveal="line" style="--delay: 0.15s" aria-hidden="true"></span>
+        <dt>精密加工實務經驗</dt>
+        <dd class="c-display"><span data-count={experienceYears}>{experienceYears}</span><span class="unit">+ 年</span></dd>
+      </div>
+      <div class="fig">
+        <span class="line" data-reveal="line" style="--delay: 0.3s" aria-hidden="true"></span>
+        <dt>經濟部工廠登記 No. {company.factory.registrationNo}</dt>
+        <dd class="status">{company.factory.status}</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .figures {
+    padding-block: clamp(48px, 6vw, 80px) clamp(40px, 5vw, 64px);
+    background: var(--white);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(24px, 4vw, 56px);
+  }
+  .fig {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    position: relative;
+    padding-top: 22px;
+  }
+  .line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--ink);
+  }
+  dt {
+    margin-top: 6px;
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+  dd {
+    font-size: clamp(3.5rem, 7vw, 6rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .unit {
+    margin-left: 6px;
+    font-size: 0.42em;
+    font-weight: 600;
+    color: var(--blue);
+  }
+  .status {
+    font-size: clamp(2.5rem, 5vw, 4.25rem);
+    font-weight: 900;
+    line-height: 1.38;
+    letter-spacing: 0.08em;
+    color: var(--blue);
+  }
+  @media (max-width: 760px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 28px 20px;
+    }
+    .fig:last-child {
+      grid-column: 1 / -1;
+    }
+    dd {
+      font-size: clamp(2.75rem, 13vw, 3.5rem);
+    }
+  }
+</style>
