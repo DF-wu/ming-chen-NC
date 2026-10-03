@@ -8,6 +8,31 @@
 
 ---
 
+## 設計風格提案（預覽中）
+
+目前共有 6 種風格，可以在比較頁並排檢視：<https://df-wu.github.io/ming-chen-NC/styles/>
+
+| 風格 | 網址 | 程式碼 |
+| --- | --- | --- |
+| 製圖紙（目前正式版） | `/` | `src/components/`、`src/pages/*.astro` |
+| 精工極簡 | `/style/monozukuri/` | `src/themes/monozukuri/` |
+| 控制面板 | `/style/hmi/` | `src/themes/hmi/` |
+| 國際大廠 | `/style/corporate/` | `src/themes/corporate/` |
+| 技術型錄 | `/style/catalog/` | `src/themes/catalog/` |
+| 鋼與光 | `/style/spark/` | `src/themes/spark/` |
+
+- 所有風格共用 `src/data/` 的公司資料，改一次全部風格都會更新。
+- 每個風格頁面的最上方有一條深色的「設計提案」列，可以切換上一個／下一個風格。
+- 預覽頁設定了 `noindex`，也不會列入 sitemap，不影響正式網站的搜尋排名。
+
+**選定風格後的整理步驟**
+
+1. 把選定風格的頁面 `src/pages/style/<id>/*.astro` 移到 `src/pages/`，取代原本的頁面，並把頁面裡的 `styleUrl('<id>', …)` 改成 `withBase(…)`。
+2. 刪除其餘風格的 `src/themes/<id>/`、`src/pages/style/<id>/`，以及 `src/pages/styles.astro`、`src/data/styles.ts`、`src/components/preview/`、`public/styles/`。
+3. 在選定風格的 `Layout.astro` 中移除 `<StyleSwitcher />`，並把 `<PreviewMeta />` 換成正式的 SEO 設定（可參考 `src/layouts/BaseLayout.astro`）。
+
+---
+
 ## 最常見的維護：改公司資料
 
 **電話、傳真、Email、地址、營業時間**等資訊全部集中在一個檔案：
