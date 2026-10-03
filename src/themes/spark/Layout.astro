@@ -1,0 +1,86 @@
+---
+/**
+ * 「鋼與光」風格的頁面外框：<head>、頁首、頁尾、手機快速聯絡列。
+ *
+ * 設計參考：
+ * - Hadrian（hadrian.co）：細體大字標題、以細線框出的表格式資訊格、
+ *   切角（倒角）的視覺框，像一塊加工完成的零件。
+ * - Machina Labs（machinalabs.ai）：近黑底、等寬字標籤、銅金色的聯絡按鈕。
+ * - Apple 產品頁、精密錶廠機芯頁：大面積深色、一次只講一件事的節奏、金屬質感數字。
+ *
+ * 用法：
+ *   <Layout title="業務項目" canonicalPath="/services/">頁面內容</Layout>
+ */
+import './theme.css';
+import PreviewMeta from '../../components/preview/PreviewMeta.astro';
+import StyleSwitcher from '../../components/preview/StyleSwitcher.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import MobileBar from './MobileBar.astro';
+
+interface Props {
+  /** 頁面標題；首頁不需要提供 */
+  title?: string;
+  description?: string;
+  /** 對應的正式版頁面路徑，例如 '/services/' */
+  canonicalPath?: string;
+}
+
+const { title, description, canonicalPath = '/' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <PreviewMeta title={title} description={description} canonicalPath={canonicalPath} />
+    <meta name="theme-color" content="#0a0b0d" />
+    <meta name="color-scheme" content="dark" />
+    <!-- 有 JavaScript 時才啟用捲動顯現動畫；4 秒內動畫程式沒載入就全部顯示 -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      setTimeout(function () {
+        if (!window.__spReveal) document.documentElement.classList.add('reveal-all');
+      }, 4000);
+    </script>
+
+    <!-- 字體：思源黑體（中文）、Archivo（數字與英文）、IBM Plex Mono（標籤） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;300;400;500&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
+    />
+  </head>
+  <body>
+    <StyleSwitcher current="spark" />
+    <a class="sp-skip" href="#main">跳到主要內容</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <MobileBar />
+
+    <script>
+      // 捲動顯現：元素加上 data-reveal，進入畫面時加上 .is-in
+      (window as Window & { __spReveal?: boolean }).__spReveal = true;
+      const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
+        );
+        targets.forEach((el) => io.observe(el));
+      } else {
+        targets.forEach((el) => el.classList.add('is-in'));
+      }
+    </script>
+  </body>
+</html>

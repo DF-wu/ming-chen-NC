@@ -1,0 +1,56 @@
+---
+/**
+ * 標誌：切角方塊（工件）＋一道切割線，終點是放電火花。
+ */
+import { company } from '../../data/company';
+---
+
+<span class="logo">
+  <svg class="mark" viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">
+    <path d="M7 1.5h19.5V21L21 26.5H1.5V7z" class="mark-part"></path>
+    <path d="M1.5 26.5 14 14" class="mark-cut"></path>
+    <circle cx="14" cy="14" r="5" class="mark-glow"></circle>
+    <circle cx="14" cy="14" r="1.8" class="mark-spark"></circle>
+  </svg>
+  <span class="name">{company.name}</span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--sp-text);
+  }
+  .mark {
+    flex: none;
+    overflow: visible;
+  }
+  .mark-part {
+    fill: none;
+    stroke: var(--sp-text-2);
+    stroke-width: 1.2;
+  }
+  .mark-cut {
+    stroke: var(--sp-copper);
+    stroke-width: 1.6;
+  }
+  .mark-glow {
+    fill: rgb(255 214 150 / 0.22);
+  }
+  .mark-spark {
+    fill: var(--sp-hot);
+  }
+  .name {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    white-space: nowrap;
+  }
+  @media (max-width: 380px) {
+    .name {
+      font-size: 0.875rem;
+      letter-spacing: 0.08em;
+    }
+  }
+</style>

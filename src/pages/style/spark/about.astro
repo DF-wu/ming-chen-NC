@@ -1,0 +1,148 @@
+---
+/**
+ * 「鋼與光」風格：關於我們。
+ * 公司簡介文字直接在下方修改；沿革與公司資料在 src/data/company.ts 修改。
+ */
+import Layout from '../../../themes/spark/Layout.astro';
+import PageIntro from '../../../themes/spark/PageIntro.astro';
+import Timeline from '../../../themes/spark/Timeline.astro';
+import ProfileTable from '../../../themes/spark/ProfileTable.astro';
+import ContactBand from '../../../themes/spark/ContactBand.astro';
+import { company, experienceYears } from '../../../data/company';
+
+const roc = (year: number) => year - 1911;
+const incorporatedYear = Number(company.incorporatedOn.slice(0, 4));
+const factoryYear = Number(company.factory.approvedOn.slice(0, 4));
+
+const facts = [
+  { label: '開始營運', value: String(company.foundedYear), num: true },
+  { label: '加工經驗', value: `${experienceYears}+ 年`, num: true },
+  { label: '核心技術', value: 'CNC 線切割' },
+  { label: '工廠狀態', value: company.factory.status },
+];
+---
+
+<Layout
+  title="關於我們"
+  canonicalPath="/about/"
+  description={`${company.name}自 ${company.foundedYear} 年開始營運，以 CNC 線切割為核心技術，承接模具、夾具、治具與精密機械零件加工。`}
+>
+  <PageIntro title="關於明泉" en="ABOUT" lead={`自 ${company.foundedYear} 年起，專注線切割與精密加工。`} />
+
+  <!-- 公司簡介 -->
+  <section class="sp-section">
+    <div class="sp-container intro">
+      <div class="intro-text">
+        <p class="big" data-reveal>
+          {company.name}位於臺南市安南區海佃路二段，自民國 {roc(company.foundedYear)} 年（{company.foundedYear}
+          年）開始營運，民國 {roc(incorporatedYear)} 年正式成立公司，民國 {roc(factoryYear)} 年完成經濟部工廠登記。
+        </p>
+        <p data-reveal style="--delay: 0.08s">
+          我們以 CNC 線切割為核心技術，提供精密、高效率的加工服務。除了一般模具加工，也承接夾具、治具與各式精密機械零件，服務臺南在地客戶，最遠至臺北。
+        </p>
+        <p data-reveal style="--delay: 0.12s">
+          營運三年即在業界打開知名度。多年來，我們在既有技術的基礎上，持續嘗試新的、更有效率的加工方法，以穩定的品質與交期，成為客戶信賴的加工夥伴。
+        </p>
+      </div>
+
+      <dl class="facts" data-reveal style="--delay: 0.1s">
+        {
+          facts.map((f) => (
+            <div>
+              <dt class="sp-label">{f.label}</dt>
+              <dd class:list={{ 'sp-num': f.num }}>{f.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- 沿革 -->
+  <section class="sp-section history">
+    <div class="sp-container">
+      <h2 class="h2" data-reveal>公司沿革</h2>
+      <Timeline />
+    </div>
+  </section>
+
+  <!-- 公司資料 -->
+  <section class="sp-section">
+    <div class="sp-container profile">
+      <div class="profile-head">
+        <h2 class="h2" data-reveal>公司資料</h2>
+        <p class="sp-label" data-reveal>依經濟部商工登記與工廠登記公示資料</p>
+      </div>
+      <div data-reveal style="--delay: 0.08s">
+        <ProfileTable />
+      </div>
+    </div>
+  </section>
+
+  <ContactBand />
+</Layout>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.8fr);
+    gap: 48px clamp(40px, 7vw, 112px);
+    align-items: start;
+  }
+  .intro-text p {
+    font-size: 1.0625rem;
+    color: var(--sp-text-2);
+  }
+  .intro-text p + p {
+    margin-top: 1.2em;
+  }
+  .intro-text .big {
+    margin-bottom: 1.6em;
+    font-size: clamp(1.375rem, 2.4vw, 2rem);
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--sp-text);
+  }
+
+  .facts {
+    border-top: 1px solid var(--sp-line-strong);
+  }
+  .facts div {
+    padding-block: 18px;
+    border-bottom: 1px solid var(--sp-line);
+  }
+  .facts dd {
+    margin-top: 4px;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--sp-copper);
+  }
+
+  .history {
+    background: var(--sp-bg-2);
+    border-top: 1px solid var(--sp-line);
+    border-bottom: 1px solid var(--sp-line);
+  }
+  .h2 {
+    margin-bottom: clamp(36px, 5vw, 64px);
+    font-size: clamp(2rem, 4.4vw, 3.5rem);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+  }
+
+  .profile {
+    display: grid;
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.6fr);
+    gap: 24px clamp(40px, 7vw, 112px);
+  }
+  .profile-head .h2 {
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 960px) {
+    .intro,
+    .profile {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

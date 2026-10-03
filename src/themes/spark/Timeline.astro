@@ -1,0 +1,165 @@
+---
+/**
+ * 公司沿革：一條水平切割線，進入畫面時放電點由左往右走過，依序點亮各年份。
+ * 手機改為直式。內容來自 src/data/company.ts 的 timeline。
+ */
+import { timeline } from '../../data/company';
+
+const DURATION = 2.4; // 放電點走完全程的秒數
+const step = timeline.length > 1 ? DURATION / (timeline.length - 1) : 0;
+---
+
+<div class="tl" data-reveal style={`--dur: ${DURATION}s; --n: ${timeline.length}`}>
+  <div class="track" aria-hidden="true">
+    <span class="lit"></span>
+    <span class="spark"></span>
+  </div>
+  <ol class="items">
+    {
+      timeline.map((item, i) => (
+        <li class="item" style={`--at: ${i * step}s`}>
+          <span class="node" aria-hidden="true" />
+          <p class="year sp-num">{item.year}</p>
+          {item.era && <p class="era sp-label">{item.era}</p>}
+          <h3>{item.title}</h3>
+          <p class="text">{item.text}</p>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .tl {
+    --gap: 32px;
+    position: relative;
+    /* 只用 data-reveal 的淡入，不要位移 */
+    transform: none !important;
+  }
+
+  /* 水平軌道：從第一個節點連到最後一個節點 */
+  .track {
+    position: absolute;
+    left: 7px;
+    right: calc((100% - (var(--n) - 1) * var(--gap)) / var(--n) - 7px);
+    top: 7px;
+    height: 1px;
+    background: var(--sp-line-strong);
+  }
+  .lit {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgb(214 160 101 / 0.4), var(--sp-copper));
+    transform-origin: left;
+  }
+  .spark {
+    position: absolute;
+    top: -3px;
+    left: 100%;
+    width: 7px;
+    height: 7px;
+    margin-left: -3.5px;
+    border-radius: 50%;
+    background: var(--sp-hot);
+    box-shadow:
+      0 0 8px 3px rgb(255 210 150 / 0.85),
+      0 0 22px 8px rgb(214 160 101 / 0.35);
+  }
+
+  .items {
+    display: grid;
+    grid-template-columns: repeat(var(--n), 1fr);
+    gap: var(--gap);
+  }
+  .item {
+    position: relative;
+    padding-top: 40px;
+  }
+  .node {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    border: 1px solid var(--sp-copper);
+    background: var(--sp-copper);
+    transform: rotate(45deg);
+  }
+  .year {
+    font-size: clamp(2rem, 3.4vw, 2.75rem);
+    font-weight: 200;
+    line-height: 1.1;
+    color: var(--sp-text);
+  }
+  .era {
+    margin-top: 4px;
+  }
+  h3 {
+    margin-top: 18px;
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+  .text {
+    margin-top: 8px;
+    font-size: 0.9375rem;
+    color: var(--sp-text-2);
+  }
+
+  /* 有 JS：先畫成「未加工」，進入畫面後依序點亮 */
+  :global(html.js) .tl:not(.is-in) .lit {
+    transform: scaleX(0);
+  }
+  :global(html.js) .tl:not(.is-in) .spark {
+    left: 0;
+    opacity: 0;
+  }
+  :global(html.js) .tl:not(.is-in) .node {
+    background: var(--sp-bg);
+    border-color: var(--sp-line-strong);
+  }
+  :global(html.js) .tl:not(.is-in) .year {
+    color: var(--sp-muted);
+  }
+  .lit {
+    transition: transform var(--dur) linear 0.3s;
+  }
+  .spark {
+    transition:
+      left var(--dur) linear 0.3s,
+      opacity 0.3s ease 0.3s;
+  }
+  .node,
+  .year {
+    transition:
+      background-color 0.4s ease calc(var(--at) + 0.3s),
+      border-color 0.4s ease calc(var(--at) + 0.3s),
+      color 0.4s ease calc(var(--at) + 0.3s);
+  }
+
+  /* 手機：直式 */
+  @media (max-width: 860px) {
+    .track {
+      display: none;
+    }
+    .items {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .item {
+      padding: 0 0 36px 40px;
+      border-left: 1px solid var(--sp-line-strong);
+      margin-left: 7px;
+    }
+    .item:last-child {
+      padding-bottom: 0;
+      border-left-color: transparent;
+    }
+    .node {
+      left: -8px;
+      top: 6px;
+    }
+    h3 {
+      margin-top: 10px;
+    }
+  }
+</style>

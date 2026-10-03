@@ -1,0 +1,132 @@
+---
+/**
+ * 內頁開頭：麵包屑、大標題、說明，底部一條「切割線」由左往右劃過。
+ */
+import { styleUrl } from '../../utils/url';
+
+interface Props {
+  title: string;
+  lead?: string;
+  /** 標題旁的英文小字 */
+  en?: string;
+}
+
+const { title, lead, en } = Astro.props;
+---
+
+<section class="intro">
+  <div class="sp-container">
+    <nav class="crumb sp-label" aria-label="目前位置">
+      <ol>
+        <li><a href={styleUrl('spark', '/')}>首頁</a></li>
+        <li aria-current="page">{title}</li>
+      </ol>
+    </nav>
+    <div class="row">
+      <h1>
+        {title}
+        {en && <span class="en">{en}</span>}
+      </h1>
+      {lead && <p class="lead">{lead}</p>}
+    </div>
+  </div>
+  <div class="sp-container">
+    <div class="cutline" aria-hidden="true"><span></span></div>
+  </div>
+</section>
+
+<style>
+  .intro {
+    padding-top: clamp(40px, 7vw, 96px);
+  }
+  .crumb ol {
+    display: flex;
+    gap: 10px;
+  }
+  .crumb li + li::before {
+    content: '/';
+    margin-right: 10px;
+    color: var(--sp-line-strong);
+  }
+  .crumb a {
+    text-decoration: none;
+  }
+  .crumb a:hover {
+    color: var(--sp-copper);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    align-items: end;
+    gap: 24px 64px;
+    padding-block: clamp(28px, 4vw, 48px) clamp(36px, 5vw, 64px);
+  }
+  h1 {
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: 0.06em;
+  }
+  .en {
+    display: block;
+    margin-top: 16px;
+    font-family: var(--sp-font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    color: var(--sp-muted);
+  }
+  .lead {
+    max-width: 30em;
+    font-size: 1.125rem;
+    color: var(--sp-text-2);
+  }
+
+  /* 切割線：細線＋發亮的放電點，載入時由左往右劃過一次 */
+  .cutline {
+    position: relative;
+    height: 1px;
+    background: var(--sp-line-strong);
+  }
+  .cutline span {
+    position: absolute;
+    left: 0;
+    top: -1px;
+    height: 3px;
+    width: 100%;
+    background: linear-gradient(90deg, rgb(214 160 101 / 0.6), var(--sp-copper));
+    transform-origin: left;
+    transform: scaleX(1);
+    animation: cut 1.8s cubic-bezier(0.6, 0, 0.3, 1) 0.2s both;
+  }
+  .cutline span::after {
+    content: '';
+    position: absolute;
+    right: -3px;
+    top: -2px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--sp-hot);
+    box-shadow:
+      0 0 8px 3px rgb(255 210 150 / 0.8),
+      0 0 22px 8px rgb(214 160 101 / 0.35);
+    animation: fade 0.6s ease 2s both;
+  }
+  @keyframes cut {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  @keyframes fade {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 860px) {
+    .row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

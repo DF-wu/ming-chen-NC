@@ -1,0 +1,174 @@
+---
+/**
+ * 頁首：標誌、主選單、電話。
+ * 桌機固定在畫面上方；手機選單換到第二行（電話改由底部快速聯絡列提供）。
+ */
+import Logo from './Logo.astro';
+import { navigation } from '../../data/site';
+import { company, links } from '../../data/company';
+import { styleUrl } from '../../utils/url';
+
+const strip = (path: string) => path.replace(/\/$/, '');
+const current = strip(Astro.url.pathname);
+const isActive = (href: string) => {
+  const target = strip(styleUrl('spark', href));
+  return href === '/' ? current === target : current.startsWith(target);
+};
+---
+
+<header class="header">
+  <div class="sp-container inner">
+    <a class="brand" href={styleUrl('spark', '/')} aria-label={`${company.name}首頁`}>
+      <Logo />
+    </a>
+
+    <nav class="nav" aria-label="主選單">
+      <ul>
+        {
+          navigation.map((item) => (
+            <li>
+              <a href={styleUrl('spark', item.href)} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="tel" href={links.tel}>
+      <span class="tel-label">TEL</span>
+      <span class="tel-num">{company.contact.phone}</span>
+    </a>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--sp-bg);
+    border-bottom: 1px solid var(--sp-line);
+  }
+  .inner {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    min-height: var(--sp-header-h);
+  }
+  .brand {
+    margin-right: auto;
+    text-decoration: none;
+  }
+
+  .nav ul {
+    display: flex;
+    gap: 6px;
+  }
+  .nav a {
+    position: relative;
+    display: block;
+    padding: 6px 14px;
+    font-size: 0.9375rem;
+    color: var(--sp-text-2);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav a:hover {
+    color: var(--sp-text);
+  }
+  .nav a[aria-current='page'] {
+    color: var(--sp-text);
+  }
+  /* 目前頁面：字下方一個發亮的放電點 */
+  .nav a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -2px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--sp-hot);
+    box-shadow:
+      0 0 6px 2px rgb(255 200 130 / 0.7),
+      0 0 14px 4px rgb(214 160 101 / 0.35);
+  }
+
+  .tel {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 16px;
+    border: 1px solid rgb(214 160 101 / 0.55);
+    text-decoration: none;
+    transition:
+      background-color 0.25s,
+      border-color 0.25s;
+  }
+  .tel:hover {
+    background: rgb(214 160 101 / 0.12);
+    border-color: var(--sp-copper);
+  }
+  .tel-label {
+    font-family: var(--sp-font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    color: var(--sp-muted);
+  }
+  .tel-num {
+    font-family: var(--sp-font-latin);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--sp-copper);
+  }
+
+  @media (max-width: 1000px) {
+    .inner {
+      gap: 16px;
+    }
+    .nav a {
+      padding-inline: 10px;
+    }
+  }
+
+  /* 手機：選單換到第二行，頁首不固定 */
+  @media (max-width: 860px) {
+    .header {
+      position: relative;
+    }
+    .inner {
+      flex-wrap: wrap;
+      gap: 0;
+      min-height: 0;
+      padding-top: 14px;
+    }
+    .tel {
+      display: none;
+    }
+    .nav {
+      width: calc(100% + var(--sp-gutter) * 2);
+      margin: 12px calc(var(--sp-gutter) * -1) 0;
+      border-top: 1px solid var(--sp-line);
+    }
+    .nav ul {
+      gap: 0;
+    }
+    .nav li {
+      flex: 1;
+    }
+    .nav li + li {
+      border-left: 1px solid var(--sp-line);
+    }
+    .nav a {
+      padding: 12px 4px;
+      text-align: center;
+    }
+    .nav a[aria-current='page']::after {
+      bottom: 6px;
+    }
+  }
+</style>
