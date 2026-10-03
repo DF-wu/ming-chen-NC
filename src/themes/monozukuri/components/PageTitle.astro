@@ -1,0 +1,87 @@
+---
+/**
+ * 內頁標題：麵包屑、明體大標、導言，右側一行直書的頁面標記。
+ */
+import { company } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+
+interface Props {
+  title: string;
+  lead?: string;
+}
+
+const { title, lead } = Astro.props;
+---
+
+<section class="pt">
+  <div class="wrap pt-in">
+    <div class="pt-main">
+      <nav class="crumb" aria-label="目前位置">
+        <ol>
+          <li><a href={styleUrl('monozukuri', '/')}>首頁</a></li>
+          <li aria-current="page">{title}</li>
+        </ol>
+      </nav>
+      <h1 data-reveal>{title}</h1>
+      {lead && <p class="lead" data-reveal style="--delay:.12s">{lead}</p>}
+    </div>
+    <p class="spine" aria-hidden="true">{company.shortName}　{title}</p>
+  </div>
+  <div class="wrap"><div class="rule" data-reveal="line"></div></div>
+</section>
+
+<style>
+  .pt-in {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+    padding-block: clamp(56px, 8vw, 112px) clamp(40px, 5vw, 64px);
+  }
+  .crumb ol {
+    display: flex;
+    gap: 10px;
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+  .crumb li + li::before {
+    content: '—';
+    margin-right: 10px;
+    color: var(--line);
+  }
+  .crumb a {
+    text-decoration: none;
+  }
+  .crumb a:hover {
+    color: var(--ink);
+  }
+  h1 {
+    margin-top: clamp(28px, 4vw, 44px);
+    font-size: clamp(2.25rem, 5.4vw, 4rem);
+    letter-spacing: 0.16em;
+    line-height: 1.3;
+  }
+  .lead {
+    max-width: 36em;
+    margin-top: 22px;
+    font-size: 1.0625rem;
+    color: var(--ink-2);
+  }
+  .spine {
+    writing-mode: vertical-rl;
+    font-family: var(--font-serif);
+    font-size: 0.8125rem;
+    letter-spacing: 0.4em;
+    color: var(--muted);
+  }
+  .rule {
+    height: 1px;
+    background: var(--ink);
+  }
+  @media (max-width: 640px) {
+    .spine {
+      display: none;
+    }
+  }
+</style>

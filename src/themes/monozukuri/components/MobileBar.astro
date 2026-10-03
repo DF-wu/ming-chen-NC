@@ -1,0 +1,57 @@
+---
+/**
+ * 手機底部的快速聯絡列：撥打電話、交通地圖。只在小螢幕顯示。
+ */
+import { company, links } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+---
+
+<nav class="bar" aria-label="快速聯絡">
+  <a class="bar-call" href={links.tel}>
+    <span class="bar-label">撥打電話</span>
+    <span class="num">{company.contact.phone}</span>
+  </a>
+  <a class="bar-map" href={styleUrl('monozukuri', '/contact/#access')}>交通・地圖</a>
+</nav>
+
+<style>
+  .bar {
+    display: none;
+  }
+  @media (max-width: 820px) {
+    .bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: var(--paper);
+      border-top: 1px solid var(--ink);
+    }
+    .bar a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: var(--mobile-bar-h);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+    }
+    .bar-call {
+      background: var(--ink);
+      color: var(--white);
+      font-size: 1.0625rem;
+    }
+    .bar-label {
+      font-size: 0.8125rem;
+      color: rgb(255 255 255 / 0.72);
+    }
+    .bar-map {
+      font-size: 0.9375rem;
+      color: var(--ink);
+    }
+  }
+</style>

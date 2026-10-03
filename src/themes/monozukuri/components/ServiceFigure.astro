@@ -1,0 +1,98 @@
+---
+/**
+ * 各業務項目的細線插圖（業務內容頁）。依 service id 顯示對應的圖。
+ * 線寬 1px、朱色只用在加工位置，維持安靜的工程圖語彙。
+ */
+import { gearPath } from '../../../utils/gear';
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+const gear = gearPath({ cx: 100, cy: 70, outer: 46, root: 38, teeth: 12 });
+---
+
+<svg class="fig" viewBox="0 0 200 140" aria-hidden="true">
+  {
+    id === 'wire-edm' && (
+      <g>
+        {/* 上下導線頭、電極線、工件與已切出的輪廓 */}
+        <rect x="84" y="8" width="32" height="20" class="line" />
+        <rect x="84" y="112" width="32" height="20" class="line" />
+        <path d="M100 28 V112" class="wire" />
+        <rect x="30" y="56" width="140" height="28" class="line" />
+        <path d="M30 70 H70 Q78 70 82 64 L90 76 Q94 70 100 70" class="kerf" />
+        <circle cx="100" cy="70" r="2.6" class="shu" />
+      </g>
+    )
+  }
+  {
+    id === 'mold' && (
+      <g>
+        {/* 上模、下模、導柱與模穴 */}
+        <path d="M30 18 H170 V58 H122 V50 H78 V58 H30 Z" class="line" />
+        <path d="M30 82 H78 V90 H122 V82 H170 V122 H30 Z" class="line" />
+        <path d="M46 58 V82 M154 58 V82" class="line" />
+        <path d="M78 58 H122 M78 82 H122" class="dash" />
+        <circle cx="100" cy="70" r="2.6" class="shu" />
+      </g>
+    )
+  }
+  {
+    id === 'jig' && (
+      <g>
+        {/* 底座、固定鉗口、活動鉗口、工件與螺桿 */}
+        <path d="M18 116 H182" class="line" />
+        <path d="M36 116 V54 H62 V116 M138 116 V54 H164 V116" class="line" />
+        <rect x="62" y="70" width="76" height="30" class="line" />
+        <path d="M164 86 H188 M188 78 V94" class="line" />
+        <path d="M100 40 V130" class="dash" />
+        <circle cx="100" cy="70" r="2.6" class="shu" />
+      </g>
+    )
+  }
+  {
+    id === 'parts' && (
+      <g>
+        {/* 齒輪與中心孔 */}
+        <path d={gear} class="line" />
+        <circle cx="100" cy="70" r="14" class="line" />
+        <path d="M40 70 H160 M100 10 V130" class="dash" />
+        <circle cx="146" cy="70" r="2.6" class="shu" />
+      </g>
+    )
+  }
+</svg>
+
+<style>
+  .fig {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+  }
+  .line,
+  .kerf {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1;
+    stroke-linejoin: round;
+  }
+  .kerf {
+    stroke-width: 1.4;
+  }
+  .wire {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 0.8;
+  }
+  .dash {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 0.6;
+    stroke-dasharray: 8 2 2 2;
+  }
+  .shu {
+    fill: var(--shu);
+  }
+</style>

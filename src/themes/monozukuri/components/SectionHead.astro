@@ -1,0 +1,40 @@
+---
+/**
+ * 區塊標題：明體標題，右側小字註記。
+ * 下方內容（清單、表格）自帶墨色頂線，所以標題本身不再加線。
+ * 用法：<SectionHead title="業務內容" note="以 CNC 線切割為核心" />
+ */
+interface Props {
+  title: string;
+  note?: string;
+  /** 標題的 id，供頁內連結使用 */
+  id?: string;
+}
+
+const { title, note, id } = Astro.props;
+---
+
+<header class="sh">
+  <h2 id={id} data-reveal>{title}</h2>
+  {note && <p class="note" data-reveal style="--delay:.1s">{note}</p>}
+</header>
+
+<style>
+  .sh {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+    margin-bottom: clamp(28px, 4vw, 44px);
+  }
+  h2 {
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    letter-spacing: 0.14em;
+  }
+  .note {
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+</style>

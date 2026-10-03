@@ -1,0 +1,80 @@
+---
+/**
+ * 委託流程：四欄文字，以大寫數字標示順序，上方髮絲線依序延伸。
+ * 內容來自 src/data/services.ts 的 processSteps。
+ */
+import SectionHead from './SectionHead.astro';
+import { processSteps } from '../../../data/services';
+import { formalNumber } from '../lib/format';
+---
+
+<section class="section">
+  <div class="wrap">
+    <SectionHead title="委託流程" note="來電、傳真或 Email 皆可洽詢" />
+    <ol class="steps">
+      {
+        processSteps.map((step, i) => (
+          <li class="step">
+            <span class="rule" data-reveal="line" style={`--delay:${i * 0.18}s`} />
+            <span class="step-no" aria-hidden="true">
+              {formalNumber(i + 1)}
+            </span>
+            <h3 data-reveal style={`--delay:${0.2 + i * 0.12}s`}>{step.title}</h3>
+            <p data-reveal style={`--delay:${0.3 + i * 0.12}s`}>
+              {step.text}
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(20px, 3vw, 40px);
+  }
+  .step {
+    position: relative;
+    padding-top: 28px;
+  }
+  .rule {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--ink);
+  }
+  .step-no {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 0.875rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  h3 {
+    margin-top: 10px;
+    font-size: 1.1875rem;
+    letter-spacing: 0.1em;
+  }
+  p {
+    margin-top: 10px;
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+  }
+  @media (max-width: 860px) {
+    .steps {
+      grid-template-columns: 1fr 1fr;
+      row-gap: 44px;
+    }
+  }
+  @media (max-width: 520px) {
+    .steps {
+      grid-template-columns: 1fr;
+      row-gap: 36px;
+    }
+  }
+</style>

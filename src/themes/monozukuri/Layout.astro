@@ -1,0 +1,91 @@
+---
+/**
+ * ============================================================
+ *  精工極簡（Monozukuri）風格 —— 版型
+ * ============================================================
+ *  設計參考與借用的特質：
+ *  - OGURO（oguro-mfg.com）：黑白單色、大量留白；左側標題、右側內文的兩欄
+ *    編排；延伸到頁緣的髮絲線；小字頁面標記。
+ *  - 由紀精密（yukiseimitsu.co.jp）：品項下方以「材質／尺寸」小字規格說明，
+ *    像目錄一樣安靜可讀。
+ *  - 浜野製作所（hamano-products.co.jp）：電話與受理說明固定在頁首右上，
+ *    發包者一眼就找得到。
+ *  - ISS ダイニチ（依製造業網站設計評論的介紹）：首頁只放一個「代表本業技術」的動態效果。
+ *  本風格把它們轉譯成：明體標題、直書標語、0.5–1px 髮絲線、朱色印章點綴，
+ *  以及「一條線切出輪廓」的線切割加工動畫。
+ *
+ *  檔案結構：
+ *  - theme.css           設計變數與基本樣式
+ *  - components/         頁首、頁尾、插圖等元件
+ *  - lib/                格式化與圖形小工具
+ *  - 頁面在 src/pages/style/monozukuri/
+ * ============================================================
+ */
+import './theme.css';
+import PreviewMeta from '../../components/preview/PreviewMeta.astro';
+import StyleSwitcher from '../../components/preview/StyleSwitcher.astro';
+import Header from './components/Header.astro';
+import Footer from './components/Footer.astro';
+import MobileBar from './components/MobileBar.astro';
+
+interface Props {
+  /** 頁面標題；首頁不需要提供 */
+  title?: string;
+  description?: string;
+  /** 對應的正式版頁面路徑，例如 '/services/' */
+  canonicalPath?: string;
+}
+
+const { title, description, canonicalPath = '/' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <PreviewMeta title={title} description={description} canonicalPath={canonicalPath} />
+    <meta name="theme-color" content="#fbfaf7" />
+    <!-- 有 JavaScript 時才啟用捲動顯現；沒有 JS 時內容照常顯示 -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <!-- 字型：思源宋體（標題）、思源黑體（內文）、IBM Plex Mono（數字） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap"
+    />
+  </head>
+  <body>
+    <StyleSwitcher current="monozukuri" />
+    <a class="skip-link" href="#main">跳到主要內容</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <MobileBar />
+
+    <script>
+      // 捲動顯現：元素進入畫面時加上 .is-in
+      const targets = document.querySelectorAll('[data-reveal]');
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !('IntersectionObserver' in window)) {
+        targets.forEach((el) => el.classList.add('is-in'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px' },
+        );
+        targets.forEach((el) => io.observe(el));
+      }
+    </script>
+  </body>
+</html>

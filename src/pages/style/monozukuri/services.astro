@@ -1,0 +1,252 @@
+---
+/**
+ * 精工極簡風格 —— 業務內容
+ * 各項目內容在 src/data/services.ts 修改。
+ */
+import Layout from '../../../themes/monozukuri/Layout.astro';
+import PageTitle from '../../../themes/monozukuri/components/PageTitle.astro';
+import ServiceFigure from '../../../themes/monozukuri/components/ServiceFigure.astro';
+import ProcessList from '../../../themes/monozukuri/components/ProcessList.astro';
+import ContactBlock from '../../../themes/monozukuri/components/ContactBlock.astro';
+import { services } from '../../../data/services';
+import { formalNumber } from '../../../themes/monozukuri/lib/format';
+---
+
+<Layout
+  title="業務內容"
+  canonicalPath="/services/"
+  description="明泉精密科技的業務內容：CNC 線切割加工、模具零件加工、夾具與治具製作、精密機械零件加工。"
+>
+  <PageTitle title="業務內容" lead="以 CNC 線切割為核心技術，提供模具零件、夾具治具與精密機械零件的加工。" />
+
+  <section class="section">
+    <div class="wrap svc-layout">
+      <!-- 頁內目錄（桌機固定在左側） -->
+      <nav class="toc" aria-label="業務項目">
+        <p class="toc-title">項目</p>
+        <ol>
+          {
+            services.map((s, i) => (
+              <li>
+                <a href={`#${s.id}`}>
+                  <span class="toc-no">{formalNumber(i + 1)}</span>
+                  {s.title}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      <div class="svc-list">
+        {
+          services.map((s, i) => (
+            <article class="svc" id={s.id}>
+              <header class="svc-head" data-reveal>
+                <div>
+                  <p class="svc-no">{formalNumber(i + 1)}</p>
+                  <h2>{s.title}</h2>
+                  <p class="svc-en">{s.en}</p>
+                </div>
+                <ServiceFigure id={s.id} />
+              </header>
+
+              <p class="svc-desc" data-reveal>
+                {s.description}
+              </p>
+
+              <dl class="spec" data-reveal>
+                <div class="spec-row">
+                  <dt>加工內容</dt>
+                  <dd>
+                    <ul class="points">
+                      {s.points.map((p) => (
+                        <li>{p}</li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+                {s.materials && (
+                  <div class="spec-row">
+                    <dt>適用材料</dt>
+                    <dd>
+                      <p class="materials">{s.materials.join('・')}</p>
+                      <p class="caption">實際可加工的材質、尺寸與精度，歡迎來電洽詢。</p>
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <ProcessList />
+  <ContactBlock />
+</Layout>
+
+<style>
+  .svc-layout {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: clamp(40px, 6vw, 96px);
+    align-items: start;
+  }
+
+  .toc {
+    position: sticky;
+    top: calc(var(--header-h) + 40px);
+  }
+  .toc-title {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ink);
+    font-family: var(--font-serif);
+    font-size: 0.875rem;
+    letter-spacing: 0.24em;
+  }
+  .toc li {
+    border-bottom: 1px solid var(--line);
+  }
+  .toc a {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    font-size: 0.9375rem;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    color: var(--ink-2);
+    transition: color 0.25s;
+  }
+  .toc a:hover {
+    color: var(--shu);
+  }
+  .toc-no {
+    font-family: var(--font-serif);
+    color: var(--muted);
+  }
+
+  .svc {
+    padding-bottom: clamp(56px, 7vw, 96px);
+    margin-bottom: clamp(56px, 7vw, 96px);
+    border-bottom: 1px solid var(--line);
+  }
+  .svc:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+  .svc-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .svc-head :global(.fig) {
+    width: clamp(140px, 18vw, 220px);
+    flex: none;
+  }
+  .svc-no {
+    font-family: var(--font-serif);
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  h2 {
+    margin-top: 8px;
+    font-size: clamp(1.75rem, 3.2vw, 2.375rem);
+    letter-spacing: 0.12em;
+  }
+  .svc-en {
+    margin-top: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .svc-desc {
+    max-width: 40em;
+    margin-top: 32px;
+    font-size: 1.0625rem;
+    line-height: 2.05;
+    color: var(--ink-2);
+  }
+
+  .spec {
+    margin-top: 40px;
+    border-top: 1px solid var(--line);
+  }
+  .spec-row {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 24px;
+    padding-block: 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .spec-row dt {
+    font-size: 0.875rem;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+  }
+  .points {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 32px;
+  }
+  .points li {
+    position: relative;
+    padding-left: 18px;
+  }
+  .points li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.95em;
+    width: 8px;
+    height: 1px;
+    background: var(--ink);
+  }
+  .materials {
+    font-size: 1.0625rem;
+    letter-spacing: 0.08em;
+  }
+  .materials + .caption {
+    margin-top: 8px;
+  }
+
+  @media (max-width: 960px) {
+    .svc-layout {
+      grid-template-columns: 1fr;
+    }
+    .toc {
+      position: static;
+    }
+    .toc ol {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 24px;
+    }
+  }
+  @media (max-width: 640px) {
+    .svc-head {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .svc-head :global(.fig) {
+      width: 160px;
+    }
+    .spec-row {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .points {
+      grid-template-columns: 1fr;
+    }
+    .toc ol {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

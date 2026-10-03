@@ -1,0 +1,220 @@
+---
+/**
+ * 首頁主視覺：工件剖面上，一條髮絲線沿「樅樹形槽」輪廓切割一圈。
+ * 朱色小點是電極線，下方讀數同步顯示加工長度。
+ * - 沒有 JavaScript：直接顯示完成的輪廓。
+ * - 偏好減少動態：直接顯示完成狀態。
+ * 圖中的尺寸數字僅為示意。
+ */
+import { firTree, fmt } from '../lib/firtree';
+
+// 圖面座標（viewBox 480 × 380）
+const cx = 240;
+const top = 70;
+const plate = { left: 52, right: 428, bottom: 318 };
+const slot = firTree({ cx, top, lobes: 3, pitch: 62, outer: 94, neck: 56, taper: 17 });
+
+// 電極線從工件外垂直進入槽口，繞輪廓一圈後從另一側離開
+const entry: [number, number] = [slot.start[0], top - 44];
+const exit: [number, number] = [slot.end[0], top - 44];
+const cutPath = `M ${fmt(entry)} L ${fmt(slot.start)} ${slot.forward} L ${fmt(exit)}`;
+
+// 工件剖面（扣除槽形），以斜線表示剖面
+const platePath = `M ${fmt(slot.start)} H ${plate.right} V ${plate.bottom} H ${plate.left} V ${top} H ${slot.end[0]} ${slot.reverse} Z`;
+
+// 標註位置
+const [l1, l2] = slot.lobePoints;
+const dimX = plate.right + 22;
+const scaleY = plate.bottom + 36;
+const ticks = Array.from({ length: 51 }, (_, i) => i);
+---
+
+<figure class="drawing" data-cut>
+  <svg viewBox="0 0 480 400" role="img" aria-label="線切割加工示意圖：電極線沿樅樹形槽輪廓切割">
+    <defs>
+      <pattern id="mz-hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="7" class="hatch-line"></line>
+      </pattern>
+    </defs>
+
+    <!-- 工件剖面 -->
+    <path d={platePath} class="plate"></path>
+
+    <!-- 中心線 -->
+    <path d={`M ${cx} ${top - 52} V ${plate.bottom + 14}`} class="center"></path>
+
+    <!-- 參考輪廓（虛線）與加工路徑 -->
+    <path d={cutPath} class="guide"></path>
+    <path d={cutPath} class="cut" data-cut-path></path>
+
+    <!-- 齒距標註 -->
+    <g class="dim">
+      <path d={`M ${l1[0] + 8} ${l1[1]} H ${dimX + 6} M ${l2[0] + 8} ${l2[1]} H ${dimX + 6} M ${dimX} ${l1[1]} V ${l2[1]}`}></path>
+      <path d={`M ${dimX - 3} ${l1[1] + 6} L ${dimX} ${l1[1]} L ${dimX + 3} ${l1[1] + 6} M ${dimX - 3} ${l2[1] - 6} L ${dimX} ${l2[1]} L ${dimX + 3} ${l2[1] - 6}`}></path>
+    </g>
+    <text x={dimX + 9} y={(l1[1] + l2[1]) / 2 + 4} class="label">P 4.40</text>
+
+    <!-- 槽底半徑標註 -->
+    <path d={`M ${cx + slot.radius * 0.7} ${slot.bottom - slot.radius * 0.3} L ${cx + 62} ${slot.bottom + 26} H ${cx + 112}`} class="leader"></path>
+    <text x={cx + 66} y={slot.bottom + 21} class="label">R 1.10</text>
+
+    <!-- 比例尺（0–10 mm，每格 0.2 mm） -->
+    <g class="scale">
+      {
+        ticks.map((i) => (
+          <line
+            x1={plate.left + i * 7.52}
+            x2={plate.left + i * 7.52}
+            y1={scaleY}
+            y2={scaleY - (i % 25 === 0 ? 10 : i % 5 === 0 ? 6 : 3)}
+          />
+        ))
+      }
+      <line x1={plate.left} x2={plate.left + 50 * 7.52} y1={scaleY} y2={scaleY}></line>
+    </g>
+    <text x={plate.left} y={scaleY + 16} class="label">0</text>
+    <text x={plate.left + 25 * 7.52} y={scaleY + 16} class="label" text-anchor="middle">5</text>
+    <text x={plate.left + 50 * 7.52} y={scaleY + 16} class="label" text-anchor="end">10 mm</text>
+
+    <!-- 電極線（朱色小點）；預設停在路徑終點 -->
+    <circle cx={exit[0]} cy={exit[1]} r="9" class="wire-halo" data-cut-halo></circle>
+    <circle cx={exit[0]} cy={exit[1]} r="3.2" class="wire" data-cut-wire></circle>
+  </svg>
+
+  <figcaption>
+    <span>圖｜線切割的加工路徑（示意）</span>
+    <span class="readout num" aria-hidden="true">L = <span data-cut-length>128.40</span> mm</span>
+  </figcaption>
+</figure>
+
+<style>
+  .drawing {
+    position: relative;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .plate {
+    fill: url(#mz-hatch);
+    stroke: var(--ink);
+    stroke-width: 1;
+  }
+  .hatch-line {
+    stroke: var(--ink);
+    stroke-width: 0.5;
+    opacity: 0.22;
+  }
+  .center {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 0.6;
+    stroke-dasharray: 14 3 2 3;
+  }
+  .guide {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 0.6;
+    stroke-dasharray: 2 3;
+    opacity: 0.7;
+  }
+  .cut {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+  .wire {
+    fill: var(--shu);
+  }
+  .wire-halo {
+    fill: none;
+    stroke: var(--shu);
+    stroke-width: 0.6;
+    opacity: 0.5;
+  }
+
+  .dim path,
+  .leader {
+    fill: none;
+    stroke: var(--ink-2);
+    stroke-width: 0.6;
+  }
+  .scale line {
+    stroke: var(--ink-2);
+    stroke-width: 0.6;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.04em;
+    fill: var(--ink-2);
+  }
+
+  figcaption {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .readout {
+    font-size: 0.8125rem;
+    color: var(--ink);
+  }
+</style>
+
+<script>
+  /**
+   * 線切割動畫：以 requestAnimationFrame 逐步畫出路徑，
+   * 電極線小點沿路徑移動，讀數同步累加。
+   */
+  const figure = document.querySelector<HTMLElement>('[data-cut]');
+  const path = figure?.querySelector<SVGPathElement>('[data-cut-path]');
+  const wire = figure?.querySelector<SVGCircleElement>('[data-cut-wire]');
+  const halo = figure?.querySelector<SVGCircleElement>('[data-cut-halo]');
+  const readout = figure?.querySelector<HTMLElement>('[data-cut-length]');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (figure && path && wire && halo && readout && !reduce) {
+    const total = path.getTotalLength();
+    const finalValue = Number(readout.textContent) || 0;
+    const duration = 7200;
+    const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+
+    const place = (length: number) => {
+      const p = path.getPointAtLength(length);
+      for (const c of [wire, halo]) {
+        c.setAttribute('cx', String(p.x));
+        c.setAttribute('cy', String(p.y));
+      }
+    };
+
+    path.style.strokeDasharray = `${total}`;
+    path.style.strokeDashoffset = `${total}`;
+    place(0);
+    readout.textContent = '0.00';
+
+    let startTime = 0;
+    const frame = (now: number) => {
+      if (!startTime) startTime = now;
+      const t = Math.min(1, (now - startTime) / duration);
+      const drawn = total * ease(t);
+      path.style.strokeDashoffset = `${total - drawn}`;
+      place(drawn);
+      readout.textContent = (finalValue * ease(t)).toFixed(2);
+      if (t < 1) requestAnimationFrame(frame);
+    };
+
+    // 稍等字型與版面穩定後再開始
+    setTimeout(() => requestAnimationFrame(frame), 600);
+  }
+</script>

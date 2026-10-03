@@ -1,0 +1,125 @@
+---
+/**
+ * 聯絡區塊（首頁、業務內容、關於我們的最後）：
+ * 左側說明，右側大字電話與聯絡資訊表。
+ */
+import { company, fullAddress, links } from '../../../data/company';
+import { styleUrl } from '../../../utils/url';
+---
+
+<section class="section section--tint cb">
+  <div class="wrap cb-grid">
+    <div class="cb-copy">
+      <h2 data-reveal>加工的委託<br />與洽詢</h2>
+      <p data-reveal style="--delay:.1s">
+        請提供圖面、材質與數量，我們將評估加工方式並回覆報價。紙本圖面歡迎傳真，電子檔可寄 Email。
+      </p>
+    </div>
+
+    <div class="cb-info">
+      <a class="cb-tel" href={links.tel} data-reveal>
+        <span class="cb-tel-label">電話</span>
+        <span class="cb-tel-no num">{company.contact.phone}</span>
+      </a>
+      <dl class="cb-list" data-reveal style="--delay:.1s">
+        <div>
+          <dt>傳真</dt>
+          <dd class="num">{company.contact.fax}</dd>
+        </div>
+        <div>
+          <dt>Email</dt>
+          <dd><a href={links.mailto}>{company.contact.email}</a></dd>
+        </div>
+        <div>
+          <dt>地址</dt>
+          <dd>{fullAddress}</dd>
+        </div>
+      </dl>
+      <a class="text-link" href={styleUrl('monozukuri', '/contact/')}>
+        交通與地圖 <span class="arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cb-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: clamp(40px, 7vw, 120px);
+    align-items: start;
+  }
+  h2 {
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    letter-spacing: 0.14em;
+  }
+  .cb-copy p {
+    max-width: 24em;
+    margin-top: 28px;
+    color: var(--ink-2);
+  }
+
+  .cb-tel {
+    display: block;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--ink);
+    text-decoration: none;
+  }
+  .cb-tel-label {
+    display: block;
+    font-size: 0.8125rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+  .cb-tel-no {
+    display: block;
+    margin-top: 4px;
+    font-size: clamp(2.25rem, 5.6vw, 3.75rem);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+    transition: color 0.25s;
+  }
+  .cb-tel:hover .cb-tel-no {
+    color: var(--shu);
+  }
+
+  .cb-list {
+    margin-bottom: 32px;
+  }
+  .cb-list div {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 16px;
+    padding-block: 15px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cb-list dt {
+    font-size: 0.875rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+  .cb-list dd {
+    overflow-wrap: anywhere;
+  }
+  .cb-list a {
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .cb-list a:hover {
+    color: var(--shu);
+    border-color: var(--shu);
+  }
+
+  @media (max-width: 860px) {
+    .cb-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 480px) {
+    .cb-list div {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+  }
+</style>
