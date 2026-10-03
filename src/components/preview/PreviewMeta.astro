@@ -1,0 +1,30 @@
+---
+/**
+ * 設計風格預覽頁共用的 <head> 基本設定。
+ * 預覽頁設定 noindex，並把 canonical 指向正式版的對應頁面，避免搜尋引擎重複收錄。
+ * 用法（放在各風格 Layout 的 <head> 內）：
+ *   <PreviewMeta title="業務項目" canonicalPath="/services/" />
+ */
+import { site } from '../../data/site';
+import { withBase } from '../../utils/url';
+
+interface Props {
+  /** 頁面標題；首頁不需要提供 */
+  title?: string;
+  description?: string;
+  /** 對應的正式版頁面路徑，例如 '/services/' */
+  canonicalPath?: string;
+}
+
+const { title, description = site.description, canonicalPath = '/' } = Astro.props;
+const fullTitle = title ? `${title}｜${site.title}` : `${site.title}｜${site.tagline}`;
+const canonical = new URL(withBase(canonicalPath), Astro.site);
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />

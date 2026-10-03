@@ -1,0 +1,22 @@
+---
+/**
+ * 設計風格比較頁（暫定版，各風格完成後補上截圖）。
+ */
+import { styles } from '../data/styles';
+import { withBase } from '../utils/url';
+---
+
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>設計風格比較｜明泉精密科技有限公司</title>
+  </head>
+  <body>
+    <h1>設計風格比較</h1>
+    <ul>
+      {styles.map((s) => <li><a href={withBase(s.path)}>{s.name}</a>：{s.summary}</li>)}
+    </ul>
+  </body>
+</html>

@@ -7,3 +7,11 @@ export function withBase(path = '/'): string {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   return `${base}${path.startsWith('/') ? path : `/${path}`}`;
 }
+
+/**
+ * 設計風格預覽頁的站內連結，例如 styleUrl('hmi', '/services/')
+ * → /ming-chen-NC/style/hmi/services/
+ */
+export function styleUrl(styleId: string, path = '/'): string {
+  return withBase(`/style/${styleId}${path.startsWith('/') ? path : `/${path}`}`);
+}

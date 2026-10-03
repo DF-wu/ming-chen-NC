@@ -1,0 +1,112 @@
+---
+/**
+ * 設計風格預覽列：放在每個風格頁面的最上方，方便在各風格之間切換比較。
+ * 決定風格後，刪除各 Layout 中的 <StyleSwitcher /> 即可移除。
+ */
+import { styles } from '../../data/styles';
+import { withBase } from '../../utils/url';
+
+interface Props {
+  /** 目前風格的 id（見 src/data/styles.ts） */
+  current: string;
+}
+
+const { current } = Astro.props;
+const index = Math.max(
+  0,
+  styles.findIndex((s) => s.id === current),
+);
+const style = styles[index];
+const prev = styles[(index - 1 + styles.length) % styles.length];
+const next = styles[(index + 1) % styles.length];
+---
+
+<div class="ss" role="navigation" aria-label="設計風格預覽切換">
+  <div class="ss-inner">
+    <p class="ss-now">
+      <span class="ss-tag">設計提案</span>
+      <span class="ss-count">{index + 1}/{styles.length}</span>
+      <strong>{style.name}</strong>
+    </p>
+    <div class="ss-links">
+      <a href={withBase(prev.path)} title={`上一個：${prev.name}`}>‹<span class="ss-wide"> {prev.name}</span></a>
+      <a href={withBase(next.path)} title={`下一個：${next.name}`}><span class="ss-wide">{next.name} </span>›</a>
+      <a class="ss-all" href={withBase('/styles/')}>比較全部</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ss {
+    position: relative;
+    z-index: 1000;
+    background: #0d1013;
+    color: #c9d1d8;
+    font: 400 13px/1.4 system-ui, -apple-system, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid #262c32;
+  }
+  .ss-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 7px 16px;
+  }
+  .ss-now {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    min-width: 0;
+    white-space: nowrap;
+  }
+  .ss-tag {
+    padding: 2px 7px;
+    border: 1px solid #3a434c;
+    border-radius: 3px;
+    font-size: 11px;
+    color: #8d98a2;
+  }
+  .ss-count {
+    font-variant-numeric: tabular-nums;
+    color: #8d98a2;
+  }
+  .ss-now strong {
+    font-weight: 600;
+    color: #fff;
+  }
+  .ss-links {
+    display: flex;
+    gap: 4px;
+    flex: none;
+  }
+  .ss-links a {
+    padding: 3px 9px;
+    border-radius: 3px;
+    color: #c9d1d8;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .ss-links a:hover {
+    background: #222930;
+    color: #fff;
+  }
+  .ss-links .ss-all {
+    background: #fff;
+    color: #0d1013;
+    font-weight: 600;
+  }
+  .ss-links .ss-all:hover {
+    background: #dfe4e8;
+    color: #0d1013;
+  }
+  @media (max-width: 640px) {
+    .ss-tag,
+    .ss-wide {
+      display: none;
+    }
+  }
+</style>

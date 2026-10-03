@@ -10,6 +10,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import StructuredData from '../components/StructuredData.astro';
+import StyleSwitcher from '../components/preview/StyleSwitcher.astro';
 import { site } from '../data/site';
 import { withBase } from '../utils/url';
 
@@ -62,6 +63,7 @@ const ogImage = new URL(withBase('/og-image.png'), Astro.site);
     <StructuredData />
   </head>
   <body>
+    <StyleSwitcher current="current" />
     <a class="skip-link" href="#main">跳到主要內容</a>
     <Header />
     <main id="main">

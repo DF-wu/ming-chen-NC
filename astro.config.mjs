@@ -12,5 +12,10 @@ export default defineConfig({
   base: '/ming-chen-NC',
 
   // 自動產生 sitemap-index.xml，方便搜尋引擎收錄。
-  integrations: [sitemap()],
+  // 設計風格預覽頁（/style/、/styles/）不列入。
+  integrations: [
+    sitemap({
+      filter: (page) => !/\/styles?\//.test(new URL(page).pathname),
+    }),
+  ],
 });
